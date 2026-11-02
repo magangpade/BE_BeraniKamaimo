@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berani Kamaimo - Wisata Sulawesi Tengah</title>
+    <meta name="description" content="Jelajahi keindahan Sulawesi Tengah. Desa wisata, atraksi, kuliner, hotel, dan paket wisata semuanya ada di satu aplikasi.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --teal: #0d9488;
+            --teal-dark: #0f766e;
+            --jungle: #166534;
+            --gold: #d97706;
+            --cream: #fffbeb;
+            --sand: #fef3c7;
+            --ink: #1c1917;
+            --muted: #57534e;
+            --card: #ffffff;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--ink);
+            background: var(--cream);
+            overflow-x: hidden;
+        }
+        /* ===== NAVBAR ===== */
+        nav {
+            position: fixed; top: 0; width: 100%;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(14px);
+            z-index: 1000;
+            padding: 0.8rem 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+        }
+        nav.scrolled { background: rgba(255,255,255,0.98); padding: 0.5rem 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .logo { font-size: 1.6rem; font-weight: 800; color: var(--teal-dark); letter-spacing: -0.5px; }
+        .logo span { color: var(--gold); }
+        .nav-links { display: flex; gap: 2.2rem; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--ink); font-weight: 600; font-size: 0.98rem; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--teal); }
+        .nav-cta { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--teal); color: #fff; padding: 0.65rem 1.4rem; border-radius: 50px; font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: all 0.25s; }
+        .nav-cta:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(13,148,136,0.35); }
+        .mobile-menu-btn { display: none; background: none; border: none; font-size: 1.6rem; color: var(--ink); cursor: pointer; }
+        /* ===== HERO ===== */
+        .hero {
+            height: 100vh; min-height: 640px;
+            background: linear-gradient(135deg, #0f766e 0%, #166534 45%, #14532d 100%);
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            color: #fff; position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: ''; position: absolute; inset: 0;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(217,119,6,0.18) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(13,148,136,0.22) 0%, transparent 45%);
+        }
+        .hero::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 120px;
+            background: linear-gradient(to top, var(--cream), transparent);
+        }
+        .hero-content { position: relative; z-index: 2; max-width: 880px; padding: 0 2rem; }
+        .hero h1 { font-size: clamp(2.4rem, 6vw, 4.6rem); font-weight: 900; margin-bottom: 1.2rem; letter-spacing: -1.5px; line-height: 1.05; }
+        .hero h1 .accent { color: var(--gold); }
+        .hero p { font-size: clamp(1rem, 2vw, 1.35rem); opacity: 0.92; margin-bottom: 2.4rem; max-width: 640px; margin-left: auto; margin-right: auto; font-weight: 400; }
+        .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 0.6rem;
+            background: var(--gold); color: #1c1917; padding: 1rem 2.4rem;
+            border-radius: 50px; font-weight: 700; font-size: 1.05rem; text-decoration: none;
+            transition: all 0.25s; box-shadow: 0 6px 24px rgba(217,119,6,0.35);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(217,119,6,0.45); }
+        .btn-outline {
+            display: inline-flex; align-items: center; gap: 0.6rem;
+            background: transparent; color: #fff; padding: 1rem 2.4rem;
+            border: 2px solid rgba(255,255,255,0.5); border-radius: 50px;
+            font-weight: 700; font-size: 1.05rem; text-decoration: none; transition: all 0.25s;
+        }
+        .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+        .scroll-indicator { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 2; color: rgba(255,255,255,0.6); animation: bounce 2s infinite; }
+        @keyframes bounce { 0%,100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 8px); } }
+        /* ===== SECTION GENERIC ===== */
+        section { padding: 6rem 2rem; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .section-tag { display: inline-block; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--teal); background: rgba(13,148,136,0.1); padding: 0.4rem 1rem; border-radius: 50px; margin-bottom: 1rem; }
+        .section-title { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; color: var(--ink); margin-bottom: 1rem; letter-spacing: -0.5px; }
+        .section-sub { font-size: 1.1rem; color: var(--muted); max-width: 600px; margin-bottom: 3rem; }
+        /* ===== DESTINASI UNGGULAN ===== */
+        #destinasi { background: #fff; }
+        .dest-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .dest-card {
+            position: relative; border-radius: 20px; overflow: hidden; height: 380px;
+            cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: transform 0.4s ease, box-shadow 0.4s;
+        }
+        .dest-card:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+        .dest-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+        .dest-card:hover img { transform: scale(1.08); }
+        .dest-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 55%); display: flex; flex-direction: column; justify-content: flex-end; padding: 2rem; color: #fff; }
+        .dest-tag { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gold); margin-bottom: 0.5rem; }
+        .dest-card h3 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.3rem; }
+        .dest-card p { font-size: 0.93rem; opacity: 0.85; }
+        /* ===== PENGALAMAN ===== */
+        #pengalaman { background: var(--cream); }
+        .exp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.8rem; }
+        .exp-card {
+            background: #fff; border-radius: 18px; padding: 2.2rem 1.8rem;
+            text-align: center; border: 1px solid rgba(0,0,0,0.04);
+            transition: all 0.3s ease; box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        .exp-card:hover { transform: translateY(-5px); box-shadow: 0 12px 36px rgba(0,0,0,0.08); }
+        .exp-icon {
+            width: 72px; height: 72px; margin: 0 auto 1.4rem;
+            background: linear-gradient(135deg, var(--teal), var(--jungle));
+            border-radius: 20px; display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; color: #fff; box-shadow: 0 6px 20px rgba(13,148,136,0.3);
+        }
+        .exp-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .exp-card p { color: var(--muted); font-size: 0.95rem; }
+        /* ===== KULINER ===== */
+        #kuliner { background: #fff; }
+        .kuliner-strip { display: flex; gap: 1.5rem; overflow-x: auto; padding: 0.5rem 0 2rem; scrollbar-width: thin; }
+        .kuliner-strip::-webkit-scrollbar { height: 8px; }
+        .kuliner-strip::-webkit-scrollbar-thumb { background: var(--teal); border-radius: 4px; }
+        .kuliner-item { flex: 0 0 auto; width: 260px; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08); transition: transform 0.3s; }
+        .kuliner-item:hover { transform: translateY(-5px); }
+        .kuliner-item img { width: 100%; height: 180px; object-fit: cover; }
+        .kuliner-info { padding: 1rem 1.2rem; background: #fff; }
+        .kuliner-info h4 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.2rem; }
+        .kuliner-info p { color: var(--muted); font-size: 0.88rem; }
+        /* ===== STATISTIK ===== */
+        #statistik {
+            background: linear-gradient(135deg, #0f766e 0%, #166534 100%);
+            color: #fff; position: relative; overflow: hidden;
+        }
+        #statistik::before { content: ''; position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(217,119,6,0.2), transparent 60%); }
+        .stats-grid { position: relative; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2.5rem; max-width: 1100px; margin: 0 auto; text-align: center; }
+        .stat-item h3 { font-size: clamp(2.5rem, 5vw, 3.6rem); font-weight: 900; margin-bottom: 0.5rem; }
+        .stat-item p { font-size: 1.05rem; opacity: 0.9; font-weight: 500; }
+        /* ===== APP PREVIEW ===== */
+        #app { background: var(--cream); }
+        .app-container { display: flex; align-items: center; gap: 4rem; flex-wrap: wrap; }
+        .app-mock { flex: 0 0 320px; perspective: 1000px; }
+        .phone {
+            width: 300px; height: 620px; background: #1c1917; border-radius: 40px;
+            padding: 14px; box-shadow: 0 30px 80px rgba(0,0,0,0.35), 0 0 0 2px rgba(255,255,255,0.1);
+            position: relative; animation: float 4s ease-in-out infinite;
+        }
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+        .phone-screen { width: 100%; height: 100%; background: linear-gradient(180deg, #0f766e, #166534); border-radius: 28px; overflow: hidden; display: flex; flex-direction: column; }
+        .phone-screen .ph-hero { padding: 2rem 1.5rem; text-align: center; color: #fff; }
+        .phone-screen .ph-hero h4 { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.3rem; }
+        .phone-screen .ph-hero p { font-size: 0.78rem; opacity: 0.85; }
+        .phone-screen .ph-cards { padding: 1.2rem; display: flex; flex-direction: column; gap: 0.8rem; flex: 1; }
+        .ph-card { background: #fff; border-radius: 12px; padding: 0.9rem; display: flex; align-items: center; gap: 0.7rem; }
+        .ph-card .ic { width: 36px; height: 36px; border-radius: 10px; background: rgba(13,148,136,0.12); display: flex; align-items: center; justify-content: center; color: var(--teal); font-size: 1rem; }
+        .ph-card .tx { font-size: 0.82rem; font-weight: 600; color: var(--ink); }
+        .app-text { flex: 1; max-width: 480px; }
+        .app-text .section-tag { margin-bottom: 1.2rem; }
+        .app-text h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.5px; }
+        .app-text p { font-size: 1.08rem; color: var(--muted); margin-bottom: 1.8rem; }
+        .app-features { display: flex; flex-direction: column; gap: 1.2rem; }
+        .app-feat { display: flex; align-items: flex-start; gap: 1rem; }
+        .app-feat .fi { width: 40px; height: 40px; border-radius: 12px; background: rgba(13,148,136,0.1); display: flex; align-items: center; justify-content: center; color: var(--teal); font-size: 1.1rem; flex-shrink: 0; }
+        .app-feat h5 { font-size: 1rem; font-weight: 700; margin-bottom: 0.15rem; }
+        .app-feat p { font-size: 0.92rem; color: var(--muted); }
+        /* ===== TESTIMONI ===== */
+        #testimoni { background: #fff; }
+        .testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.8rem; }
+        .testi-card {
+            background: var(--cream); border-radius: 16px; padding: 2rem 1.8rem;
+            text-align: center; border: 1px solid rgba(0,0,0,0.04);
+            transition: all 0.3s ease; box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        .stars { color: var(--gold); margin-bottom: 1rem; font-size: 1rem; }
+        .testi-card p { color: var(--ink); font-size: 1rem; margin-bottom: 1.4rem; line-height: 1.7; font-style: italic; }
+        .testi-author { display: flex; align-items: center; gap: 0.8rem; }
+        .avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--jungle)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 1.1rem; }
+        .testi-author .name { font-weight: 700; font-size: 0.95rem; }
+        .testi-author .loc { font-size: 0.82rem; color: var(--muted); }
+        /* ===== CTA BESAR ===== */
+        #cta-besar {
+            background: linear-gradient(135deg, #166534 0%, #14532d 100%);
+            color: #fff; text-align: center; padding: 6rem 2rem; position: relative; overflow: hidden;
+        }
+        #cta-besar::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(circle at 50% 50%, rgba(217,119,6,0.12), transparent 60%); }
+        .cta-content { position: relative; z-index: 2; max-width: 640px; margin: 0 auto; }
+        .cta-content h2 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 900; margin-bottom: 1rem; letter-spacing: -0.5px; }
+        .cta-content p { font-size: 1.15rem; opacity: 0.9; margin-bottom: 2.2rem; }
+        .app-badges { display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap; }
+        .badge-link { display: inline-flex; align-items: center; gap: 0.6rem; background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); color: #fff; padding: 0.8rem 1.4rem; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.25s; border: 1px solid rgba(255,255,255,0.15); }
+        .badge-link:hover { background: rgba(255,255,255,0.18); transform: translateY(-2px); }
+        /* ===== FOOTER ===== */
+        footer { background: #1c1917; color: #a8a29e; padding: 4rem 2rem 2rem; text-align: center; }
+        .footer-content { max-width: 1200px; margin: 0 auto; }
+        .footer-logo { font-size: 1.8rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; }
+        .footer-logo span { color: var(--gold); }
+        .footer-desc { margin-bottom: 1.8rem; max-width: 480px; margin-left: auto; margin-right: auto; font-size: 0.95rem; }
+        .footer-links { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+        .footer-links a { color: #a8a29e; text-decoration: none; font-size: 0.92rem; transition: color 0.2s; }
+        .footer-links a:hover { color: #fff; }
+        .footer-social { display: flex; gap: 1.2rem; justify-content: center; margin-bottom: 2.5rem; }
+        .footer-social a { width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; color: #a8a29e; font-size: 1.1rem; transition: all 0.25s; text-decoration: none; }
+        .footer-social a:hover { background: var(--teal); color: #fff; transform: translateY(-2px); }
+        .footer-bottom { padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.85rem; }
+        /* ===== REVEAL ANIMATION ===== */
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .app-container { gap: 2rem; }
+            .app-mock { flex: 0 0 auto; }
+            section { padding: 4rem 1.2rem; }
+        }
+        @media (max-width: 480px) {
+            .nav-cta span { display: none; }
+            .hero-cta { flex-direction: column; align-items: center; }
+            .btn-primary, .btn-outline { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <nav id="navbar">
+        <div class="logo">Berani<span>Kamaimo</span></div>
+        <ul class="nav-links">
+            <li><a href="#destinasi">Destinasi</a></li>
+            <li><a href="#pengalaman">Pengalaman</a></li>
+            <li><a href="#kuliner">Kuliner</a></li>
+            <li><a href="#app">Aplikasi</a></li>
+            <li><a href="#testimoni">Testimoni</a></li>
+        </ul>
+        <a href="#cta-besar" class="nav-cta"><i class="fas fa-download"></i> <span>Dapatkan App</span></a>
+        <button class="mobile-menu-btn">☰</button>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Jelajah <span class="accent">Sulawesi Tengah</span><br>Menunggu Petualanganmu</h1>
+            <p>Di jantung Indonesia, ribuan keindahan menunggu. Dari Togean hingga Lore Lindu, setiap sudut punya cerita.</p>
+            <div class="hero-cta">
+                <a href="#destinasi" class="btn-primary"><i class="fas fa-compass"></i> Mulai Jelajahi</a>
+                <a href="#app" class="btn-outline"><i class="fas fa-mobile-alt"></i> Download App</a>
+            </div>
+        </div>
+        <div class="scroll-indicator"><i class="fas fa-chevron-down"></i></div>
+    </section>
+
+    <section id="destinasi">
+        <div class="container">
+            <div class="reveal">
+                <span class="section-tag">Destinasi Unggulan</span>
+                <h2 class="section-title">Ikonik Sulawesi Tengah</h2>
+                <p class="section-sub">Tiga spot yang wajib masuk bucket list setiap petualang.</p>
+            </div>
+            <div class="dest-grid">
+                <div class="dest-card reveal">
+                    <img src="https://images.unsplash.com/photo-1548013146-72479768bada?w=800&q=80" alt="Togean Islands">
+                    <div class="dest-overlay">
+                        <span class="dest-tag">Kepulauan</span>
+                        <h3>Kepulauan Togean</h3>
+                        <p>Pantai pasir putih & keanekaragaman hayati laut.</p>
+                    </div>
+                </div>
+                <div class="dest-card reveal">
+                    <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&q=80" alt="Lore Lindu">
+                    <div class="dest-overlay">
+                        <span class="dest-tag">Hutan Tropis</span>
+                        <h3>Taman Nasional Lore Lindu</h3>
+                        <p>Hutan primer dengan flora & fauna endemik Sulawesi.</p>
+                    </div>
+                </div>
+                <div class="dest-card reveal">
+                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" alt="Luk Panenteng">
+                    <div class="dest-overlay">
+                        <span class="dest-tag">Budaya</span>
+                        <h3>Luk Panenteng</h3>
+                        <p>Patung megah simbol persatuan & toleransi di Poso.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pengalaman">
+        <div class="container">
+            <div class="reveal">
+                <span class="section-tag">Pengalaman</span>
+                <h2 class="section-title">Apa yang Bisa Kamu Lakukan</h2>
+                <p class="section-sub">Dari desa wisata hingga kuliner khas, Semua ada di satu aplikasi.</p>
+            </div>
+            <div class="exp-grid">
+                <div class="exp-card reveal">
+                    <div class="exp-icon"><i class="fas fa-home"></i></div>
+                    <h3>Desa Wisata</h3>
+                    <p>Temukan desa-desa unggulan dengan budaya & kerajinan lokal yang autentik.</p>
+                </div>
+                <div class="exp-card reveal">
+                    <div class="exp-icon"><i class="fas fa-utensils"></i></div>
+                    <h3>Kuliner Khas</h3>
+                    <p>Kaledo, Onyop, dan masakan tradisional Sulteng yang menggugah selera.</p>
+                </div>
+                <div class="exp-card reveal">
+                    <div class="exp-icon"><i class="fas fa-ticket-alt"></i></div>
+                    <h3>Paket Wisata</h3>
+                    <p>Paket siap jalan dengan transportasi, guide, & akomodasi terpilih.</p>
+                </div>
+                <div class="exp-card reveal">
+                    <div class="exp-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <h3>Event & Atraksi</h3>
+                    <p>Festival, budaya, dan event menarik sepanjang tahun di Sulawesi Tengah.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="kuliner">
+        <div class="container">
+            <div class="reveal">
+                <span class="section-tag">Kuliner Sulteng</span>
+                <h2 class="section-title">Rasakan Keberagaman Rasa</h2>
+                <p class="section-sub">Dari makanan berat hingga camilan khas, kuliner Sulteng selalu menggoda.</p>
+            </div>
+            <div class="kuliner-strip">
+                <div class="kuliner-item reveal">
+                    <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80" alt="Kaledo">
+                    <div class="kuliner-info"><h4>Kaledo</h4><p>Makanan berat khas Poso</p></div>
+                </div>
+                <div class="kuliner-item reveal">
+                    <img src="https://images.unsplash.com/photo-1555949263-3e273258a3c6?w=600&q=80" alt="Onyop">
+                    <div class="kuliner-info"><h4>Onyop</h4><p>Camilan khas Sulteng</p></div>
+                </div>
+                <div class="kuliner-item reveal">
+                    <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80" alt="Ikan Bakar">
+                    <div class="kuliner-info"><h4>Ikan Bakar Togean</h4><p>Segar dari laut, panggang dengan rempah</p></div>
+                </div>
+                <div class="kuliner-item reveal">
+                    <img src="https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=600&q=80" alt="Kasbi">
+                    <div class="kuliner-info"><h4>Kasbi Saus Tuna</h4><p>Ubi kayak dengan saus khas pesisir</p></div>
+                </div>
+                <div class="kuliner-item reveal">
+                    <img src="https://images.unsplash.com/photo-1485989344579-570d5c8d4e89?w=600&q=80" alt="Pallu Butung">
+                    <div class="kuliner-info"><h4>Pallu Butung</h4><p>Nasi khas budaya Sulteng</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="statistik">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item reveal"><h3>50+</h3><p>Desa Wisata</p></div>
+                <div class="stat-item reveal"><h3>120+</h3><p>Atraksi & Event</p></div>
+                <div class="stat-item reveal"><h3>30+</h3><p>Kuliner Khas</p></div>
+                <div class="stat-item reveal"><h3>80+</h3><p>Hotel & Penginapan</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="app">
+        <div class="container">
+            <div class="app-container">
+                <div class="app-mock reveal">
+                    <div class="phone">
+                        <div class="phone-screen">
+                            <div class="ph-hero">
+                                <h4>Berani Kamaimo</h4>
+                                <p>Jelajah Sulteng</p>
+                            </div>
+                            <div class="ph-cards">
+                                <div class="ph-card"><div class="ic"><i class="fas fa-map-marker-alt"></i></div><div class="tx">Desa Wisata<small>50+ lokasi</small></div></div>
+                                <div class="ph-card"><div class="ic"><i class="fas fa-utensils"></i></div><div class="tx">Kuliner<small>Kaledo, Onyop</small></div></div>
+                                <div class="ph-card"><div class="ic"><i class="fas fa-ticket-alt"></i></div><div class="tx">Paket Wisata<small>Siap jalan</small></div></div>
+                                <div class="ph-card"><div class="ic"><i class="fas fa-map"></i></div><div class="tx">Peta Interaktif<small>Lihat lokasi</small></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-text">
+                    <span class="section-tag">Aplikasi Mobile</span>
+                    <h2>Satu Aplikasi, Seluruh Sulawesi Tengah</h2>
+                    <p>Temukan desa wisata, pesan paket, dapatkan rekomendasi kuliner, dan jelajahi peta interaktif — semua dalam genggaman.</p>
+                    <div class="app-features">
+                        <div class="app-feat"><div class="fi"><i class="fas fa-map-marked-alt"></i></div><div><h5>Peta Interaktif Real-time</h5><p>Lihat semua lokasi wisata, kuliner, dan hotel di satu peta.</p></div></div>
+                        <div class="app-feat"><div class="fi"><i class="fas fa-phone-alt"></i></div><div><h5>Pesan Paket via WA</h5><p>Chat langsung dengan operator paket wisata terpercaya.</p></div></div>
+                        <div class="app-feat"><div class="fi"><i class="fas fa-star"></i></div><div><h5>Ulasan & Rating</h5><p>Baca pengalaman pengunjung sebelum memilih destinasi.</p></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimoni">
+        <div class="container">
+            <div class="reveal">
+                <span class="section-tag">Testimoni</span>
+                <h2 class="section-title">Cerita dari Mereka yang Sudah Jelajah</h2>
+                <p class="section-sub">Rasakan pengalaman nyata dari wisatawan yang mengunjungi Sulteng.</p>
+            </div>
+            <div class="testi-grid">
+                <div class="testi-card reveal">
+                    <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p>"Togean benar-benar surga. Aplikasi Berani Kamaimo membantu kita merencanakan perjalanan tanpa ribet. 10/10!"</p>
+                    <div class="testi-author"><div class="avatar">AR</div><div><div class="name">Andi R.</div><div class="loc">Makassar</div></div></div>
+                </div>
+                <div class="testi-card reveal">
+                    <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
+                    <p>"Kaledo di Poso itu luar biasa. Lewat app kita bisa langsung pesan ke rumah makan yang terpercaya. Sangat membantu."</p>
+                    <div class="testi-author"><div class="avatar">SN</div><div><div class="name">Sari N.</div><div class="loc">Palu</div></div></div>
+                </div>
+                <div class="testi-card reveal">
+                    <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p>"Lore Lindu lebih indah dari yang aku bayangkan. Panduan digital di app-nya very membantu buat first-timer kayak aku."</p>
+                    <div class="testi-author"><div class="avatar">BF</div><div><div class="name">Budi F.</div><div class="loc">Jakarta</div></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cta-besar">
+        <div class="container">
+            <div class="cta-content reveal">
+                <h2>Petualanganmu<br>Sedang Menunggu</h2>
+                <p>Download sekarang, jelajahi Sulawesi Tengah. Ribuan destinasi, satu aplikasi.</p>
+                <div class="app-badges">
+                    <a href="#" class="badge-link"><i class="fab fa-google-play"></i> Google Play</a>
+                    <a href="#" class="badge-link"><i class="fab fa-apple"></i> App Store</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Berani<span>Kamaimo</span></div>
+            <p class="footer-desc">Wisata Sulawesi Tengah — Menjelajahi keindahan, budaya, dan kuliner di jantung Indonesia.</p>
+            <div class="footer-links">
+                <a href="#destinasi">Destinasi</a>
+                <a href="#pengalaman">Pengalaman</a>
+                <a href="#kuliner">Kuliner</a>
+                <a href="#app">Aplikasi</a>
+                <a href="#testimoni">Testimoni</a>
+            </div>
+            <div class="footer-social">
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+                <a href="#"><i class="fab fa-tiktok"></i></a>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Dinas Pariwisata Provinsi Sulawesi Tengah. Hak Cipta Dilindungi.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            nav.classList.toggle('scrolled', window.scrollY > 50);
+        });
+        // Reveal on scroll
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.12 });
+        document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+        // Mobile menu
+        document.querySelector('.mobile-menu-btn').addEventListener('click', () => {
+            const links = document.querySelector('.nav-links');
+            const visible = links.style.display === 'flex';
+            links.style.display = visible ? 'none' : 'flex';
+            links.style.flexDirection = 'column';
+            links.style.position = 'absolute';
+            links.style.top = '60px'; links.style.left = '0'; links.style.right = '0';
+            links.style.background = '#fff'; links.style.padding = '1.5rem';
+            links.style.boxShadow = '0 4px 16px rgba(0,0,0,0.1)';
+        });
+    </script>
+</body>
+</html>

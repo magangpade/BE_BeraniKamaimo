@@ -1,0 +1,38 @@
+{
+  "android/app/build.gradle.kts": {
+    "mtime": 1789812916.8947535,
+    "seen": 1790535216.0329473,
+    "ast_hash": "acbb89b809b66a4fcac02c21b827bbe5",
+    "semantic_hash": "acbb89b809b66a4fcac02c21b827bbe5"
+  },
+  "android/app/src/main/kotlin/com/example/berani_kamaimo/MainActivity.kt": {
+    "mtime": 1789812917.0247529,
+    "seen": 1790535216.0329502,
+    "ast_hash": "7823740c707038fa1c62a9e44e304a75",
+    "semantic_hash": "7823740c707038fa1c62a9e44e304a75"
+  },
+  "android/build.gradle.kts": {
+    "mtime": 1789812916.7787542,
+    "seen": 1790535216.0329516,
+    "ast_hash": "f11f360aed44d4f6871b398346af14f0",
+    "semantic_hash": "f11f360aed44d4f6871b398346af14f0"
+  },
+  "android/settings.gradle.kts": {
+    "mtime": 1789812920.606734,
+    "seen": 1790535216.0329528,
+    "ast_hash": "67a2bc8728c5df57688a38831602605d",
+    "semantic_hash": "67a2bc8728c5df57688a38831602605d"
+  },
+  "lib/main.dart": {
+    "mtime": 1789812915.3837614,
+    "seen": 1790535216.0329683,
+    "ast_hash": "c8e149125151c1ebb31c65a53bc8270e",
+    "semantic_hash": "c8e149125151c1ebb31c65a53bc8270e"
+  },
+  "test/widget_test.dart": {
+    "mtime": 1789812921.013732,
+    "seen": 1790535216.032969,
+    "ast_hash": "9d3967ad5109f61e2fe48fcc0cd9b8ac",
+    "semantic_hash": "9d3967ad5109f61e2fe48fcc0cd9b8ac"
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "communities": {
+    "0": [
+      "lib_main",
+      "lib_main_build",
+      "lib_main_counter",
+      "lib_main_createstate",
+      "lib_main_incrementcounter",
+      "lib_main_main",
+      "lib_main_title"
+    ],
+    "1": [
+      "package_berani_kamaimo_main_dart",
+      "package_flutter_material_dart",
+      "package_flutter_test_flutter_test_dart",
+      "test_widget_test",
+      "test_widget_test_main"
+    ],
+    "2": [
+      "lib_main_myhomepage",
+      "lib_main_myhomepagestate",
+      "state",
+      "statefulwidget"
+    ],
+    "3": [
+      "android_app_src_main_kotlin_com_example_berani_kamaimo_mainactivity",
+      "android_app_src_main_kotlin_com_example_berani_kamaimo_mainactivity_mainactivity",
+      "flutteractivity"
+    ],
+    "4": [
+      "lib_main_myapp",
+      "statelesswidget"
+    ],
+    "5": [
+      "android_app_build_gradle"
+    ],
+    "6": [
+      "android_build_gradle"
+    ],
+    "7": [
+      "android_settings_gradle"
+    ]
+  },
+  "cohesion": {
+    "0": 0.2857142857142857,
+    "1": 0.4,
+    "2": 0.5,
+    "3": 1.0,
+    "4": 1.0,
+    "5": 1.0,
+    "6": 1.0,
+    "7": 1.0
+  },
+  "gods": [
+    {
+      "id": "lib_main_myhomepage",
+      "label": "MyHomePage",
+      "degree": 3
+    },
+    {
+      "id": "lib_main_myhomepagestate",
+      "label": "_MyHomePageState",
+      "degree": 3
+    },
+    {
+      "id": "android_app_src_main_kotlin_com_example_berani_kamaimo_mainactivity_mainactivity",
+      "label": "MainActivity",
+      "degree": 2
+    },
+    {
+      "id": "lib_main_myapp",
+      "label": "MyApp",
+      "degree": 2
+    },
+    {
+      "id": "lib_main_build",
+      "label": "build",
+      "degree": 1
+    },
+    {
+      "id": "lib_main_counter",
+      "label": "_counter",
+      "degree": 1
+    },
+    {
+      "id": "lib_main_createstate",
+      "label": "createState",
+      "degree": 1
+    },
+    {
+      "id": "lib_main_incrementcounter",
+      "label": "_incrementCounter",
+      "degree": 1
+    },
+    {
+      "id": "lib_main_main",
+      "label": "main",
+      "degree": 1
+    },
+    {
+      "id": "lib_main_title",
+      "label": "title",
+      "degree": 1
+    }
+  ],
+  "surprises": [],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `MyHomePage` connect `Community 2` to `Community 0`?",
+      "why": "High betweenness centrality (0.063) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `_MyHomePageState` connect `Community 2` to `Community 0`?",
+      "why": "High betweenness centrality (0.063) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `MyApp` connect `Community 4` to `Community 0`?",
+      "why": "High betweenness centrality (0.063) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `build`, `_counter`, `createState` to the rest of the system?",
+      "why": "7 weakly-connected nodes found - possible documentation gaps or missing edges."
+    }
+  ]
+}

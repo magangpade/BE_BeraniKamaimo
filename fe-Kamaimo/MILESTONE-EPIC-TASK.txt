@@ -1,0 +1,384 @@
+BERANI KAMAIMO
+ROADMAP MILESTONE, EPIC, DAN TASK
+====================================================
+
+Tanggal dibuat: 25 September 2026
+Target selesai: 1 bulan (25 September - 25 Oktober 2026)
+Status saat ini: M0 - BELUM MULAI
+Kode saat ini: lib/main.dart masih template Flutter bawaan
+Sumber utama: PRD dan Perencanaan Rinci Task-Level M0-M3
+
+
+RINGKASAN
+---------
+- 4 milestone
+- 18 epic
+- 104 task
+- Urutan resmi: M0 -> M1 -> M2 -> M3
+- Target satu bulan bersifat target, bukan jaminan; bila terlambat, prioritaskan MVP publik M0-M2.
+- Semua task masih berstatus belum dikerjakan.
+
+
+FITUR YANG DICATAT ULANG DARI WEB
+---------------------------------
+A. MODE USER - PUBLIK TANPA LOGIN
+1. Home:
+   - Navbar fixed dengan menu Beranda, Wisata Unggulan, Desa Wisata,
+     Atraksi, Paket Wisata, Kuliner, dan Hotel.
+   - Navbar berubah menjadi solid/blur saat scroll.
+   - Dropdown bahasa Indonesia/Inggris.
+   - Hero fullscreen dengan gambar Luk Panenteng, judul animasi
+     "Sulawesi Tengah", dan tagline.
+   - Peta desa wisata dengan marker titik biru dan pulse.
+   - Tooltip peta berisi preview media, nama, dan lokasi.
+   - Carousel Wisata Unggulan.
+   - Carousel Desa Wisata.
+   - Carousel Atraksi/Event.
+   - Ranking Top 5 Negara Asal Turis.
+   - Ulasan Pengunjung.
+   - Footer, media sosial, dan state Loading/Empty/Error.
+2. Detail Desa Wisata:
+   - Hero media foto/video/YouTube.
+   - Nama desa, lokasi, dan deskripsi.
+   - How to Get There dari Palu dan Luwuk.
+   - Transportasi darat, laut, dan udara.
+   - Ulasan pengunjung.
+   - Loading skeleton dan halaman Desa Tidak Ditemukan.
+3. Detail Event/Atraksi:
+   - Hero media.
+   - Nama event, lokasi, deskripsi, dan rentang tanggal.
+   - Countdown hingga tanggal mulai.
+   - Loading skeleton dan halaman Event Tidak Ditemukan.
+4. Paket Wisata:
+   - Search berdasarkan nama.
+   - Toggle carousel/grid.
+   - Card media, nama, deskripsi, harga Rupiah, dan tombol WhatsApp.
+   - Modal detail paket dan CTA WhatsApp.
+5. Kuliner:
+   - Search makanan.
+   - Toggle carousel/grid.
+   - Card foto, nama, lokasi, dan badge Rumah Makan.
+   - Modal detail, daftar rumah makan, dan tombol Google Maps.
+6. Hotel:
+   - Search nama hotel.
+   - Toggle carousel/grid.
+   - Harga minimum/maksimum, jumlah kamar, dan jumlah tempat tidur.
+   - CTA telepon, Google Maps, dan website.
+7. Ulasan:
+   - Carousel ulasan dengan avatar, nama, komentar, dan rating bintang.
+   - Tambah ulasan tanpa login.
+   - Validasi nama, komentar, dan rating.
+8. Bahasa dan tracking:
+   - Bahasa ID/EN dengan fallback ke bahasa Indonesia.
+   - Visitor UUID.
+   - Pageview untuk halaman utama.
+
+B. MODE ADMIN - LOGIN TERSEMBUNYI
+1. Pintu rahasia dari Home, lalu login username/password.
+2. Proteksi route dengan JWT dan role.
+3. Dashboard grafik pengunjung:
+   - Today, Yesterday, This Week, Last Week, This Month, All Days.
+   - Visits dan visitors.
+   - Filter per hari, bulan, dan tahun.
+   - Bar chart.
+4. CRUD 9 entitas:
+   - Desa Wisata.
+   - Jarak Desa.
+   - Atraksi.
+   - Paket Wisata.
+   - Kuliner.
+   - Rumah Makan.
+   - Hotel.
+   - Kunjungan Turis.
+   - Ulasan.
+5. Pola CRUD:
+   - Tabel, search, pagination 5 per halaman.
+   - Modal tambah, edit, detail, dan konfirmasi hapus.
+   - Upload foto/video atau link YouTube secara eksklusif.
+   - Auto-translate ID ke EN dengan debounce 1,5 detik.
+6. Super Admin:
+   - Kelola akun admin.
+   - Search, pagination, tambah, edit, detail, dan hapus.
+   - SuperAdmin tidak dapat diedit atau dihapus.
+7. Profil Admin:
+   - Edit nama, jenis kelamin, username, dan password.
+   - Ganti password memaksa logout.
+
+C. BACKEND
+- Reuse backend Express, Prisma, dan PostgreSQL yang sudah ada.
+- Domain public: desaWisata, jarak, atraksi, tourPackage, kuliner,
+  rumahMakan, hotel, ulasan, visitor, dan pageview.
+- Tracking: visitor UUID dan pageview.
+- Fitur tambahan: model dan route Kunjungan Turis.
+- Bug adminAuth.js: req.header.authorization dan startWith perlu
+  diperbaiki sebelum mode admin dipakai.
+- Status Kunjungan Turis: RENCANA, belum diimplementasikan.
+
+
+TAHAP SAAT INI
+--------------
+Milestone aktif: M0 - Skeleton + Kontrak Data
+Status: BELUM MULAI
+Bukti kondisi sekarang:
+- Flutter baru berupa template.
+- Struktur folder fitur belum dibuat.
+- Dependency aplikasi belum ditambah.
+- Model, repository, ApiClient, theme, dan navigasi belum dibuat.
+- Belum ada task M0 yang ditandai selesai.
+
+Keluar dari M0 bila:
+- Aplikasi bisa compile.
+- Flutter analyze bersih.
+- Struktur folder dan route stub tersedia.
+- Model, repository, ApiClient, theme, widget dasar, dan helper siap dipakai.
+
+
+NEXT TASK
+---------
+Urutan awal yang harus dikerjakan:
+1. M0-1.1 - Rapikan pubspec.yaml, nama, description, dan version.
+2. M0-1.2 - Tambahkan dependency M0: http, provider, shared_preferences,
+   uuid, dan intl.
+3. M0-1.3 - Aktifkan lint ketat dan pastikan flutter analyze bersih.
+4. M0-1.4 - Ganti test template dengan test yang relevan.
+5. M0-1.5 - Tambahkan pembacaan API_BASE_URL dari --dart-define.
+6. M0-2.1 - Buat struktur folder lib/.
+7. M0-2.2 - Buat constants.dart.
+8. M0-2.3 - Buat README internal struktur project.
+
+Setelah itu:
+- Lanjut M0-3 Network Layer.
+- Lanjut M0-4 Theme.
+- Lanjut M0-5 Models dan Repository.
+- Lanjut M0-6 Widget Dasar dan Navigasi.
+- Lanjut M0-7 Helper Utils.
+
+
+TIMELINE 1 BULAN
+-----------------
+Minggu 1 - M0: Skeleton dan kontrak data
+- Setup project dan dependency.
+- Struktur folder.
+- ApiClient, ApiException, token store, dan test.
+- Theme dasar, model, repository, widget state, route stub,
+  dan helper.
+
+Minggu 2 - M1: Mode user inti
+- UserShell dan Home.
+- Hero dan navbar.
+- Peta desa.
+- Carousel unggulan, desa, dan atraksi.
+- Detail desa dan detail event.
+- ID/EN, fallback, visitor, dan pageview.
+
+Minggu 3 - M2: Mode user lengkap
+- Paket wisata.
+- Kuliner dan rumah makan.
+- Hotel.
+- Ranking Turis.
+- Ulasan.
+- Deep link.
+- Backend Kunjungan Turis.
+- Audit Loading/Empty/Error dan halaman Tidak Ditemukan.
+
+Minggu 4 - M3: Mode admin
+- Pintu rahasia dan login.
+- Proteksi route.
+- Shell dan sidebar admin.
+- Dashboard grafik.
+- CRUD 9 entitas.
+- Upload, translate, super admin, profil, dan logout.
+- Integration test, build Android, dan perbaikan blocker.
+
+Catatan prioritas:
+- Jika satu bulan belum cukup, release lebih dulu versi publik M0-M2.
+- Mode admin M3 dapat menyusul tanpa memblokir MVP user.
+- Status timeline harus diperbarui setiap selesai task atau mengalami blocker.
+
+
+MILESTONE 1 - M0: SKELETON + KONTRAK DATA
+------------------------------------------
+Target: fondasi Flutter yang bisa diuji.
+Jumlah: 7 epic, 36 task.
+Dependency utama: http, provider, shared_preferences, uuid, intl.
+
+EPIC M0-1 - Setup Project dan Tooling (5 task)
+[ ] M0-1.1 - Rapikan pubspec.yaml: nama, description, dan version.
+[ ] M0-1.2 - Tambahkan dependency M0.
+[ ] M0-1.3 - Aktifkan lint ketat.
+[ ] M0-1.4 - Ganti test counter template dengan test yang relevan.
+[ ] M0-1.5 - Tambahkan konfigurasi API_BASE_URL.
+
+EPIC M0-2 - Struktur Folder (3 task)
+[ ] M0-2.1 - Buat struktur folder lib/.
+[ ] M0-2.2 - Buat constants.dart.
+[ ] M0-2.3 - Buat README internal struktur project.
+
+EPIC M0-3 - Core Network Layer (6 task)
+[ ] M0-3.1 - Buat api_config.dart dan endpoint constants.
+[ ] M0-3.2 - Buat ApiClient GET/POST/PATCH/DELETE.
+[ ] M0-3.3 - Buat ApiException.
+[ ] M0-3.4 - Tambahkan interceptor token admin.
+[ ] M0-3.5 - Buat TokenStore interface dan stub in-memory.
+[ ] M0-3.6 - Unit test ApiClient: 200, 401, 500, dan timeout.
+
+EPIC M0-4 - Core Theme (5 task)
+[ ] M0-4.1 - Buat palet AppColors.
+[ ] M0-4.2 - Buat AppTypography.
+[ ] M0-4.3 - Buat AppTheme light.
+[ ] M0-4.4 - Buat token AppSpacing dan radius.
+[ ] M0-4.5 - Catat bahwa dark mode ditangguhkan.
+
+EPIC M0-5 - Models dan Repository (7 task)
+[ ] M0-5.1 - Buat LocalizedText dan fallback.
+[ ] M0-5.2 - Buat model domain konten.
+[ ] M0-5.3 - Buat model analytics dan admin.
+[ ] M0-5.4 - Unit test parsing semua model.
+[ ] M0-5.5 - Buat repository per domain dengan getAll.
+[ ] M0-5.6 - Tambahkan repository publik dan insertUlasan.
+[ ] M0-5.7 - Buat controller provider untuk loading, loaded, dan error.
+
+EPIC M0-6 - Widget Dasar dan Navigasi (5 task)
+[ ] M0-6.1 - Buat LoadingCard, EmptyCard, dan ErrorCard.
+[ ] M0-6.2 - Buat GlassCard.
+[ ] M0-6.3 - Buat MediaCard.
+[ ] M0-6.4 - Daftarkan 19 route stub.
+[ ] M0-6.5 - Buat UserShell dan AdminShell kosong.
+
+EPIC M0-7 - Helper Utils (5 task)
+[ ] M0-7.1 - Buat formatRupiah.
+[ ] M0-7.2 - Buat helper WhatsApp, telepon, dan Maps.
+[ ] M0-7.3 - Buat helper localized.
+[ ] M0-7.4 - Buat helper tanggal.
+[ ] M0-7.5 - Buat helper countdownUntil.
+
+
+MILESTONE 2 - M1: MODE USER INTI
+---------------------------------
+Target: user bisa browse Home, peta, dan detail desa/event.
+Jumlah: 4 epic, 24 task.
+Dependency: M0 selesai.
+
+EPIC M1-1 - Home Shell dan Hero (6 task)
+[ ] M1-1.1 - Buat UserShell dan HomeScreen.
+[ ] M1-1.2 - Buat NavBar transparan yang berubah solid/blur.
+[ ] M1-1.3 - Buat menu scroll-to-section.
+[ ] M1-1.4 - Buat HeroSection Luk Panenteng.
+[ ] M1-1.5 - Buat animasi judul per huruf.
+[ ] M1-1.6 - Buat dropdown bahasa ID/EN.
+
+EPIC M1-2 - Home Peta dan Carousel (8 task)
+[ ] M1-2.1 - Integrasikan flutter_map dan tile CartoDB.
+[ ] M1-2.2 - Load marker dari API desaWisata.
+[ ] M1-2.3 - Bedakan marker Desa Wisata dan Desa Unggulan.
+[ ] M1-2.4 - Buat tooltip peta dengan media, nama, dan lokasi.
+[ ] M1-2.5 - Hubungkan tooltip ke DetailDesa.
+[ ] M1-2.6 - Buat CoverFlowCarousel dan DotIndicator.
+[ ] M1-2.7 - Buat tiga section carousel.
+[ ] M1-2.8 - Integrasikan MediaCard pada carousel.
+
+EPIC M1-3 - Detail Desa dan Event (6 task)
+[ ] M1-3.1 - Buat DetailDesaScreen dengan fetch ID.
+[ ] M1-3.2 - Buat hero parallax media.
+[ ] M1-3.3 - Buat GlassCard nama, lokasi, dan deskripsi.
+[ ] M1-3.4 - Buat How to Get There Palu/Luwuk.
+[ ] M1-3.5 - Buat DetailEventScreen dan countdown.
+[ ] M1-3.6 - Buat skeleton dan halaman tidak ditemukan.
+
+EPIC M1-4 - Bahasa dan Tracking (4 task)
+[ ] M1-4.1 - Buat LocaleController dan persist bahasa.
+[ ] M1-4.2 - Pindahkan string UI ke localization ID/EN.
+[ ] M1-4.3 - Buat visitor UUID dan POST visitor.
+[ ] M1-4.4 - Buat POST pageview untuk setiap halaman utama.
+
+
+MILESTONE 3 - M2: MODE USER LENGKAP
+-------------------------------------
+Target: seluruh fitur publik selesai.
+Jumlah: 3 epic, 20 task.
+Dependency: M1 selesai.
+
+EPIC M2-1 - Paket Wisata, Kuliner, dan Hotel (10 task)
+[ ] M2-1.1 - Buat PaketWisataScreen dan search.
+[ ] M2-1.2 - Buat toggle carousel/grid.
+[ ] M2-1.3 - Buat card paket dan format harga.
+[ ] M2-1.4 - Buat modal paket dan WhatsApp.
+[ ] M2-1.5 - Buat KulinerScreen dan search.
+[ ] M2-1.6 - Buat modal kuliner dan daftar Rumah Makan.
+[ ] M2-1.7 - Buat HotelScreen dan harga hotel.
+[ ] M2-1.8 - Buat modal detail hotel.
+[ ] M2-1.9 - Buat CTA telepon, Maps, dan website.
+[ ] M2-1.10 - Tambahkan url_launcher dan uji deep link.
+
+EPIC M2-2 - Ranking Turis dan Ulasan (6 task)
+[ ] M2-2.1 - Tambahkan section Ranking di atas Ulasan.
+[ ] M2-2.2 - Fetch kunjunganTuris dan agregasi per negara.
+[ ] M2-2.3 - Buat tampilan Top 5 dan podium.
+[ ] M2-2.4 - Buat Loading/Empty/Error Ranking.
+[ ] M2-2.5 - Buat UlasanCarousel dan StarRating.
+[ ] M2-2.6 - Buat modal tambah ulasan tanpa login.
+
+EPIC M2-3 - Backend Tambahan dan Polish (4 task)
+[ ] M2-3.1 - Tambah model Prisma kunjunganTuris.
+[ ] M2-3.2 - Tambah controller dan route kunjunganTuris.
+[ ] M2-3.3 - Update Backend.md dan Database.md.
+[ ] M2-3.4 - Audit skeleton, Tidak Ditemukan, dan tiga state UI.
+
+
+MILESTONE 4 - M3: MODE ADMIN
+-----------------------------
+Target: admin dapat masuk, melihat dashboard, dan mengelola konten.
+Jumlah: 4 epic, 24 task.
+Dependency: M2 selesai dan route kunjunganTuris tersedia.
+
+EPIC M3-1 - Pintu Rahasia dan Login (5 task)
+[ ] M3-1.1 - Konfirmasi final kandidat pintu admin.
+[ ] M3-1.2 - Implementasikan trigger kode di search bar.
+[ ] M3-1.3 - Buat AdminLoginScreen.
+[ ] M3-1.4 - Login, simpan token, dan redirect dashboard.
+[ ] M3-1.5 - Buat ProtectedRoute dan cek role.
+
+EPIC M3-2 - Dashboard dan Shell Admin (6 task)
+[ ] M3-2.1 - Buat AdminShell dan sidebar.
+[ ] M3-2.2 - Buat DateTimeWidget live.
+[ ] M3-2.3 - Buat dropdown akun, profil, dan logout.
+[ ] M3-2.4 - Buat enam kartu metrik dashboard.
+[ ] M3-2.5 - Buat filter chart harian/bulanan/tahunan.
+[ ] M3-2.6 - Buat BarChart dengan fl_chart.
+
+EPIC M3-3 - Pola CRUD 9 Entitas (9 task)
+[ ] M3-3.1 - Buat CrudScaffold generik.
+[ ] M3-3.2 - Buat AddEditModal, DetailModal, dan DeleteConfirmDialog.
+[ ] M3-3.3 - Buat FieldUpload eksklusif.
+[ ] M3-3.4 - Buat AutoTranslateField.
+[ ] M3-3.5 - CRUD Desa Wisata.
+[ ] M3-3.6 - CRUD Jarak Desa.
+[ ] M3-3.7 - CRUD Atraksi.
+[ ] M3-3.8 - CRUD Paket Wisata dan Kuliner.
+[ ] M3-3.9 - CRUD Rumah Makan dan Hotel.
+
+EPIC M3-4 - Turis, Ulasan, Super Admin, dan Profil (4 task)
+[ ] M3-4.1 - CRUD Kunjungan Turis.
+[ ] M3-4.2 - CRUD Ulasan dan moderasi.
+[ ] M3-4.3 - Super Admin kelola akun admin.
+[ ] M3-4.4 - Profil Admin dan force logout saat ganti password.
+
+
+KENDALA DAN KEPUTUSAN YANG MASIH TERBUKA
+----------------------------------------
+1. Backend development: localhost:3000 atau API produksi.
+2. Daftar negara untuk dropdown Kunjungan Turis.
+3. Asset visual Luk Panenteng dan logo Pemprov Sulteng: sudah tersedia atau placeholder.
+4. Mekanisme pintu admin final. STATUS.md menulis kandidat A, tetapi
+   PRD masih menandai kandidat A/B/C sebagai belum final.
+5. Perbaikan bug adminAuth.js.
+6. Sleek design system masih ditunda karena key belum tersedia.
+
+
+ATURAN UPDATE
+-------------
+- Setiap task selesai ditandai [x] di plan utama.
+- STATUS.md diperbarui setiap selesai, blocked, atau ganti fase.
+- Perubahan fitur dicatat di BRAIN sebagai log baru.
+- Backend atau database wajib terhubung ke Backend.md atau Database.md.
+- Commit mengikuti satu task: M0-1.3: deskripsi task.

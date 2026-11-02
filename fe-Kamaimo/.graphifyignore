@@ -1,0 +1,27 @@
+# Jangan diindeks graphify: platform runner, build artifact, generated code.
+# Tanpa ini `graphify extract --code-only` menarik ribuan symbol C++/build
+# (WndProc, HWND, LPARAM, RECT, win32_window.cpp) yang tidak berguna.
+windows/
+linux/
+macos/
+web/
+build/
+.dart_tool/
+.pub-cache/
+.idea/
+.vscode/
+.gradle/
+android/.gradle/
+android/app/build/
+ios/Pods/
+ios/.symlinks/
+ios/Runner/
+ios/RunnerTests/
+macos/Runner/
+graphify-out/
+node_modules/
+*.g.dart
+*.freezed.dart
+*.gr.dart
+*.config.dart
+*.mocks.dart
