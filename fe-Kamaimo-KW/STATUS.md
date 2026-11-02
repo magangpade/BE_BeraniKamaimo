@@ -16,7 +16,7 @@
 | Fase | Status | Owner | Catatan |
 |---|---|---|---|
 | M0 — Skeleton + kontrak | 🟡 In progress | AI Claude | Setup struktur, tema, model, repository — 85% selesai |
-| M1 — Mode user inti | 🟡 In progress | AI Claude | Beranda (Figma 4273:55) ✅ + Tab Destinasi (Figma 4258:1619) ✅ — Event/Paket/Eksplor masih placeholder; Detail Wisata pakai screen lama; flutter run belum diverifikasi |
+| M1 — Mode user inti | 🟡 In progress | AI Claude | Beranda ✅ + Destinasi (4258) ✅ + Event (3641-2) ✅ + Paket (4965:1243) ✅ — Eksplor masih placeholder; Detail Wisata pakai screen lama; flutter run belum diverifikasi |
 | M2 — Mode user lengkap | 🔲 Not started | — | Paket, Kuliner, Hotel, Ulasan, Ranking Turis |
 | M3 — Mode admin | 🔲 Not started | — | Login rahasia, dashboard, CRUD 9 entitas, super admin |
 
@@ -24,16 +24,19 @@ Legenda: 🔲 Not started · 🟡 In progress · ✅ Done · 🔴 Blocked
 
 ## Next Task
 
-- M1-2.x — **Tab Paket Wisata** (`4965:1243` "Paket Wisata Sulteng (Modern)") — design sudah di-render & diukur
-- M1-2.y — **Tab Event** (`AREA EVENT 5055:1830` atau set `4995:*`) — perlu pilih frame final
-- M1-2.z — **Tab Eksplor** (`AREA EXPLORE 5055:1831` + Explorer per kota)
+- M1-2.z — **Tab Eksplor** (`AREA EXPLORE 5055:1831` + Explorer per kota) — perlu pilih frame final + PNG export dari user (Figma MCP masih OAuth pending)
 - M1-3 — Rebuild **Detail Wisata - Luk Panenteng** (`4714:452`) + Tulis Ulasan (`4896:2146`) + Bagikan (`4890:1847`)
-- `flutter run` untuk verifikasi visual aset crop (thumb + featured destinasi & beranda)
+- `flutter run` untuk verifikasi visual aset crop (thumb + featured destinasi & beranda, + kartu paket di device)
 - Frame duplikat di Figma perlu dikonfirmasi satu-satu saat mulai tiap tab (user yang memilih node)
 
 ## Blocker
 
 - None
+
+## Catatan Sesi 2026-10-28
+
+- Tab **Paket** dibangun dari PNG export user (konvensi feature-folder: `paket_screen` tipis + `paket_data` seed 4 paket + widgets/). Search + filter kategori (Semua/Bahari/Budaya/Trekking) + carousel PageView + kartu fasilitas 2×2 + CTA WhatsApp (placeholder snackbar) + kartu trust. Test: `test/paket_smoke_test.dart` 2/2.
+- **Fix file rusak teman tim**: `detail_event_screen.dart` ter-commit dengan syntax error (duplikasi `_jadwal`/`_month`, 3 kurang bracket, `const` ilegal) — semua test gagal loading. Sudah diperbaiki + bersihkan getter tak terpakai; 12/12 test lulus ulang.
 
 ## Keputusan Aktif
 
