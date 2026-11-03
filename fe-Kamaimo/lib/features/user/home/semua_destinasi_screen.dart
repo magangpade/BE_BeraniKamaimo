@@ -247,6 +247,13 @@ class _SearchHeaderDelegate extends SliverPersistentHeaderDelegate {
                         ),
                         decoration: InputDecoration(
                           border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          focusedErrorBorder: InputBorder.none,
+                          filled: false,
+                          fillColor: Colors.transparent,
                           hintText: 'Cari destinasi...',
                           hintStyle: TextStyle(
                             fontSize: 14,

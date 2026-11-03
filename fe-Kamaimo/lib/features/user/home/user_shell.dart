@@ -582,6 +582,13 @@ class _SearchBarState extends State<_SearchBar> {
               ),
               decoration: const InputDecoration(
                 border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+                focusedErrorBorder: InputBorder.none,
+                filled: false,
+                fillColor: Colors.transparent,
                 hintText: 'Cari destinasi atau kabupaten...',
                 hintStyle: TextStyle(
                   fontSize: 12,
@@ -1265,7 +1272,7 @@ class _UnggulanSection extends StatefulWidget {
 }
 
 class _UnggulanState extends State<_UnggulanSection> {
-  final PageController _page = PageController(viewportFraction: 0.75);
+  final PageController _page = PageController(viewportFraction: 0.82);
   int _index = 0;
   List<_WisataData> _items = _defaultItems;
 
@@ -1415,13 +1422,17 @@ class _UnggulanState extends State<_UnggulanSection> {
         ),
         const SizedBox(height: 14),
         SizedBox(
-          height: 448,
+          height: 540,
           child: PageView.builder(
             controller: _page,
+            padEnds: false,
             itemCount: _items.length,
             onPageChanged: (i) => setState(() => _index = i),
             itemBuilder: (ctx, i) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
+              padding: EdgeInsets.only(
+                left: 16,
+                right: i == _items.length - 1 ? 16 : 0,
+              ),
               child: _CarouselCard(item: _items[i], active: i == _index),
             ),
           ),
@@ -1479,11 +1490,12 @@ class _CarouselCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           child: Column(
             children: [
-              // Foto area 144dp
-              SizedBox(
-                height: 144,
-                width: double.infinity,
-                child: Stack(
+              // Foto area
+              Expanded(
+                flex: 6,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Stack(
                   children: [
                     Positioned.fill(
                       child: item.foto != null
@@ -1498,6 +1510,7 @@ class _CarouselCard extends StatelessWidget {
                               ),
                             ),
                     ),
+
                     // Badge (menutup badge yang ter-bake di foto kartu pertama)
                     Positioned(
                       left: 14,
@@ -1567,99 +1580,111 @@ class _CarouselCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                ),
               ),
               // Info area
               Expanded(
+                flex: 4,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        item.kabupaten,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.pine500,
-                          letterSpacing: 0.3,
-                          fontFamily: 'PlusJakartaSans',
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        item.nama,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.pine900,
-                          fontFamily: 'PlusJakartaSans',
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        item.deskripsi,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textBody,
-                          fontFamily: 'PlusJakartaSans',
-                        ),
-                      ),
-                      const Spacer(),
-                      Container(
-                        height: 1,
-                        color: AppColors.divider,
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.labelHarga,
-                                  style: const TextStyle(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textTertiary,
-                                    letterSpacing: 0.4,
-                                    fontFamily: 'PlusJakartaSans',
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                                  textBaseline: TextBaseline.alphabetic,
+                          Text(
+                            item.kabupaten,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.pine500,
+                              letterSpacing: 0.3,
+                              fontFamily: 'PlusJakartaSans',
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            item.nama,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.pine900,
+                              fontFamily: 'PlusJakartaSans',
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            item.deskripsi,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textBody,
+                              fontFamily: 'PlusJakartaSans',
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            height: 1,
+                            color: AppColors.divider,
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      item.harga,
+                                      item.labelHarga,
                                       style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w900,
-                                        color: AppColors.pine700,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.textTertiary,
+                                        letterSpacing: 0.4,
                                         fontFamily: 'PlusJakartaSans',
                                       ),
                                     ),
-                                    Text(
-                                      item.satuan,
-                                      style: const TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w400,
-                                        color: AppColors.textTertiary,
-                                        fontFamily: 'PlusJakartaSans',
-                                      ),
+                                    const SizedBox(height: 2),
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                                      textBaseline: TextBaseline.alphabetic,
+                                      children: [
+                                        Text(
+                                          item.harga,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w900,
+                                            color: AppColors.pine700,
+                                            fontFamily: 'PlusJakartaSans',
+                                          ),
+                                        ),
+                                        Text(
+                                          item.satuan,
+                                          style: const TextStyle(
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.w400,
+                                            color: AppColors.textTertiary,
+                                            fontFamily: 'PlusJakartaSans',
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
+                              ),
+                              _cardButton(context),
+                            ],
                           ),
-                          _cardButton(context),
                         ],
                       ),
                     ],

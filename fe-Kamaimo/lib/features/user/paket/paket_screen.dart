@@ -74,9 +74,13 @@ class _PaketScreenState extends State<PaketScreen> {
                       height: 578,
                       child: PageView.builder(
                         controller: _page,
+                        padEnds: false,
                         itemCount: shown.length,
                         itemBuilder: (ctx, i) => Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          padding: EdgeInsets.only(
+                            left: 12,
+                            right: i == shown.length - 1 ? 12 : 0,
+                          ),
                           child: FeaturedPaketCard(
                             item: shown[i],
                             onWhatsApp: _onWhatsApp,

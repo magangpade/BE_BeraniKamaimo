@@ -73,7 +73,7 @@ class PaketHeader extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(9999),
-              border: Border.all(color: AppColors.border),
+              boxShadow: AppColors.shadowCard,
             ),
             child: Row(
               children: [
@@ -95,6 +95,13 @@ class PaketHeader extends StatelessWidget {
                     decoration: const InputDecoration(
                       isCollapsed: true,
                       border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      errorBorder: InputBorder.none,
+                      disabledBorder: InputBorder.none,
+                      focusedErrorBorder: InputBorder.none,
+                      filled: false,
+                      fillColor: Colors.transparent,
                       hintText: 'Cari paket wisata, pulau, atau destinasi...',
                       hintStyle: TextStyle(
                         fontSize: 12,

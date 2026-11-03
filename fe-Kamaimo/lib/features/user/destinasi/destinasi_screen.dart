@@ -257,6 +257,7 @@ class _DiscoveryHeader extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(9999),
+                  boxShadow: AppColors.shadowCard,
                 ),
                 child: Row(
                   children: [
@@ -275,6 +276,13 @@ class _DiscoveryHeader extends StatelessWidget {
                         decoration: const InputDecoration(
                           isCollapsed: true,
                           border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          focusedErrorBorder: InputBorder.none,
+                          filled: false,
+                          fillColor: Colors.transparent,
                           hintText: 'Cari destinasi atau kabupaten...',
                           hintStyle: TextStyle(
                             fontSize: 11,

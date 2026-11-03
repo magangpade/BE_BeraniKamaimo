@@ -123,7 +123,7 @@ class EksplorHeader extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(9999),
-              border: Border.all(color: AppColors.border),
+              boxShadow: AppColors.shadowCard,
             ),
             child: Row(
               children: [
@@ -147,6 +147,13 @@ class EksplorHeader extends StatelessWidget {
                     decoration: InputDecoration(
                       isCollapsed: true,
                       border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      errorBorder: InputBorder.none,
+                      disabledBorder: InputBorder.none,
+                      focusedErrorBorder: InputBorder.none,
+                      filled: false,
+                      fillColor: Colors.transparent,
                       hintText: _hints[tabIndex],
                       hintStyle: const TextStyle(
                         fontSize: 12,

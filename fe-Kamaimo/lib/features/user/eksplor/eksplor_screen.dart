@@ -21,7 +21,7 @@ class EksplorScreen extends StatefulWidget {
 
 class _EksplorScreenState extends State<EksplorScreen> {
   final _search = TextEditingController();
-  final _page = PageController(viewportFraction: 0.88);
+  final _page = PageController(viewportFraction: 0.85);
 
   int _tab = 0; // 0 = Tempat Menginap | 1 = Kuliner Khas
   int _wilayah = 0;
@@ -241,9 +241,13 @@ class _EksplorScreenState extends State<EksplorScreen> {
       height: 640,
       child: PageView.builder(
         controller: _page,
+        padEnds: false,
         itemCount: cards.length,
         itemBuilder: (ctx, i) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5),
+          padding: EdgeInsets.only(
+            left: 16,
+            right: i == cards.length - 1 ? 16 : 0,
+          ),
           child: cards[i],
         ),
       ),
