@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/app_colors.dart';
 import 'event_data.dart';
@@ -50,6 +52,7 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
           // HERO + INFO OVERLAY
           SliverToBoxAdapter(
             child: Stack(
+              clipBehavior: Clip.none,
               children: [
                 EventHeaderHero(
                   foto: widget.event.foto,
@@ -59,7 +62,7 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                 Positioned(
                   left: 20,
                   right: 20,
-                  bottom: -30,
+                  bottom: -36,
                   child: EventInfoCard(
                     badge: d.badge,
                     kategori: widget.event.kategori,
@@ -71,6 +74,10 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                 ),
               ],
             ),
+          ),
+
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 52),
           ),
 
           // COUNTDOWN
@@ -412,37 +419,31 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
   String _jadwal() {
     final mulai = widget.event.start;
     final akhir = widget.event.start.add(const Duration(days: 1));
-    final fmt = (DateTime d) => '${d.day} ${_month[d.month]} ${d.year}';
-    return '${fmt(mulai)} - ${fmt(akhir)} • 2 Hari Penuh';
+    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGU', 'SEP', 'OKT', 'NOV', 'DES'];
+    final m1 = (mulai.month >= 1 && mulai.month <= 12) ? months[mulai.month - 1] : 'BLN';
+    final m2 = (akhir.month >= 1 && akhir.month <= 12) ? months[akhir.month - 1] : 'BLN';
+    return '${mulai.day} $m1 ${mulai.year} - ${akhir.day} $m2 ${akhir.year} • 2 Hari Penuh';
   }
 
-  static const _month = [
-    null,
-    'JAN',
-    'FEB',
-    'MAR',
-    'APR',
-    'MEI',
-    'JUN',
-    'JUL',
-    'AGU',
-    'SEP',
-    'OKT',
-    'NOV',
-    'DES',
-  ];
+  void _share() {
+    SharePlus.instance.share('Ayo hadiri agenda wisata "${widget.event.nama}" di ${widget.event.lokasi}! Temukan informasi selengkapnya di aplikasi Berani Kamaimo.');
+  }
 
-  void _share() => ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Fitur bagikan akan hadir di M2.')),
-  );
+  void _saveCalendar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Agenda "${widget.event.nama}" dicatat untuk tanggal ${widget.event.rentangTanggal}')),
+    );
+  }
 
-  void _saveCalendar() => ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Fitur simpan ke kalender akan hadir di M2.')),
-  );
-
-  void _openMaps() => ScaffoldMessenger.of(
-    context,
-  ).showSnackBar(const SnackBar(content: Text('Buka Google Maps — fitur M2.')));
+  Future<void> _openMaps() async {
+    final q = Uri.encodeComponent('${widget.event.nama} ${widget.event.lokasi}');
+    final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$q');
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } catch (_) {}
+  }
 }
 
 /// Rundown section with tabs (Hari 1 / Hari 2) + timeline items

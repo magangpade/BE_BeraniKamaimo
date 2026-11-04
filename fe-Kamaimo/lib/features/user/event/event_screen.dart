@@ -59,7 +59,7 @@ class _EventScreenState extends State<EventScreen> {
         slivers: [
           const SliverPersistentHeader(
             pinned: true,
-            delegate: KamaimoBarDelegate(showToggle: false),
+            delegate: KamaimoBarDelegate(showToggle: true),
           ),
           SliverToBoxAdapter(
             child: Container(

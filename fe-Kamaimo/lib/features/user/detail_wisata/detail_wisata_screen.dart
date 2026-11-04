@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/network/token_store.dart';
@@ -121,7 +121,11 @@ class _DetailWisataScreenState extends State<DetailWisataScreen> {
         slivers: [
           // 1. Hero parallax-styled (frame 4714:452)
           SliverToBoxAdapter(
-            child: DetailHero(foto: widget.foto, statusText: _statusBuka),
+            child: DetailHero(
+              foto: widget.foto,
+              statusText: _statusBuka,
+              namaDesa: widget.namaDesa,
+            ),
           ),
 
           // 2..5. Konten section (padding 20px horizontal)

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/providers/language_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/repositories/desa_wisata_repository.dart';
 import '../detail_wisata/detail_wisata_screen.dart';
@@ -108,7 +109,9 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
             kategori: d.kategori.toUpperCase(),
             kabupaten: d.lokasi_id,
             nama: d.namaDesa_id,
+            namaEn: d.namaDesa_en,
             deskripsi: d.deskripsi_id,
+            deskripsiEn: d.deskripsi_en,
             rating: d.rating,
             jarak: d.total_ulasan > 0 ? '${d.total_ulasan} ulasan' : 'Sulawesi Tengah',
           )).toList();
@@ -136,12 +139,15 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
     final shown = _cards
         .where((it) =>
             (_filter == 0 || it.kategori == _labels[_filter].toUpperCase()) &&
             (_query.isEmpty ||
                 it.nama.toLowerCase().contains(_query) ||
-                it.kabupaten.toLowerCase().contains(_query)))
+                it.kabupaten.toLowerCase().contains(_query) ||
+                it.deskripsi.toLowerCase().contains(_query) ||
+                it.kategori.toLowerCase().contains(_query)))
         .toList();
 
     return Scaffold(
@@ -151,7 +157,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
         slivers: [
           const SliverPersistentHeader(
             pinned: true,
-            delegate: KamaimoBarDelegate(showToggle: false),
+            delegate: KamaimoBarDelegate(showToggle: true),
           ),
           SliverToBoxAdapter(
             child: Container(
@@ -169,7 +175,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
                     onTap: (i) => setState(() => _filter = i),
                   ),
                   const _ResultsHeader(),
-                  if (_filter == 0) ...[
+                  if (_filter == 0 && _query.isEmpty) ...[
                     _FeaturedCard(
                       item: _featured,
                       onTap: () => _openDetail(_featured),
@@ -187,12 +193,12 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
               separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (ctx, i) {
                 if (shown.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 40),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40),
                     child: Center(
                       child: Text(
-                        'Belum ada destinasi untuk filter ini',
-                        style: TextStyle(
+                        isEn ? 'No destinations found for this filter' : 'Belum ada destinasi untuk filter ini',
+                        style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
                           color: AppColors.textTertiary,
@@ -230,7 +236,9 @@ class _Item {
   final String kategori;
   final String kabupaten;
   final String nama;
+  final String? namaEn;
   final String deskripsi;
+  final String? deskripsiEn;
   final String rating;
   final String jarak;
 
@@ -240,10 +248,15 @@ class _Item {
     this.kategori = '',
     required this.kabupaten,
     required this.nama,
+    this.namaEn,
     required this.deskripsi,
+    this.deskripsiEn,
     required this.rating,
     required this.jarak,
   });
+
+  String getTitle(bool isEn) => (isEn && namaEn != null && namaEn!.isNotEmpty) ? namaEn! : nama;
+  String getDesc(bool isEn) => (isEn && deskripsiEn != null && deskripsiEn!.isNotEmpty) ? deskripsiEn! : deskripsi;
 }
 
 // ─── Panel mint: judul + search ───────────────────────────────────────────────
@@ -255,6 +268,8 @@ class _DiscoveryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
+
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -276,9 +291,9 @@ class _DiscoveryHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Destinasi Wisata',
-                style: TextStyle(
+              Text(
+                isEn ? 'Tourist Destinations' : 'Destinasi Wisata',
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
                   color: AppColors.pine900,
@@ -286,9 +301,11 @@ class _DiscoveryHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
-                'Jelajahi destinasi pilihan dari pesisir, danau, hingga lembah megalitikum.',
-                style: TextStyle(
+              Text(
+                isEn
+                    ? 'Explore top destinations from coasts, islands, to megalithic valleys.'
+                    : 'Jelajahi destinasi pilihan dari pesisir, danau, hingga lembah megalitikum.',
+                style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
                   color: AppColors.textBody,
@@ -319,7 +336,7 @@ class _DiscoveryHeader extends StatelessWidget {
                           color: AppColors.pine900,
                           fontFamily: 'PlusJakartaSans',
                         ),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           isCollapsed: true,
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
@@ -329,8 +346,8 @@ class _DiscoveryHeader extends StatelessWidget {
                           focusedErrorBorder: InputBorder.none,
                           filled: false,
                           fillColor: Colors.transparent,
-                          hintText: 'Cari destinasi atau kabupaten...',
-                          hintStyle: TextStyle(
+                          hintText: isEn ? 'Search tourist villages, regencies...' : 'Cari destinasi atau kabupaten...',
+                          hintStyle: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                             color: AppColors.textTertiary,
@@ -378,16 +395,20 @@ class _FilterChips extends StatelessWidget {
 
   const _FilterChips({required this.selectedIndex, required this.onTap});
 
-  static const _labels = ['Semua', 'Budaya', 'Bahari', 'UMKM', 'EKOWISATA'];
+  static const _labelsId = ['Semua', 'Budaya', 'Bahari', 'UMKM', 'EKOWISATA'];
+  static const _labelsEn = ['All', 'Culture', 'Marine', 'MSME', 'Ecotourism'];
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
+    final labels = isEn ? _labelsEn : _labelsId;
+
     return SizedBox(
       height: 30,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: _labels.length,
+        itemCount: labels.length,
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (ctx, i) {
           final active = i == selectedIndex;
@@ -402,7 +423,7 @@ class _FilterChips extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Text(
-                _labels[i],
+                labels[i],
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: active ? FontWeight.w700 : FontWeight.w600,
@@ -425,19 +446,20 @@ class _ResultsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(16, 14, 16, 18),
+    final isEn = context.watch<LanguageProvider>().isEnglish;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.workspace_premium_rounded,
+              const Icon(Icons.workspace_premium_rounded,
                   size: 13, color: AppColors.warning),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Text(
-                'PILIHAN TERBAIK',
-                style: TextStyle(
+                isEn ? 'BEST CHOICES' : 'PILIHAN TERBAIK',
+                style: const TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
                   color: AppColors.pine500,
@@ -447,10 +469,10 @@ class _ResultsHeader extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
-            'Wisata Unggulan Sulteng',
-            style: TextStyle(
+            isEn ? 'Featured Central Sulawesi Destinations' : 'Wisata Unggulan Sulteng',
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
               color: AppColors.pine900,
@@ -473,6 +495,7 @@ class _FeaturedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
@@ -562,9 +585,9 @@ class _FeaturedCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 7),
-                const Text(
-                  'Luk Panenteng & Danau Paisu Pok',
-                  style: TextStyle(
+                Text(
+                  item.getTitle(isEn),
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                     color: AppColors.pine900,
@@ -572,11 +595,11 @@ class _FeaturedCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 5),
-                const Text(
-                  'Air sebening kaca dengan vegetasi hutan yang masih alami—ikon tersembunyi di Kepulauan Banggai.',
+                Text(
+                  item.getDesc(isEn),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: AppColors.textBody,
@@ -666,6 +689,8 @@ class _DestinasiCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
+
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -746,7 +771,7 @@ class _DestinasiCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        item.nama,
+                        item.getTitle(isEn),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -758,7 +783,7 @@ class _DestinasiCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        item.deskripsi,
+                        item.getDesc(isEn),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(

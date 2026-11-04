@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../eksplor_data.dart';
 
@@ -32,6 +34,14 @@ class EksplorHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
+    final hints = isEn
+        ? [
+            'Search hotel, homestay, resort names...',
+            'Search Kaledo, Onyop, Lalampa, Uta Dada...',
+          ]
+        : _hints;
+
     return Container(
       color: AppColors.surface,
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
@@ -52,10 +62,10 @@ class EksplorHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Katalog Wisata & Kuliner',
-            key: Key('eksplorJudul'),
-            style: TextStyle(
+          Text(
+            isEn ? 'Tourism & Culinary Catalog' : 'Katalog Wisata & Kuliner',
+            key: const Key('eksplorJudul'),
+            style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w800,
               height: 1.25,
@@ -74,11 +84,11 @@ class EksplorHeader extends StatelessWidget {
               color: AppColors.emerald100,
               borderRadius: BorderRadius.circular(9999),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
-                'KATALOG PILIHAN DINAS PARIWISATA',
-                key: Key('eksplorChipDinas'),
-                style: TextStyle(
+                isEn ? 'TOURISM DEPARTMENT CURATED CATALOG' : 'KATALOG PILIHAN DINAS PARIWISATA',
+                key: const Key('eksplorChipDinas'),
+                style: const TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.4,
@@ -101,13 +111,13 @@ class EksplorHeader extends StatelessWidget {
               children: [
                 _SegmentTab(
                   key: const Key('eksplorTabMenginap'),
-                  label: 'Tempat Menginap',
+                  label: isEn ? 'Places to Stay' : 'Tempat Menginap',
                   selected: tabIndex == 0,
                   onTap: () => onTab(0),
                 ),
                 _SegmentTab(
                   key: const Key('eksplorTabKuliner'),
-                  label: 'Kuliner Khas',
+                  label: isEn ? 'Local Culinary' : 'Kuliner Khas',
                   selected: tabIndex == 1,
                   onTap: () => onTab(1),
                 ),
@@ -154,7 +164,7 @@ class EksplorHeader extends StatelessWidget {
                       focusedErrorBorder: InputBorder.none,
                       filled: false,
                       fillColor: Colors.transparent,
-                      hintText: _hints[tabIndex],
+                      hintText: hints[tabIndex],
                       hintStyle: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,

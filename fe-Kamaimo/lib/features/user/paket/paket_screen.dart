@@ -49,7 +49,7 @@ class _PaketScreenState extends State<PaketScreen> {
         slivers: [
           const SliverPersistentHeader(
             pinned: true,
-            delegate: KamaimoBarDelegate(showToggle: false),
+            delegate: KamaimoBarDelegate(showToggle: true),
           ),
           SliverToBoxAdapter(
             child: Column(

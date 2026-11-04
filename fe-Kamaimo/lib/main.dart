@@ -5,6 +5,7 @@ import 'core/network/api_client.dart';
 import 'core/network/token_store.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/constants.dart';
+import 'core/providers/language_provider.dart';
 import 'data/repositories/atraksi_repository.dart';
 import 'data/repositories/desa_wisata_repository.dart';
 import 'data/repositories/gis_repository.dart';
@@ -31,6 +32,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider<LanguageProvider>(
+          create: (_) => LanguageProvider(),
+        ),
         Provider<TokenStore>(
           create: (_) => InMemoryTokenStore(),
         ),

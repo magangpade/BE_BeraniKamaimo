@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../core/providers/language_provider.dart';
 import '../../../core/utils/constants.dart';
 import '../../../data/repositories/desa_wisata_repository.dart';
 import '../../../data/repositories/gis_repository.dart';
@@ -14,6 +16,7 @@ import '../event/event_data.dart';
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../destinasi/destinasi_screen.dart';
+import '../detail_wisata/detail_wisata_screen.dart';
 import '../eksplor/eksplor_screen.dart';
 import '../event/event_screen.dart';
 import '../paket/paket_screen.dart';
@@ -68,7 +71,7 @@ class _FloatingBottomNav extends StatelessWidget {
 
   const _FloatingBottomNav({required this.currentIndex, required this.onTap});
 
-  static const _items = [
+  static const _itemsId = [
     (icon: Icons.home_rounded, label: 'Beranda'),
     (icon: Icons.map_rounded, label: 'Destinasi'),
     (icon: Icons.event, label: 'Event'),
@@ -76,8 +79,19 @@ class _FloatingBottomNav extends StatelessWidget {
     (icon: Icons.explore, label: 'Eksplor'),
   ];
 
+  static const _itemsEn = [
+    (icon: Icons.home_rounded, label: 'Home'),
+    (icon: Icons.map_rounded, label: 'Destinations'),
+    (icon: Icons.event, label: 'Events'),
+    (icon: Icons.receipt_long, label: 'Packages'),
+    (icon: Icons.explore, label: 'Explore'),
+  ];
+
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
+    final items = isEn ? _itemsEn : _itemsId;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
@@ -94,8 +108,8 @@ class _FloatingBottomNav extends StatelessWidget {
                 boxShadow: AppColors.shadowFloating,
               ),
               child: Row(
-                children: List.generate(_items.length, (i) {
-                  final item = _items[i];
+                children: List.generate(items.length, (i) {
+                  final item = items[i];
                   final active = i == currentIndex;
                   final color = active ? AppColors.pine800 : AppColors.textMuted;
                   return Expanded(
@@ -296,18 +310,14 @@ class _KamaimoLogoWidget extends StatelessWidget {
   }
 }
 
-class _LanguageToggle extends StatefulWidget {
+class _LanguageToggle extends StatelessWidget {
   const _LanguageToggle();
 
   @override
-  State<_LanguageToggle> createState() => _LanguageToggleState();
-}
-
-class _LanguageToggleState extends State<_LanguageToggle> {
-  String _lang = 'ID';
-
-  @override
   Widget build(BuildContext context) {
+    final langProv = context.watch<LanguageProvider>();
+    final isEn = langProv.isEnglish;
+
     return Container(
       height: 46,
       padding: const EdgeInsets.all(5),
@@ -319,18 +329,17 @@ class _LanguageToggleState extends State<_LanguageToggle> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _tab('ID'),
+          _tab(context, 'ID', !isEn),
           const SizedBox(width: 3),
-          _tab('EN'),
+          _tab(context, 'EN', isEn),
         ],
       ),
     );
   }
 
-  Widget _tab(String label) {
-    final active = _lang == label;
+  Widget _tab(BuildContext context, String label, bool active) {
     return GestureDetector(
-      onTap: () => setState(() => _lang = label),
+      onTap: () => context.read<LanguageProvider>().setLanguage(label.toLowerCase()),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 15),
         decoration: BoxDecoration(
@@ -537,9 +546,26 @@ class _SearchBar extends StatefulWidget {
 
 class _SearchBarState extends State<_SearchBar> {
   final TextEditingController _ctrl = TextEditingController();
+  List<dynamic> _destinasiList = [];
 
-  // Kandidat A pintu admin: ketik kode rahasia di pencarian (PRD PRD §6.3)
-  static const String _secretCode = 'adminBK2025'; // ponytail: pindah ke config saat M3
+  // Kandidat A pintu admin: ketik kode rahasia di pencarian (PRD §6.3)
+  static const String _secretCode = 'adminBK2025';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchDestinasi());
+  }
+
+  Future<void> _fetchDestinasi() async {
+    try {
+      final repo = context.read<DesaWisataRepository>();
+      final list = await repo.getAll();
+      if (list.isNotEmpty && mounted) {
+        setState(() => _destinasiList = list);
+      }
+    } catch (_) {}
+  }
 
   @override
   void dispose() {
@@ -568,51 +594,188 @@ class _SearchBarState extends State<_SearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 46,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(9999),
-        boxShadow: AppColors.shadowCard,
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.search_rounded, color: AppColors.textTertiary, size: 18),
-          const SizedBox(width: 10),
-          Expanded(
-            child: TextField(
-              controller: _ctrl,
-              onSubmitted: _onSubmit,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textPrimary,
-                fontFamily: 'PlusJakartaSans',
-              ),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                focusedErrorBorder: InputBorder.none,
-                filled: false,
-                fillColor: Colors.transparent,
-                hintText: 'Cari destinasi atau kabupaten...',
-                hintStyle: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textTertiary,
-                  fontFamily: 'PlusJakartaSans',
+    final isEn = context.watch<LanguageProvider>().isEnglish;
+    final q = _ctrl.text.trim().toLowerCase();
+
+    List<dynamic> matches = [];
+    if (q.isNotEmpty) {
+      if (_destinasiList.isNotEmpty) {
+        matches = _destinasiList.where((d) {
+          final nama = (d.namaDesa_id ?? '').toString().toLowerCase();
+          final namaEn = (d.namaDesa_en ?? '').toString().toLowerCase();
+          final lokasi = (d.lokasi_id ?? '').toString().toLowerCase();
+          final kat = (d.kategori ?? '').toString().toLowerCase();
+          return nama.contains(q) || namaEn.contains(q) || lokasi.contains(q) || kat.contains(q);
+        }).take(4).toList();
+      } else {
+        // Fallback default
+        const defaults = [
+          {'id': 1, 'nama': 'Luk Panenteng & Danau Paisu Pok', 'kab': 'Banggai Kepulauan', 'foto': 'assets/images/beranda/kartu_kolam_kaca.png'},
+          {'id': 2, 'nama': 'Kepulauan Sombori', 'kab': 'Morowali', 'foto': 'assets/images/destinasi/card_togean.png'},
+          {'id': 3, 'nama': 'Lembah Bada', 'kab': 'Poso', 'foto': 'assets/images/destinasi/card_bada.png'},
+          {'id': 4, 'nama': 'Pulau Dua Balantak', 'kab': 'Banggai', 'foto': 'assets/images/destinasi/card_pulo_dua.png'},
+        ];
+        matches = defaults.where((d) =>
+          d['nama'].toString().toLowerCase().contains(q) ||
+          d['kab'].toString().toLowerCase().contains(q)
+        ).take(4).toList();
+      }
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          height: 46,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(matches.isNotEmpty ? 16 : 9999),
+            boxShadow: AppColors.shadowCard,
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.search_rounded, color: AppColors.textTertiary, size: 18),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextField(
+                  controller: _ctrl,
+                  onChanged: (_) => setState(() {}),
+                  onSubmitted: _onSubmit,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textPrimary,
+                    fontFamily: 'PlusJakartaSans',
+                  ),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                    focusedErrorBorder: InputBorder.none,
+                    filled: false,
+                    fillColor: Colors.transparent,
+                    hintText: isEn ? 'Search destinations or regencies...' : 'Cari destinasi atau kabupaten...',
+                    hintStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textTertiary,
+                      fontFamily: 'PlusJakartaSans',
+                    ),
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
                 ),
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
+              ),
+              if (_ctrl.text.isNotEmpty)
+                GestureDetector(
+                  onTap: () {
+                    _ctrl.clear();
+                    setState(() {});
+                  },
+                  child: const Icon(Icons.close_rounded, size: 16, color: AppColors.textTertiary),
+                ),
+            ],
+          ),
+        ),
+        if (matches.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: AppColors.shadowFloating,
+              border: Border.all(color: AppColors.borderLight),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ...matches.map((m) {
+                    final isMap = m is Map;
+                    final id = isMap ? (m['id'] as int? ?? 1) : (m.id as int? ?? 1);
+                    final nama = isMap ? (m['nama'] as String) : (isEn && m.namaDesa_en != null && m.namaDesa_en.isNotEmpty ? m.namaDesa_en : m.namaDesa_id);
+                    final kab = isMap ? (m['kab'] as String) : (m.lokasi_id ?? 'Sulawesi Tengah');
+                    final foto = isMap ? (m['foto'] as String) : (m.foto ?? 'assets/images/beranda/kartu_kolam_kaca.png');
+
+                    return ListTile(
+                      dense: true,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: SizedBox(
+                          width: 36,
+                          height: 36,
+                          child: foto.startsWith('assets/')
+                              ? Image.asset(foto, fit: BoxFit.cover)
+                              : Image.network(foto, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.image, size: 18)),
+                        ),
+                      ),
+                      title: Text(
+                        nama,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.pine900,
+                          fontFamily: 'PlusJakartaSans',
+                        ),
+                      ),
+                      subtitle: Text(
+                        kab,
+                        maxLines: 1,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: AppColors.pine500,
+                          fontFamily: 'PlusJakartaSans',
+                        ),
+                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 11, color: AppColors.textTertiary),
+                      onTap: () {
+                        _ctrl.clear();
+                        setState(() {});
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => DetailWisataScreen(
+                              desaId: id,
+                              namaDesa: nama,
+                              lokasi: kab,
+                              foto: foto,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }),
+                  Divider(height: 1, color: AppColors.borderLight),
+                  InkWell(
+                    onTap: () => _onSubmit(_ctrl.text),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Center(
+                        child: Text(
+                          isEn ? 'See all results for "$q" →' : 'Lihat semua hasil untuk "$q" →',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.pine700,
+                            fontFamily: 'PlusJakartaSans',
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
         ],
-      ),
+      ],
     );
   }
 }
@@ -1416,10 +1579,7 @@ class _UnggulanState extends State<_UnggulanSection> {
               const Spacer(),
               GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SemuaDestinasiScreen()),
-                  );
+                  UserShell.switchTab(context, 1);
                 },
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
@@ -1913,19 +2073,47 @@ class _EventCard extends StatelessWidget {
 
   const _EventCard({required this.event});
 
+  void _openDetail(BuildContext context) {
+    final allSeed = [EventSeed.featured, ...EventSeed.agenda];
+    final matches = allSeed.where((s) =>
+      s.nama.toLowerCase().contains(event.nama.toLowerCase()) ||
+      event.nama.toLowerCase().contains(s.nama.toLowerCase()));
+    final targetEvent = matches.isNotEmpty
+        ? matches.first
+        : EventItem(
+            foto: event.foto,
+            kategori: 'BUDAYA',
+            lokasi: event.lokasi,
+            wilayah: event.lokasi,
+            nama: event.nama,
+            deskripsi: event.deskripsi,
+            rentangTanggal: event.tanggal,
+            start: DateTime.now().add(const Duration(days: 45)),
+          );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DetailEventScreen(event: targetEvent),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 101,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.borderLight),
-        boxShadow: AppColors.shadowCard,
-      ),
-      padding: const EdgeInsets.all(11),
-      child: Row(
+    return GestureDetector(
+      onTap: () => _openDetail(context),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        height: 101,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: AppColors.borderLight),
+          boxShadow: AppColors.shadowCard,
+        ),
+        padding: const EdgeInsets.all(11),
+        child: Row(
         children: [
           // Thumbnail + tanggal (56×64)
           ClipRRect(
@@ -2027,55 +2215,30 @@ class _EventCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          GestureDetector(
-            onTap: () {
-              final allSeed = [EventSeed.featured, ...EventSeed.agenda];
-              final matches = allSeed.where((s) =>
-                s.nama.toLowerCase().contains(event.nama.toLowerCase()) ||
-                event.nama.toLowerCase().contains(s.nama.toLowerCase()));
-              final targetEvent = matches.isNotEmpty
-                  ? matches.first
-                  : EventItem(
-                      foto: event.foto,
-                      kategori: 'BUDAYA',
-                      lokasi: event.lokasi,
-                      wilayah: event.lokasi,
-                      nama: event.nama,
-                      deskripsi: event.deskripsi,
-                      rentangTanggal: event.tanggal,
-                      start: DateTime.now().add(const Duration(days: 45)),
-                    );
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => DetailEventScreen(event: targetEvent),
-                ),
-              );
-            },
-            child: Container(
-              width: 66,
-              height: 32,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceVariant,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Text(
-                  'Detail',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.pine900,
-                    fontFamily: 'PlusJakartaSans',
-                  ),
+          Container(
+            width: 66,
+            height: 32,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Center(
+              child: Text(
+                'Detail',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.pine900,
+                  fontFamily: 'PlusJakartaSans',
                 ),
               ),
             ),
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 // ─── Footer ──────────────────────────────────────────────────────────────────
@@ -2097,7 +2260,24 @@ class KamaimoFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const links = ['Hotel & Penginapan', 'Kuliner Khas', 'Paket Wisata', 'Hubungi Kami'];
+    final isEn = context.watch<LanguageProvider>().isEnglish;
+    final links = isEn
+        ? ['Hotels & Lodging', 'Local Culinary', 'Tour Packages', 'Contact Us']
+        : ['Hotel & Penginapan', 'Kuliner Khas', 'Paket Wisata', 'Hubungi Kami'];
+
+    void onLinkTap(int idx) {
+      if (idx == 0 || idx == 1) {
+        UserShell.switchTab(context, 4); // Eksplor
+      } else if (idx == 2) {
+        UserShell.switchTab(context, 3); // Paket
+      } else if (idx == 3) {
+        launchUrl(
+          Uri.parse('https://wa.me/6281234567890?text=Halo%20Dinas%20Pariwisata%20Sulteng'),
+          mode: LaunchMode.externalApplication,
+        );
+      }
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -2122,10 +2302,12 @@ class KamaimoFooter extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 5),
-          const Text(
-            'Berani Kamaimo • Gerakan Wisata Berkelanjutan & Ekraf Sulteng',
+          Text(
+            isEn
+                ? 'Berani Kamaimo • Central Sulawesi Sustainable Tourism & Creative Economy'
+                : 'Berani Kamaimo • Gerakan Wisata Berkelanjutan & Ekraf Sulteng',
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w500,
               color: AppColors.textBody,
@@ -2148,13 +2330,16 @@ class KamaimoFooter extends StatelessWidget {
                       color: AppColors.pine500,
                     ),
                   ),
-                Text(
-                  links[i],
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.pine500,
-                    fontFamily: 'PlusJakartaSans',
+                GestureDetector(
+                  onTap: () => onLinkTap(i),
+                  child: Text(
+                    links[i],
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.pine500,
+                      fontFamily: 'PlusJakartaSans',
+                    ),
                   ),
                 ),
               ],
@@ -2164,17 +2349,31 @@ class KamaimoFooter extends StatelessWidget {
           const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _SocialCircle(icon: Icons.camera_alt_rounded),
+              _SocialCircle(
+                icon: Icons.camera_alt_rounded,
+                tooltip: 'Instagram @disparsulteng',
+                url: 'https://www.instagram.com/disparsulteng/',
+              ),
               SizedBox(width: 12),
-              _SocialCircle(icon: Icons.play_circle_rounded),
+              _SocialCircle(
+                icon: Icons.play_circle_rounded,
+                tooltip: 'YouTube Dinas Pariwisata Sulteng',
+                url: 'https://www.youtube.com/@disparsulteng',
+              ),
               SizedBox(width: 12),
-              _SocialCircle(icon: Icons.public_rounded),
+              _SocialCircle(
+                icon: Icons.public_rounded,
+                tooltip: 'Portal Pariwisata Sulteng',
+                url: 'https://dispar.sultengprov.go.id/',
+              ),
             ],
           ),
           const SizedBox(height: 12),
-          const Text(
-            '© 2026 Dinas Pariwisata Sulawesi Tengah. Hak Cipta Dilindungi.',
-            style: TextStyle(
+          Text(
+            isEn
+                ? '© ${DateTime.now().year} Central Sulawesi Tourism Department. All Rights Reserved.'
+                : '© ${DateTime.now().year} Dinas Pariwisata Sulawesi Tengah. Hak Cipta Dilindungi.',
+            style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w500,
               color: AppColors.textTertiary,
@@ -2189,19 +2388,54 @@ class KamaimoFooter extends StatelessWidget {
 
 class _SocialCircle extends StatelessWidget {
   final IconData icon;
-  const _SocialCircle({required this.icon});
+  final String? url;
+  final String? tooltip;
+  final VoidCallback? onTap;
+
+  const _SocialCircle({
+    required this.icon,
+    this.url,
+    this.tooltip,
+    this.onTap,
+  });
+
+  Future<void> _handleTap() async {
+    if (onTap != null) {
+      onTap!();
+      return;
+    }
+    if (url != null && url!.isNotEmpty) {
+      try {
+        final uri = Uri.parse(url!);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } else {
+          await launchUrl(uri);
+        }
+      } catch (_) {}
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        border: Border.all(color: AppColors.border),
+    Widget child = GestureDetector(
+      onTap: _handleTap,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.border),
+          boxShadow: AppColors.shadowSm,
+        ),
+        child: Icon(icon, color: AppColors.pine700, size: 16),
       ),
-      child: Icon(icon, color: AppColors.pine500, size: 15),
     );
+
+    if (tooltip != null) {
+      return Tooltip(message: tooltip!, child: child);
+    }
+    return child;
   }
 }

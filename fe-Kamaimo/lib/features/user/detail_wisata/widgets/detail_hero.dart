@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/theme/app_colors.dart';
 
@@ -7,11 +8,15 @@ import '../../../../core/theme/app_colors.dart';
 class DetailHero extends StatelessWidget {
   final String foto;
   final String statusText;
+  final String? namaDesa;
+  final VoidCallback? onShare;
 
   const DetailHero({
     super.key,
     required this.foto,
     required this.statusText,
+    this.namaDesa,
+    this.onShare,
   });
 
   static const double _height = 410;
@@ -65,10 +70,18 @@ class DetailHero extends StatelessWidget {
                   tooltip: 'Kembali',
                   onTap: () => Navigator.of(context).maybePop(),
                 ),
-                const _GlassIconButton(
+                _GlassIconButton(
                   icon: Icons.ios_share,
                   tooltip: 'Bagikan',
-                  onTap: null, // aksi share terpisah (M2)
+                  onTap: onShare ??
+                      () {
+                        final title = (namaDesa != null && namaDesa!.isNotEmpty)
+                            ? namaDesa!
+                            : 'Destinasi Wisata Sulawesi Tengah';
+                        SharePlus.instance.share(
+                          'Jelajahi keindahan $title di Sulawesi Tengah lewat aplikasi Berani Kamaimo!',
+                        );
+                      },
                 ),
               ],
             ),

@@ -189,7 +189,7 @@ class _EksplorScreenState extends State<EksplorScreen> {
         slivers: [
           const SliverPersistentHeader(
             pinned: true,
-            delegate: KamaimoBarDelegate(showToggle: false),
+            delegate: KamaimoBarDelegate(showToggle: true),
           ),
           SliverToBoxAdapter(
             child: EksplorHeader(
