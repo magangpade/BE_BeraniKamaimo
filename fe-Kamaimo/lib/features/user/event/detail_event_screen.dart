@@ -426,7 +426,9 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
   }
 
   void _share() {
-    SharePlus.instance.share('Ayo hadiri agenda wisata "${widget.event.nama}" di ${widget.event.lokasi}! Temukan informasi selengkapnya di aplikasi Berani Kamaimo.');
+    SharePlus.instance.share(ShareParams(
+      text: 'Ayo hadiri agenda wisata "${widget.event.nama}" di ${widget.event.lokasi}! Temukan informasi selengkapnya di aplikasi Berani Kamaimo.',
+    ));
   }
 
   void _saveCalendar() {

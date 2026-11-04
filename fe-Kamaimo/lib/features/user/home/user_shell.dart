@@ -2427,7 +2427,7 @@ class _SocialCircle extends StatelessWidget {
           color: Colors.white,
           shape: BoxShape.circle,
           border: Border.all(color: AppColors.border),
-          boxShadow: AppColors.shadowSm,
+          boxShadow: AppColors.shadowSoft,
         ),
         child: Icon(icon, color: AppColors.pine700, size: 16),
       ),

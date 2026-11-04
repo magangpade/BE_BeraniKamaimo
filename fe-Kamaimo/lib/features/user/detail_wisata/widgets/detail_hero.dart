@@ -79,7 +79,9 @@ class DetailHero extends StatelessWidget {
                             ? namaDesa!
                             : 'Destinasi Wisata Sulawesi Tengah';
                         SharePlus.instance.share(
-                          'Jelajahi keindahan $title di Sulawesi Tengah lewat aplikasi Berani Kamaimo!',
+                          ShareParams(
+                            text: 'Jelajahi keindahan $title di Sulawesi Tengah lewat aplikasi Berani Kamaimo!',
+                          ),
                         );
                       },
                 ),
