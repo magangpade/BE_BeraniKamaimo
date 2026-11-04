@@ -395,6 +395,7 @@ class _FilterChips extends StatelessWidget {
 
   const _FilterChips({required this.selectedIndex, required this.onTap});
 
+  static const _labels = _labelsId;
   static const _labelsId = ['Semua', 'Budaya', 'Bahari', 'UMKM', 'EKOWISATA'];
   static const _labelsEn = ['All', 'Culture', 'Marine', 'MSME', 'Ecotourism'];
 

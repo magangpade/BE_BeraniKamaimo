@@ -71,6 +71,7 @@ class _FloatingBottomNav extends StatelessWidget {
 
   const _FloatingBottomNav({required this.currentIndex, required this.onTap});
 
+  static const _items = _itemsId;
   static const _itemsId = [
     (icon: Icons.home_rounded, label: 'Beranda'),
     (icon: Icons.map_rounded, label: 'Destinasi'),
