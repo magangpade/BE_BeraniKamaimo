@@ -4,13 +4,14 @@ const ApiResponse = require('../utils/ApiResponse');
 const ApiError = require('../utils/ApiError');
 
 exports.list = asyncHandler(async (req, res) => {
-  const { jenis, q, kabupaten } = req.query;
+  const { jenis, q, kabupaten, kategori } = req.query;
   let sql = 'SELECT * FROM desa_wisata WHERE 1=1';
   const params = [];
   if (jenis) { sql += ' AND jenisDesa = ?'; params.push(jenis); }
+  if (kategori) { sql += ' AND UPPER(kategori) = ?'; params.push(kategori.toUpperCase()); }
   if (kabupaten) { sql += ' AND lokasi_id LIKE ?'; params.push(`%${kabupaten}%`); }
-  if (q) { sql += ' AND (namaDesa_id LIKE ? OR lokasi_id LIKE ?)';
-    params.push(`%${q}%`, `%${q}%`); }
+  if (q) { sql += ' AND (namaDesa_id LIKE ? OR lokasi_id LIKE ? OR deskripsi_id LIKE ?)';
+    params.push(`%${q}%`, `%${q}%`, `%${q}%`); }
   sql += ' ORDER BY rating DESC';
   const [rows] = await pool.query(sql, params);
   ApiResponse.success(res, rows);

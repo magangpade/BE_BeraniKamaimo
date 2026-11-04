@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../../models/tour_package.dart';
 
 /// Seed data Tab Paket — dummy, meniru desain Figma 4965:1243 "Paket Wisata Sulteng (Modern)".
-/// ponytail: data hardcode; ganti ke /tourPackage saat sambung API.
 class PaketItem {
+  final int? id;
   final String foto;
   final String kategori; // BAHARI | BUDAYA | TREKKING
   final String wilayah;
@@ -16,8 +17,10 @@ class PaketItem {
   final int ratingCount;
   final String deskripsi;
   final List<(IconData, String)> fasilitas;
+  final String kontak;
 
   const PaketItem({
+    this.id,
     required this.foto,
     required this.kategori,
     required this.wilayah,
@@ -31,7 +34,52 @@ class PaketItem {
     this.rating = 4.8,
     this.ratingCount = 80,
     this.fasilitas = const [],
+    this.kontak = '6281234567890',
   });
+
+  factory PaketItem.fromModel(TourPackage tp) {
+    List<(IconData, String)> fasList = [];
+    if (tp.fasilitas != null && tp.fasilitas!.isNotEmpty) {
+      final parts = tp.fasilitas!.split(',');
+      for (final p in parts) {
+        final t = p.trim();
+        IconData ic = Icons.check_circle_outline_rounded;
+        if (t.toLowerCase().contains('makan')) ic = Icons.restaurant_rounded;
+        if (t.toLowerCase().contains('guide')) ic = Icons.badge_rounded;
+        if (t.toLowerCase().contains('perahu') || t.toLowerCase().contains('kapal')) ic = Icons.directions_boat_rounded;
+        if (t.toLowerCase().contains('drone') || t.toLowerCase().contains('foto')) ic = Icons.photo_camera_rounded;
+        if (t.toLowerCase().contains('snorkel')) ic = Icons.pool_rounded;
+        if (t.toLowerCase().contains('transport') || t.toLowerCase().contains('bus')) ic = Icons.directions_bus_rounded;
+        if (t.toLowerCase().contains('homestay') || t.toLowerCase().contains('hotel')) ic = Icons.cottage_rounded;
+        fasList.add((ic, t));
+      }
+    } else {
+      fasList = const [
+        (Icons.badge_rounded, 'Guide HPI Berlisensi'),
+        (Icons.restaurant_rounded, 'Makan & Minum'),
+        (Icons.directions_boat_rounded, 'Transport Lokal'),
+        (Icons.photo_camera_rounded, 'Dokumentasi'),
+      ];
+    }
+
+    return PaketItem(
+      id: tp.id,
+      foto: tp.media != null && tp.media!.isNotEmpty ? tp.media! : 'assets/images/paket/paket_togean.png',
+      kategori: tp.kategori.toUpperCase(),
+      wilayah: tp.lokasi_id,
+      nama: tp.nama_wisata_id,
+      tag: tp.tipe.toUpperCase(),
+      durasi: tp.durasi,
+      tipe: tp.tipe,
+      harga: tp.harga,
+      satuan: '/orang',
+      rating: double.tryParse(tp.rating) ?? 4.8,
+      ratingCount: tp.rating_count,
+      deskripsi: tp.deskripsi_id,
+      fasilitas: fasList,
+      kontak: tp.kontak.isNotEmpty ? tp.kontak : '6281234567890',
+    );
+  }
 }
 
 class PaketSeed {

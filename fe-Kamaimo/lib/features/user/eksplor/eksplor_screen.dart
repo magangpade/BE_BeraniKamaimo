@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../data/repositories/hotel_repository.dart';
+import '../../../data/repositories/kuliner_repository.dart';
 import '../home/user_shell.dart';
 import 'eksplor_data.dart';
 import 'widgets/eksplor_header.dart';
@@ -9,9 +13,7 @@ import 'widgets/kuliner_card.dart';
 import 'widgets/trust_card.dart';
 
 /// Tab Eksplor — "Katalog Wisata & Kuliner" (Tempat Menginap / Kuliner Khas)
-/// sesuai 2 PNG export desain dari user (2026-10-29).
-///
-/// Data = seed dummy `EksplorSeed`; sambung API hotel/kuliner saat M2.
+/// Terhubung langsung dengan REST API Backend & fallback ke data seed lokal.
 class EksplorScreen extends StatefulWidget {
   const EksplorScreen({super.key});
 
@@ -27,6 +29,16 @@ class _EksplorScreenState extends State<EksplorScreen> {
   int _wilayah = 0;
   String _query = '';
 
+  List<HotelItem> _allHotels = EksplorSeed.hotel;
+  List<KulinerItem> _allKuliners = EksplorSeed.kuliner;
+  bool _loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchData());
+  }
+
   @override
   void dispose() {
     _search.dispose();
@@ -34,11 +46,41 @@ class _EksplorScreenState extends State<EksplorScreen> {
     super.dispose();
   }
 
+  Future<void> _fetchData() async {
+    setState(() => _loading = true);
+    try {
+      final hotelRepo = context.read<HotelRepository>();
+      final hotels = await hotelRepo.getAll();
+      if (hotels.isNotEmpty && mounted) {
+        setState(() {
+          _allHotels = hotels.map((h) => HotelItem.fromModel(h)).toList();
+        });
+      }
+    } catch (_) {}
+
+    try {
+      final kulinerRepo = context.read<KulinerRepository>();
+      final kuliners = await kulinerRepo.getAll();
+      if (kuliners.isNotEmpty && mounted) {
+        setState(() {
+          _allKuliners = kuliners.map((k) => KulinerItem.fromModel(k)).toList();
+        });
+      }
+    } catch (_) {}
+
+    if (mounted) setState(() => _loading = false);
+  }
+
   List<HotelItem> get _hotels {
     final q = _query.trim().toLowerCase();
-    return EksplorSeed.hotel.where((h) {
-      final cocokWilayah =
-          _wilayah == 0 || h.wilayah == EksplorSeed.wilayah[_wilayah];
+    final targetWilayah = EksplorSeed.wilayah[_wilayah].toLowerCase();
+
+    return _allHotels.where((h) {
+      final cocokWilayah = _wilayah == 0 ||
+          h.wilayah.toLowerCase().contains(targetWilayah) ||
+          targetWilayah.contains(h.wilayah.toLowerCase()) ||
+          h.lokasi.toLowerCase().contains(targetWilayah);
+
       final cocokQuery = q.isEmpty ||
           h.nama.toLowerCase().contains(q) ||
           h.wilayah.toLowerCase().contains(q) ||
@@ -50,15 +92,92 @@ class _EksplorScreenState extends State<EksplorScreen> {
 
   List<KulinerItem> get _kuliners {
     final q = _query.trim().toLowerCase();
-    return EksplorSeed.kuliner.where((k) {
-      final cocokWilayah =
-          _wilayah == 0 || k.wilayah == EksplorSeed.wilayah[_wilayah];
+    final targetWilayah = EksplorSeed.wilayah[_wilayah].toLowerCase();
+
+    return _allKuliners.where((k) {
+      final cocokWilayah = _wilayah == 0 ||
+          k.wilayah.toLowerCase().contains(targetWilayah) ||
+          targetWilayah.contains(k.wilayah.toLowerCase()) ||
+          k.warung.toLowerCase().contains(targetWilayah);
+
       final cocokQuery = q.isEmpty ||
           k.nama.toLowerCase().contains(q) ||
           k.warung.toLowerCase().contains(q) ||
-          k.wilayah.toLowerCase().contains(q);
+          k.wilayah.toLowerCase().contains(q) ||
+          k.deskripsi.toLowerCase().contains(q);
       return cocokWilayah && cocokQuery;
     }).toList();
+  }
+
+  Future<void> _launchUrlStr(String url) async {
+    if (url.trim().isEmpty) return;
+    try {
+      final uri = Uri.parse(url.trim());
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        await launchUrl(uri);
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Tidak dapat membuka tautan: $url')),
+        );
+      }
+    }
+  }
+
+  void _onTeleponHotel(HotelItem item) {
+    String phone = item.telepon.replaceAll(RegExp(r'[^0-9]'), '');
+    if (phone.startsWith('0')) {
+      phone = '62${phone.substring(1)}';
+    }
+    if (phone.isNotEmpty) {
+      final waUrl = 'https://wa.me/$phone?text=${Uri.encodeComponent('Halo ${item.nama}, saya ingin menanyakan reservasi kamar.')}';
+      _launchUrlStr(waUrl);
+    } else {
+      _launchUrlStr('https://maps.google.com/?q=${Uri.encodeComponent('${item.nama} ${item.lokasi}')}');
+    }
+  }
+
+  void _onMapsHotel(HotelItem item) {
+    if (item.linkGmaps.isNotEmpty && item.linkGmaps.startsWith('http')) {
+      _launchUrlStr(item.linkGmaps);
+    } else {
+      _launchUrlStr('https://maps.google.com/?q=${Uri.encodeComponent('${item.nama} ${item.lokasi}')}');
+    }
+  }
+
+  void _onWebsiteHotel(HotelItem item) {
+    if (item.website.isNotEmpty && item.website.startsWith('http')) {
+      _launchUrlStr(item.website);
+    } else {
+      _launchUrlStr('https://www.google.com/search?q=${Uri.encodeComponent('${item.nama} Sulawesi Tengah')}');
+    }
+  }
+
+  void _onTeleponKuliner(KulinerItem item) {
+    if (item.telepon.isNotEmpty) {
+      String phone = item.telepon.replaceAll(RegExp(r'[^0-9]'), '');
+      if (phone.startsWith('0')) phone = '62${phone.substring(1)}';
+      _launchUrlStr('https://wa.me/$phone');
+    } else if (item.linkGmaps.isNotEmpty && item.linkGmaps.startsWith('http')) {
+      _launchUrlStr(item.linkGmaps);
+    } else {
+      _launchUrlStr('https://maps.google.com/?q=${Uri.encodeComponent('${item.warung} ${item.nama}')}');
+    }
+  }
+
+  void _onMapsKuliner(KulinerItem item) {
+    if (item.linkGmaps.isNotEmpty && item.linkGmaps.startsWith('http')) {
+      _launchUrlStr(item.linkGmaps);
+    } else {
+      _launchUrlStr('https://maps.google.com/?q=${Uri.encodeComponent('${item.warung} ${item.nama}')}');
+    }
+  }
+
+  void _onWebsiteKuliner(KulinerItem item) {
+    _launchUrlStr('https://www.google.com/search?q=${Uri.encodeComponent('Resep dan Rekomendasi ${item.nama} ${item.warung}')}');
   }
 
   @override
@@ -128,74 +247,94 @@ class _EksplorScreenState extends State<EksplorScreen> {
               const SizedBox(width: 6),
               Text(
                 isHotel
-                    ? 'AKOMODASI TERVERIFIKASI PEMPROV'
-                    : '$jumlah REKOMENDASI TERVERIFIKASI',
+                    ? 'AKOMODASI TERVERIFIKASI ($jumlah)'
+                    : 'KULINER KHAS TERVERIFIKASI ($jumlah)',
                 style: const TextStyle(
-                  fontSize: 10,
+                  fontSize: 10.5,
                   fontWeight: FontWeight.w800,
-                  letterSpacing: 0.3,
-                  color: AppColors.pine500,
+                  color: AppColors.pine800,
+                  letterSpacing: 0.4,
                   fontFamily: 'PlusJakartaSans',
                 ),
               ),
+              if (_loading) ...[
+                const SizedBox(width: 8),
+                const SizedBox(
+                  width: 10,
+                  height: 10,
+                  child: CircularProgressIndicator(strokeWidth: 1.5, color: AppColors.pine700),
+                ),
+              ],
             ],
           ),
+          const SizedBox(height: 3),
+          Text(
+            isHotel ? 'Pilihan Penginapan Terbaik' : 'Warung & Rasa Otentik',
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: AppColors.pine900,
+              letterSpacing: -0.45,
+              fontFamily: 'PlusJakartaSans',
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            isHotel
+                ? 'Resor pantai, hotel bintang, hingga guesthouse dekat spot wisata'
+                : 'Cita rasa khas Sulawesi Tengah dengan rempah asli dan bahan segar lokal',
+            style: const TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textBody,
+              height: 1.45,
+              fontFamily: 'PlusJakartaSans',
+            ),
+          ),
+          const SizedBox(height: 14),
         ],
       ),
     );
   }
 
-  /// Intro besar tab Kuliner: chip "EKSPLORASI GASTRONOMI" + H2 + deskripsi.
   List<Widget> _gastronomi() {
     return [
-      // Chip mint + ikon buku (kiri-aligned seperti desain)
-      Container(
-        height: 30,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          color: AppColors.mintSoftStrong,
-          borderRadius: BorderRadius.circular(9999),
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.menu_book_rounded, size: 15, color: AppColors.pine800),
-            SizedBox(width: 6),
-            Text(
-              'EKSPLORASI GASTRONOMI',
-              key: Key('eksplorGastronomi'),
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.4,
-                color: AppColors.pine800,
-                fontFamily: 'PlusJakartaSans',
-              ),
+      Row(
+        children: [
+          const Icon(Icons.restaurant_menu_rounded,
+              size: 13, color: AppColors.pine500),
+          const SizedBox(width: 6),
+          const Text(
+            'WARISAN GASTRONOMI SULTENG',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              color: AppColors.pine500,
+              letterSpacing: 0.4,
+              fontFamily: 'PlusJakartaSans',
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-      const SizedBox(height: 10),
+      const SizedBox(height: 3),
       const Text(
-        'Cita Rasa Otentik Bumi Tadulako',
+        'Kuliner Otentik Kaili & Pesisir',
         style: TextStyle(
-          fontSize: 26,
+          fontSize: 18,
           fontWeight: FontWeight.w800,
-          height: 1.2,
-          letterSpacing: -0.6,
           color: AppColors.pine900,
+          letterSpacing: -0.45,
           fontFamily: 'PlusJakartaSans',
         ),
       ),
-      const SizedBox(height: 10),
+      const SizedBox(height: 3),
       const Text(
-        'Simfoni rempah segar, perasan asam alami, dan aroma gurih kelapa '
-        'bakar warisan leluhur pesisir hingga pegunungan.',
+        'Dari kuah asam segar Teluk Palu, kaledo legendaris, hingga jajanan pasar trans-Sulawesi',
         style: TextStyle(
-          fontSize: 12.5,
+          fontSize: 11.5,
           fontWeight: FontWeight.w500,
-          height: 1.55,
           color: AppColors.textBody,
+          height: 1.45,
           fontFamily: 'PlusJakartaSans',
         ),
       ),
@@ -229,11 +368,23 @@ class _EksplorScreenState extends State<EksplorScreen> {
     final cards = <Widget>[];
     if (isHotel) {
       cards.addAll([
-        for (final h in _hotels) HotelCard(item: h, onKontak: _onKontak),
+        for (final h in _hotels)
+          HotelCard(
+            item: h,
+            onTelepon: _onTeleponHotel,
+            onMaps: _onMapsHotel,
+            onWebsite: _onWebsiteHotel,
+          ),
       ]);
     } else {
       cards.addAll([
-        for (final k in _kuliners) KulinerCard(item: k, onKontak: _onKontak),
+        for (final k in _kuliners)
+          KulinerCard(
+            item: k,
+            onTelepon: _onTeleponKuliner,
+            onMaps: _onMapsKuliner,
+            onWebsite: _onWebsiteKuliner,
+          ),
       ]);
     }
 
@@ -251,12 +402,6 @@ class _EksplorScreenState extends State<EksplorScreen> {
           child: cards[i],
         ),
       ),
-    );
-  }
-
-  void _onKontak() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Kontak resmi: aktif saat data API (M2)')),
     );
   }
 }

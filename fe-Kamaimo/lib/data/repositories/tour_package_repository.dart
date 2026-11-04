@@ -7,8 +7,20 @@ class TourPackageRepository {
 
   TourPackageRepository(this._apiClient);
 
-  Future<List<TourPackage>> getAll() async {
-    final raw = await _apiClient.get(ApiConfig.tourPackage);
+  Future<List<TourPackage>> getAll({String? kategori, String? q}) async {
+    String endpoint = ApiConfig.tourPackage;
+    final queryParams = <String>[];
+    if (kategori != null && kategori.isNotEmpty && kategori != 'Semua') {
+      queryParams.add('kategori=${Uri.encodeComponent(kategori)}');
+    }
+    if (q != null && q.trim().isNotEmpty) {
+      queryParams.add('q=${Uri.encodeComponent(q.trim())}');
+    }
+    if (queryParams.isNotEmpty) {
+      endpoint += '?${queryParams.join('&')}';
+    }
+
+    final raw = await _apiClient.get(endpoint);
     List<dynamic> jsonList = [];
     if (raw is List) {
       jsonList = raw;

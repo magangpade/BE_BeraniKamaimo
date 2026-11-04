@@ -9,9 +9,19 @@ import 'kontak_row.dart';
 /// chips bahan → Telepon/Maps/Website.
 class KulinerCard extends StatelessWidget {
   final KulinerItem item;
-  final VoidCallback onKontak;
+  final VoidCallback? onKontak;
+  final void Function(KulinerItem)? onTelepon;
+  final void Function(KulinerItem)? onMaps;
+  final void Function(KulinerItem)? onWebsite;
 
-  const KulinerCard({super.key, required this.item, required this.onKontak});
+  const KulinerCard({
+    super.key,
+    required this.item,
+    this.onKontak,
+    this.onTelepon,
+    this.onMaps,
+    this.onWebsite,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +69,12 @@ class KulinerCard extends StatelessWidget {
                       top: BorderSide(color: AppColors.detailBorder),
                     ),
                   ),
-                  child: KontakRow(onTap: onKontak),
+                  child: KontakRow(
+                    onTap: onKontak,
+                    onTelepon: onTelepon != null ? () => onTelepon!(item) : null,
+                    onMaps: onMaps != null ? () => onMaps!(item) : null,
+                    onWebsite: onWebsite != null ? () => onWebsite!(item) : null,
+                  ),
                 ),
               ],
             ),

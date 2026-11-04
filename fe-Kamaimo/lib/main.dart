@@ -8,7 +8,12 @@ import 'core/utils/constants.dart';
 import 'data/repositories/atraksi_repository.dart';
 import 'data/repositories/desa_wisata_repository.dart';
 import 'data/repositories/gis_repository.dart';
+import 'data/repositories/hotel_repository.dart';
+import 'data/repositories/jarak_repository.dart';
+import 'data/repositories/kuliner_repository.dart';
 import 'data/repositories/kunjungan_turis_repository.dart';
+import 'data/repositories/tour_package_repository.dart';
+import 'data/repositories/ulasan_repository.dart';
 import 'data/repositories/weather_repository.dart';
 import 'features/user/sambutan/halaman_sambutan.dart';
 import 'features/user/detail_wisata/detail_wisata_screen.dart';
@@ -52,6 +57,26 @@ class MyApp extends StatelessWidget {
         ProxyProvider<ApiClient, AtraksiRepository>(
           update: (_, apiClient, _) =>
               AtraksiRepository(apiClient),
+        ),
+        ProxyProvider<ApiClient, HotelRepository>(
+          update: (_, apiClient, _) =>
+              HotelRepository(apiClient),
+        ),
+        ProxyProvider<ApiClient, KulinerRepository>(
+          update: (_, apiClient, _) =>
+              KulinerRepository(apiClient),
+        ),
+        ProxyProvider<ApiClient, TourPackageRepository>(
+          update: (_, apiClient, _) =>
+              TourPackageRepository(apiClient),
+        ),
+        ProxyProvider<ApiClient, JarakRepository>(
+          update: (_, apiClient, _) =>
+              JarakRepository(apiClient),
+        ),
+        ProxyProvider<ApiClient, UlasanRepository>(
+          update: (_, apiClient, _) =>
+              UlasanRepository(apiClient),
         ),
       ],
       child: MaterialApp(

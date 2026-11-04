@@ -1,7 +1,9 @@
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../data/repositories/desa_wisata_repository.dart';
 import '../detail_wisata/detail_wisata_screen.dart';
 import '../home/user_shell.dart';
 
@@ -19,20 +21,20 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
 
   static const _labels = ['Semua', 'Budaya', 'Bahari', 'UMKM', 'EKOWISATA'];
 
-  static const _featured = _Item(
-    // ponytail: badge "Pilihan terbaik" ter-bake di foto — ditutupi widget identik
+  static const _defaultFeatured = _Item(
+    id: 1,
     foto: 'assets/images/destinasi/feat_luk_panenteng.png',
     kabupaten: 'Banggai Kepulauan',
     nama: 'Luk Panenteng & Danau Paisu Pok',
     deskripsi:
         'Air sebening kaca dengan vegetasi hutan yang masih alami—ikon tersembunyi di Kepulauan Banggai.',
     rating: '4.9',
-    jarak: '',
+    jarak: '1.4k ulasan',
   );
 
-  static const _cards = [
+  static const _defaultCards = [
     _Item(
-      // ponytail: badge kategori ter-bake di foto — ditutupi widget badge identik
+      id: 2,
       foto: 'assets/images/destinasi/card_togean.png',
       kategori: 'BAHARI',
       kabupaten: 'Tojo Una-Una',
@@ -42,6 +44,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
       jarak: '375 km dari Palu',
     ),
     _Item(
+      id: 3,
       foto: 'assets/images/destinasi/card_tambing.png',
       kategori: 'EKOWISATA',
       kabupaten: 'Poso',
@@ -51,6 +54,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
       jarak: '90 km dari Palu',
     ),
     _Item(
+      id: 4,
       foto: 'assets/images/destinasi/card_saluopa.png',
       kategori: 'EKOWISATA',
       kabupaten: 'Poso',
@@ -60,6 +64,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
       jarak: '265 km dari Palu',
     ),
     _Item(
+      id: 5,
       foto: 'assets/images/destinasi/card_bada.png',
       kategori: 'BUDAYA',
       kabupaten: 'Lore Selatan, Poso',
@@ -69,6 +74,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
       jarak: '177 km dari Palu',
     ),
     _Item(
+      id: 6,
       foto: 'assets/images/destinasi/card_pulo_dua.png',
       kategori: 'BAHARI',
       kabupaten: 'Banggai',
@@ -79,10 +85,49 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
     ),
   ];
 
+  late List<_Item> _cards;
+  late _Item _featured;
+
+  @override
+  void initState() {
+    super.initState();
+    _cards = _defaultCards;
+    _featured = _defaultFeatured;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchDestinasi());
+  }
+
+  Future<void> _fetchDestinasi() async {
+    try {
+      final repo = context.read<DesaWisataRepository>();
+      final list = await repo.getAll();
+      if (list.isNotEmpty && mounted) {
+        setState(() {
+          final items = list.map((d) => _Item(
+            id: d.id,
+            foto: d.foto != null && d.foto!.isNotEmpty ? d.foto! : 'assets/images/destinasi/card_togean.png',
+            kategori: d.kategori.toUpperCase(),
+            kabupaten: d.lokasi_id,
+            nama: d.namaDesa_id,
+            deskripsi: d.deskripsi_id,
+            rating: d.rating,
+            jarak: d.total_ulasan > 0 ? '${d.total_ulasan} ulasan' : 'Sulawesi Tengah',
+          )).toList();
+
+          final feat = items.where((it) => it.nama.toLowerCase().contains('paisu') || it.kategori == 'BAHARI');
+          if (feat.isNotEmpty) {
+            _featured = feat.first;
+          }
+          _cards = items;
+        });
+      }
+    } catch (_) {}
+    if (mounted) setState(() => _loading = false);
+  }
+
   void _openDetail(_Item it) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => DetailWisataScreen(
-        desaId: 1,
+        desaId: it.id ?? 1,
         namaDesa: it.nama,
         lokasi: it.kabupaten,
         foto: it.foto,
@@ -181,6 +226,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
 // ─── Data seed ────────────────────────────────────────────────────────────────
 
 class _Item {
+  final int? id;
   final String foto;
   final String kategori;
   final String kabupaten;
@@ -190,6 +236,7 @@ class _Item {
   final String jarak;
 
   const _Item({
+    this.id,
     required this.foto,
     this.kategori = '',
     required this.kabupaten,

@@ -26,6 +26,25 @@ class EventItem {
     this.rating = 4.7,
     this.ratingCount = 1100,
   });
+
+  factory EventItem.fromModel(dynamic a) {
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    final mStr = (a.startdate.month >= 1 && a.startdate.month <= 12) ? months[a.startdate.month - 1] : '';
+    final rentang = '${a.startdate.day} - ${a.enddate.day} $mStr ${a.startdate.year}';
+    return EventItem(
+      foto: a.foto != null && a.foto!.isNotEmpty ? a.foto! : 'assets/images/beranda/thumb_event1.png',
+      kategori: a.kategori.toString().toUpperCase(),
+      lokasi: a.location_id.toString(),
+      wilayah: a.wilayah != null && a.wilayah!.isNotEmpty ? a.wilayah!.toString() : a.location_id.toString(),
+      nama: a.nameEvent.toString(),
+      deskripsi: a.description_id.toString(),
+      rentangTanggal: rentang,
+      start: a.startdate as DateTime,
+      harga: a.harga as int?,
+      rating: double.tryParse(a.rating.toString()) ?? 4.7,
+      ratingCount: (a.rating_count as num?)?.toInt() ?? 1100,
+    );
+  }
 }
 
 class EventSeed {

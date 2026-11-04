@@ -7,8 +7,23 @@ class AtraksiRepository {
 
   AtraksiRepository(this._apiClient);
 
-  Future<List<Atraksi>> getAll() async {
-    final raw = await _apiClient.get(ApiConfig.atraksi);
+  Future<List<Atraksi>> getAll({String? kategori, String? wilayah, String? q}) async {
+    String endpoint = ApiConfig.atraksi;
+    final queryParams = <String>[];
+    if (kategori != null && kategori.isNotEmpty && kategori != 'Semua') {
+      queryParams.add('kategori=${Uri.encodeComponent(kategori)}');
+    }
+    if (wilayah != null && wilayah.isNotEmpty && wilayah != 'Semua Wilayah') {
+      queryParams.add('wilayah=${Uri.encodeComponent(wilayah)}');
+    }
+    if (q != null && q.trim().isNotEmpty) {
+      queryParams.add('q=${Uri.encodeComponent(q.trim())}');
+    }
+    if (queryParams.isNotEmpty) {
+      endpoint += '?${queryParams.join('&')}';
+    }
+
+    final raw = await _apiClient.get(endpoint);
     List<dynamic> jsonList = [];
     if (raw is List) {
       jsonList = raw;

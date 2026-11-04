@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../../models/hotel.dart';
+import '../../../models/kuliner.dart';
 
 /// Seed data Tab Eksplor — "Katalog Wisata & Kuliner" sesuai 2 PNG export
 /// desain dari user (Tempat Menginap & Kuliner Khas).
-///
-/// CATATAN: data dummy hardcode gaya Tab Paket; foto diambil dari Wikimedia
-/// Commons (bebas pakai) ke `assets/images/eksplor/`. Ganti ke API sesungguhnya
-/// (hotel/kuliner) saat M2 sambung backend.
 class HotelItem {
+  final int? id;
   final String foto; // path asset
   final String nama;
   final String wilayah; // samakan dengan chip: Palu | Luwuk | Ampana & Togean
@@ -18,8 +17,12 @@ class HotelItem {
   final int harga;
   final int? hargaCoret;
   final List<(IconData, String)> chips;
+  final String telepon;
+  final String website;
+  final String linkGmaps;
 
   const HotelItem({
+    this.id,
     required this.foto,
     required this.nama,
     required this.wilayah,
@@ -31,10 +34,44 @@ class HotelItem {
     required this.harga,
     required this.chips,
     this.hargaCoret,
+    this.telepon = '',
+    this.website = '',
+    this.linkGmaps = '',
   });
+
+  factory HotelItem.fromModel(Hotel h) {
+    return HotelItem(
+      id: h.id,
+      foto: h.foto != null && h.foto!.isNotEmpty ? h.foto! : 'assets/images/eksplor/hotel1.jpg',
+      nama: h.nama_hotel,
+      wilayah: h.wilayah != null && h.wilayah!.isNotEmpty
+          ? h.wilayah!
+          : (h.lokasi.contains('Palu')
+              ? 'Palu'
+              : (h.lokasi.contains('Luwuk') ? 'Luwuk' : 'Ampana & Togean')),
+      lokasi: h.lokasi,
+      tag: h.tag != null && h.tag!.isNotEmpty ? h.tag! : 'Akomodasi Nyaman',
+      rating: h.rating,
+      ratingCount: h.rating_count,
+      highlight: h.highlight != null && h.highlight!.isNotEmpty
+          ? h.highlight!
+          : 'Pilihan Terbaik',
+      harga: h.harga_minimum > 0 ? h.harga_minimum : 450000,
+      hargaCoret: h.harga_maximum > 0 ? h.harga_maximum : null,
+      telepon: h.telepon,
+      website: h.website,
+      linkGmaps: h.linkGmaps,
+      chips: [
+        (Icons.apartment_rounded, '${h.jumlah_kamar > 0 ? h.jumlah_kamar : 24} Kamar'),
+        (Icons.king_bed_rounded, '${h.jumlah_tempatTidur > 0 ? h.jumlah_tempatTidur : 2} Tempat Tidur'),
+        (Icons.waves_rounded, 'Panorama Alam'),
+      ],
+    );
+  }
 }
 
 class KulinerItem {
+  final int? id;
   final String foto;
   final String nama;
   final String warung;
@@ -42,8 +79,11 @@ class KulinerItem {
   final String? tag; // pill kiri atas foto ("Legendaris")
   final String deskripsi;
   final List<(String, ChipKind)> bahan;
+  final String linkGmaps;
+  final String telepon;
 
   const KulinerItem({
+    this.id,
     required this.foto,
     required this.nama,
     required this.warung,
@@ -51,7 +91,45 @@ class KulinerItem {
     required this.deskripsi,
     required this.bahan,
     this.tag,
+    this.linkGmaps = '',
+    this.telepon = '',
   });
+
+  factory KulinerItem.fromModel(Kuliner k) {
+    List<(String, ChipKind)> bahanList = [];
+    if (k.bahan != null && k.bahan!.isNotEmpty) {
+      final parts = k.bahan!.split(',');
+      for (int i = 0; i < parts.length; i++) {
+        final p = parts[i].trim();
+        final kind = i % 3 == 0
+            ? ChipKind.mint
+            : (i % 3 == 1 ? ChipKind.peach : ChipKind.cream);
+        bahanList.add((p, kind));
+      }
+    } else {
+      bahanList = const [
+        ('🌿 Rempah Tradisional', ChipKind.mint),
+        ('🌶️ Bumbu Khas Sulteng', ChipKind.peach),
+        ('🍲 Resep Warisan', ChipKind.cream),
+      ];
+    }
+
+    return KulinerItem(
+      id: k.id,
+      foto: k.foto != null && k.foto!.isNotEmpty ? k.foto! : 'assets/images/eksplor/kuliner1.jpg',
+      nama: k.nama_makanan,
+      warung: k.warung != null && k.warung!.isNotEmpty
+          ? k.warung!
+          : (k.lokasi.isNotEmpty ? 'Khas ${k.lokasi}' : 'Khas Sulawesi Tengah'),
+      wilayah: k.wilayah != null && k.wilayah!.isNotEmpty
+          ? k.wilayah!
+          : (k.lokasi.contains('Donggala') ? 'Donggala' : 'Palu'),
+      tag: k.tag,
+      deskripsi: k.deskripsi_id,
+      bahan: bahanList,
+      linkGmaps: k.linkGmaps ?? '',
+    );
+  }
 }
 
 /// Warna chip bahan kuliner (mint | peach/pink | cream) sesuai desain.

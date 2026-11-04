@@ -3,8 +3,20 @@ const asyncHandler = require('../utils/asyncHandler');
 const ApiResponse = require('../utils/ApiResponse');
 const ApiError = require('../utils/ApiError');
 
-exports.list = asyncHandler(async (_req, res) => {
-  const [rows] = await pool.query('SELECT * FROM hotel');
+exports.list = asyncHandler(async (req, res) => {
+  const { q, wilayah } = req.query;
+  let sql = 'SELECT * FROM hotel WHERE 1=1';
+  const params = [];
+  if (wilayah && wilayah !== 'Semua Wilayah') {
+    sql += ' AND (wilayah LIKE ? OR lokasi LIKE ?)';
+    params.push(`%${wilayah}%`, `%${wilayah}%`);
+  }
+  if (q) {
+    sql += ' AND (nama_hotel LIKE ? OR lokasi LIKE ? OR wilayah LIKE ? OR tag LIKE ?)';
+    params.push(`%${q}%`, `%${q}%`, `%${q}%`, `%${q}%`);
+  }
+  sql += ' ORDER BY rating DESC';
+  const [rows] = await pool.query(sql, params);
   ApiResponse.success(res, rows);
 });
 exports.detail = asyncHandler(async (req, res) => {

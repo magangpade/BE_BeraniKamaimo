@@ -11,6 +11,7 @@ class DesaWisata {
     required this.latitude,
     required this.longitude,
     required this.jenisDesa,
+    this.kategori = 'EKOWISATA',
     this.foto,
     this.linkVideo,
     this.rating = '4.5',
@@ -19,15 +20,16 @@ class DesaWisata {
 
   factory DesaWisata.fromJson(Map<String, dynamic> json) => DesaWisata(
         id: json['id'] as int,
-        namaDesa_id: json['namaDesa_id'] as String,
+        namaDesa_id: json['namaDesa_id'] as String? ?? '',
         namaDesa_en: json['namaDesa_en'] as String?,
-        lokasi_id: json['lokasi_id'] as String,
+        lokasi_id: json['lokasi_id'] as String? ?? '',
         lokasi_en: json['lokasi_en'] as String?,
-        deskripsi_id: json['deskripsi_id'] as String,
+        deskripsi_id: json['deskripsi_id'] as String? ?? '',
         deskripsi_en: json['deskripsi_en'] as String?,
         latitude: json['latitude']?.toString() ?? '-1.43',
         longitude: json['longitude']?.toString() ?? '121.44',
         jenisDesa: json['jenisDesa'] as String? ?? 'DESA_WISATA',
+        kategori: json['kategori'] as String? ?? 'EKOWISATA',
         foto: json['foto'] as String?,
         linkVideo: json['link_video'] as String?,
         rating: json['rating']?.toString() ?? '4.5',
@@ -44,6 +46,7 @@ class DesaWisata {
   final String latitude;
   final String longitude;
   final String jenisDesa; // DESA_WISATA | DESA_UNGGULAN
+  final String kategori; // BUDAYA | BAHARI | UMKM | EKOWISATA
   final String? foto;
   final String? linkVideo;
   final String rating;
@@ -60,6 +63,7 @@ class DesaWisata {
         'latitude': latitude,
         'longitude': longitude,
         'jenisDesa': jenisDesa,
+        'kategori': kategori,
         'foto': foto,
         'link_video': linkVideo,
         'rating': rating,

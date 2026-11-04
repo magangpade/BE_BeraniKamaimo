@@ -3,11 +3,19 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Baris 3 tombol aksi kartu katalog Eksplor: Telepon (WA), Maps, Website.
-/// Aksi placeholder → snackbar sesuai konvensi Tab Paket (aktif di M2).
 class KontakRow extends StatelessWidget {
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final VoidCallback? onTelepon;
+  final VoidCallback? onMaps;
+  final VoidCallback? onWebsite;
 
-  const KontakRow({super.key, required this.onTap});
+  const KontakRow({
+    super.key,
+    this.onTap,
+    this.onTelepon,
+    this.onMaps,
+    this.onWebsite,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,21 +25,21 @@ class KontakRow extends StatelessWidget {
           label: 'Telepon',
           icon: Icons.chat_rounded,
           iconColor: AppColors.emerald600,
-          onTap: onTap,
+          onTap: onTelepon ?? onTap ?? () {},
         ),
         const SizedBox(width: 10),
         _KontakBtn(
           label: 'Maps',
           icon: Icons.travel_explore_rounded,
           iconColor: AppColors.pine900,
-          onTap: onTap,
+          onTap: onMaps ?? onTap ?? () {},
         ),
         const SizedBox(width: 10),
         _KontakBtn(
           label: 'Website',
           icon: Icons.public_rounded,
           iconColor: AppColors.emerald600,
-          onTap: onTap,
+          onTap: onWebsite ?? onTap ?? () {},
         ),
       ],
     );

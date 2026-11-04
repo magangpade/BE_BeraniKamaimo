@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../../../core/utils/constants.dart';
+import '../../../data/repositories/atraksi_repository.dart';
 import '../../../data/repositories/desa_wisata_repository.dart';
 import '../../../data/repositories/gis_repository.dart';
 import '../../../data/repositories/weather_repository.dart';
@@ -548,10 +549,20 @@ class _SearchBarState extends State<_SearchBar> {
   }
 
   void _onSubmit(String value) {
-    if (value.trim() == _secretCode) {
+    final text = value.trim();
+    if (text == _secretCode) {
       _ctrl.clear();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Mode admin: akan aktif di M3')),
+      );
+      return;
+    }
+    if (text.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => SemuaDestinasiScreen(initialQuery: text),
+        ),
       );
     }
   }
@@ -638,7 +649,17 @@ class _QuickPillsState extends State<_QuickPills> {
         itemBuilder: (ctx, i) {
           final active = i == _selected;
           return GestureDetector(
-            onTap: () => setState(() => _selected = i),
+            onTap: () {
+              setState(() => _selected = i);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SemuaDestinasiScreen(
+                    initialFilter: _pills[i].label,
+                  ),
+                ),
+              );
+            },
             child: Container(
               height: 33,
               padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -1796,10 +1817,15 @@ class _EventData {
   });
 }
 
-class _EventSection extends StatelessWidget {
+class _EventSection extends StatefulWidget {
   const _EventSection();
 
-  static const _events = [
+  @override
+  State<_EventSection> createState() => _EventSectionState();
+}
+
+class _EventSectionState extends State<_EventSection> {
+  static const _defaultEvents = [
     _EventData(
       foto: 'assets/images/beranda/thumb_event1.png',
       tanggal: '24 OKT',
@@ -1817,6 +1843,43 @@ class _EventSection extends StatelessWidget {
       deskripsi: 'Eksplorasi bawah laut, karnaval kostum bahari & expo UMKM.',
     ),
   ];
+
+  List<_EventData> _events = _defaultEvents;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchEvents());
+  }
+
+  Future<void> _fetchEvents() async {
+    try {
+      final repo = context.read<AtraksiRepository>();
+      final list = await repo.getAll();
+      if (list.isNotEmpty && mounted) {
+        setState(() {
+          _events = list.map((a) {
+            final now = DateTime.now();
+            final days = a.startdate.difference(now).inDays;
+            final countdownStr = days > 0 ? 'H-$days Hari' : (days == 0 ? 'Hari Ini' : 'Selesai');
+            return _EventData(
+              foto: a.foto != null && a.foto!.isNotEmpty ? a.foto! : 'assets/images/beranda/thumb_event1.png',
+              tanggal: '${a.startdate.day} ${_monthName(a.startdate.month)}',
+              countdown: countdownStr,
+              lokasi: a.location_id,
+              nama: a.nameEvent,
+              deskripsi: a.description_id,
+            );
+          }).toList();
+        });
+      }
+    } catch (_) {}
+  }
+
+  static String _monthName(int m) {
+    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGU', 'SEP', 'OKT', 'NOV', 'DES'];
+    return (m >= 1 && m <= 12) ? months[m - 1] : 'BLN';
+  }
 
   @override
   Widget build(BuildContext context) {

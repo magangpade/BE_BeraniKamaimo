@@ -9,9 +9,19 @@ import 'kontak_row.dart';
 /// chips fasilitas → MULAI TARIF KAMAR → Telepon/Maps/Website.
 class HotelCard extends StatelessWidget {
   final HotelItem item;
-  final VoidCallback onKontak;
+  final VoidCallback? onKontak;
+  final void Function(HotelItem)? onTelepon;
+  final void Function(HotelItem)? onMaps;
+  final void Function(HotelItem)? onWebsite;
 
-  const HotelCard({super.key, required this.item, required this.onKontak});
+  const HotelCard({
+    super.key,
+    required this.item,
+    this.onKontak,
+    this.onTelepon,
+    this.onMaps,
+    this.onWebsite,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +140,12 @@ class HotelCard extends StatelessWidget {
                           ),
                         ),
                       const SizedBox(height: 12),
-                      KontakRow(onTap: onKontak),
+                      KontakRow(
+                        onTap: onKontak,
+                        onTelepon: onTelepon != null ? () => onTelepon!(item) : null,
+                        onMaps: onMaps != null ? () => onMaps!(item) : null,
+                        onWebsite: onWebsite != null ? () => onWebsite!(item) : null,
+                      ),
                     ],
                   ),
                 ),

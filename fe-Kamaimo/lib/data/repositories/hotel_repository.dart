@@ -7,8 +7,20 @@ class HotelRepository {
 
   HotelRepository(this._apiClient);
 
-  Future<List<Hotel>> getAll() async {
-    final raw = await _apiClient.get(ApiConfig.hotel);
+  Future<List<Hotel>> getAll({String? wilayah, String? q}) async {
+    String endpoint = ApiConfig.hotel;
+    final queryParams = <String>[];
+    if (wilayah != null && wilayah.isNotEmpty && wilayah != 'Semua Wilayah') {
+      queryParams.add('wilayah=${Uri.encodeComponent(wilayah)}');
+    }
+    if (q != null && q.trim().isNotEmpty) {
+      queryParams.add('q=${Uri.encodeComponent(q.trim())}');
+    }
+    if (queryParams.isNotEmpty) {
+      endpoint += '?${queryParams.join('&')}';
+    }
+
+    final raw = await _apiClient.get(endpoint);
     List<dynamic> jsonList = [];
     if (raw is List) {
       jsonList = raw;
