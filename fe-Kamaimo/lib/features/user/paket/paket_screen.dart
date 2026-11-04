@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../../data/repositories/tour_package_repository.dart';
 import '../home/user_shell.dart';
 import 'paket_data.dart';
 import 'widgets/featured_paket_card.dart';
@@ -23,28 +20,6 @@ class _PaketScreenState extends State<PaketScreen> {
   final PageController _page = PageController(viewportFraction: 0.86);
   int _kategori = 0;
   String _query = '';
-  List<PaketItem> _items = PaketSeed.items;
-  bool _loading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchPaket());
-  }
-
-  Future<void> _fetchPaket() async {
-    setState(() => _loading = true);
-    try {
-      final repo = context.read<TourPackageRepository>();
-      final list = await repo.getAll();
-      if (list.isNotEmpty && mounted) {
-        setState(() {
-          _items = list.map((tp) => PaketItem.fromModel(tp)).toList();
-        });
-      }
-    } catch (_) {}
-    if (mounted) setState(() => _loading = false);
-  }
 
   @override
   void dispose() {
@@ -52,32 +27,10 @@ class _PaketScreenState extends State<PaketScreen> {
     super.dispose();
   }
 
-  Future<void> _onWhatsApp(PaketItem item) async {
-    String phone = item.kontak.replaceAll(RegExp(r'[^0-9]'), '');
-    if (phone.isEmpty) phone = '6281234567890';
-    if (phone.startsWith('0')) phone = '62${phone.substring(1)}';
-    final text = 'Halo, saya ingin menanyakan reservasi paket wisata "${item.nama}" (${item.durasi}). Apakah kuota masih tersedia?';
-    final url = 'https://wa.me/$phone?text=${Uri.encodeComponent(text)}';
-    try {
-      final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        await launchUrl(uri);
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Hubungi operator di WhatsApp: +$phone')),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final q = _query.trim().toLowerCase();
-    final shown = _items.where((p) {
+    final shown = PaketSeed.items.where((p) {
       final cocokKategori =
           _kategori == 0 ||
           p.kategori == PaketSeed.kategori[_kategori].toUpperCase();
@@ -130,7 +83,7 @@ class _PaketScreenState extends State<PaketScreen> {
                           ),
                           child: FeaturedPaketCard(
                             item: shown[i],
-                            onWhatsApp: () => _onWhatsApp(shown[i]),
+                            onWhatsApp: _onWhatsApp,
                           ),
                         ),
                       ),
@@ -153,7 +106,11 @@ class _PaketScreenState extends State<PaketScreen> {
     );
   }
 
-
+  void _onWhatsApp() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Chat WhatsApp: aktif saat data API (M2)')),
+    );
+  }
 }
 
 class _EmptyPaket extends StatelessWidget {

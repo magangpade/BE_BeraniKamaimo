@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../../data/repositories/atraksi_repository.dart';
 import '../home/user_shell.dart';
 import 'detail_event_screen.dart';
 import 'event_data.dart';
@@ -25,33 +23,11 @@ class _EventScreenState extends State<EventScreen> {
   String? _wilayah;
   String _query = '';
 
-  List<EventItem> _agenda = EventSeed.agenda;
-  EventItem _featured = EventSeed.featured;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchEvents());
-  }
-
-  Future<void> _fetchEvents() async {
-    try {
-      final repo = context.read<AtraksiRepository>();
-      final list = await repo.getAll();
-      if (list.isNotEmpty && mounted) {
-        setState(() {
-          final items = list.map((a) => EventItem.fromModel(a)).toList();
-          _featured = items.first;
-          _agenda = items.length > 1 ? items.sublist(1) : items;
-        });
-      }
-    } catch (_) {}
-  }
-
   DateTime get _now => DateTime.now();
 
   bool _lolosTanggal(EventItem e) {
     if (_tanggal == 0) return true;
+    final kini = DateTime(_now.year, _now.month, _now.day);
     final start = DateTime(e.start.year, e.start.month, e.start.day);
     if (_tanggal == 1) {
       return start.year == _now.year && start.month == _now.month;
@@ -66,7 +42,7 @@ class _EventScreenState extends State<EventScreen> {
   @override
   Widget build(BuildContext context) {
     final q = _query.trim().toLowerCase();
-    final shown = _agenda.where((e) {
+    final shown = EventSeed.agenda.where((e) {
       final cocokKategori =
           _kategori == 0 || e.kategori == EventFilters.labels[_kategori].toUpperCase();
       final cocokWilayah = _wilayah == null || e.wilayah == _wilayah;
@@ -112,12 +88,12 @@ class _EventScreenState extends State<EventScreen> {
                   ),
                   if (_kategori == 0 && q.isEmpty) ...[
                     FeaturedEventCard(
-                      item: _featured,
+                      item: EventSeed.featured,
                       now: _now,
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => DetailEventScreen(event: _featured),
+                            builder: (_) => DetailEventScreen(event: EventSeed.featured),
                           ),
                         );
                       },

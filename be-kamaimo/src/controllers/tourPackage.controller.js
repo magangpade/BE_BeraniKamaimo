@@ -3,20 +3,8 @@ const asyncHandler = require('../utils/asyncHandler');
 const ApiResponse = require('../utils/ApiResponse');
 const ApiError = require('../utils/ApiError');
 
-exports.list = asyncHandler(async (req, res) => {
-  const { q, kategori } = req.query;
-  let sql = 'SELECT * FROM tour_package WHERE 1=1';
-  const params = [];
-  if (kategori && kategori !== 'Semua') {
-    sql += ' AND UPPER(kategori) = ?';
-    params.push(kategori.toUpperCase());
-  }
-  if (q) {
-    sql += ' AND (nama_wisata_id LIKE ? OR lokasi_id LIKE ? OR deskripsi_id LIKE ?)';
-    params.push(`%${q}%`, `%${q}%`, `%${q}%`);
-  }
-  sql += ' ORDER BY rating DESC';
-  const [rows] = await pool.query(sql, params);
+exports.list = asyncHandler(async (_req, res) => {
+  const [rows] = await pool.query('SELECT * FROM tour_package');
   ApiResponse.success(res, rows);
 });
 exports.detail = asyncHandler(async (req, res) => {
