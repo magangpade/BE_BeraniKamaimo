@@ -3,7 +3,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../../../core/utils/constants.dart';
-import '../../../data/repositories/atraksi_repository.dart';
 import '../../../data/repositories/desa_wisata_repository.dart';
 import '../../../data/repositories/gis_repository.dart';
 import '../../../data/repositories/weather_repository.dart';
@@ -1817,15 +1816,10 @@ class _EventData {
   });
 }
 
-class _EventSection extends StatefulWidget {
+class _EventSection extends StatelessWidget {
   const _EventSection();
 
-  @override
-  State<_EventSection> createState() => _EventSectionState();
-}
-
-class _EventSectionState extends State<_EventSection> {
-  static const _defaultEvents = [
+  static const _events = [
     _EventData(
       foto: 'assets/images/beranda/thumb_event1.png',
       tanggal: '24 OKT',
@@ -1843,43 +1837,6 @@ class _EventSectionState extends State<_EventSection> {
       deskripsi: 'Eksplorasi bawah laut, karnaval kostum bahari & expo UMKM.',
     ),
   ];
-
-  List<_EventData> _events = _defaultEvents;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchEvents());
-  }
-
-  Future<void> _fetchEvents() async {
-    try {
-      final repo = context.read<AtraksiRepository>();
-      final list = await repo.getAll();
-      if (list.isNotEmpty && mounted) {
-        setState(() {
-          _events = list.map((a) {
-            final now = DateTime.now();
-            final days = a.startdate.difference(now).inDays;
-            final countdownStr = days > 0 ? 'H-$days Hari' : (days == 0 ? 'Hari Ini' : 'Selesai');
-            return _EventData(
-              foto: a.foto != null && a.foto!.isNotEmpty ? a.foto! : 'assets/images/beranda/thumb_event1.png',
-              tanggal: '${a.startdate.day} ${_monthName(a.startdate.month)}',
-              countdown: countdownStr,
-              lokasi: a.location_id,
-              nama: a.nameEvent,
-              deskripsi: a.description_id,
-            );
-          }).toList();
-        });
-      }
-    } catch (_) {}
-  }
-
-  static String _monthName(int m) {
-    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGU', 'SEP', 'OKT', 'NOV', 'DES'];
-    return (m >= 1 && m <= 12) ? months[m - 1] : 'BLN';
-  }
 
   @override
   Widget build(BuildContext context) {

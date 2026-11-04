@@ -121,7 +121,6 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
         });
       }
     } catch (_) {}
-    if (mounted) setState(() => _loading = false);
   }
 
   void _openDetail(_Item it) {
