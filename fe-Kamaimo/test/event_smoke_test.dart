@@ -1,12 +1,17 @@
+import 'package:berani_kamaimo/core/providers/language_provider.dart';
 import 'package:berani_kamaimo/features/user/event/event_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   testWidgets('Tab Event: section, featured, dan filter kategori tampil',
       (tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      home: Scaffold(body: EventScreen()),
+    await tester.pumpWidget(ChangeNotifierProvider(
+      create: (_) => LanguageProvider(),
+      child: const MaterialApp(
+        home: Scaffold(body: EventScreen()),
+      ),
     ));
     await tester.pumpAndSettle();
 

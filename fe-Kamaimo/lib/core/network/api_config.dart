@@ -12,6 +12,7 @@ class ApiConfig {
   static const String rumahMakan = '/rumahMakan';
   static const String hotel = '/hotel';
   static const String ulasan = '/ulasan';
+  static const String eventRating = '/event-rating';
   static const String visitor = '/visitor';
   static const String pageview = '/pageview';
   static const String kunjunganTuris = '/kunjunganTuris';

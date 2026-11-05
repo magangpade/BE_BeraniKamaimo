@@ -9,6 +9,7 @@ router.use('/rumahMakan', require('./rumahMakan.routes'));
 router.use('/hotel', require('./hotel.routes'));
 router.use('/tourPackage', require('./tourPackage.routes'));
 router.use('/ulasan', require('./ulasan.routes'));
+router.use('/event-rating', require('./event-rating.routes'));
 router.use('/visitor', require('./visitor.routes'));
 router.use('/pageview', require('./pageview.routes'));
 router.use('/kunjunganTuris', require('./kunjunganTuris.routes'));

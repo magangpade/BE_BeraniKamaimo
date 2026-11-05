@@ -6,10 +6,11 @@ import '../../../../core/theme/app_colors.dart';
 class EventInfoCard extends StatelessWidget {
   final String badge;
   final String kategori;
-  final double rating;
+  final double? rating;
   final int ratingCount;
   final String judul;
   final String lokasi;
+  final VoidCallback? onRatingTap;
 
   const EventInfoCard({
     required this.badge,
@@ -18,85 +19,131 @@ class EventInfoCard extends StatelessWidget {
     required this.ratingCount,
     required this.judul,
     required this.lokasi,
+    this.onRatingTap,
+    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: AppColors.shadowCard,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.8)),
+        boxShadow: AppColors.shadowFloating,
       ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Badge baris atas.
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                _BadgeChip(label: badge, hasOutline: true, color: AppColors.goldChipBorder),
-                _KategoriChip(kategori),
-              ],
-            ),
-            const SizedBox(height: 8),
-            // Rating & judul besar.
-            Row(
-              children: [
-                const Icon(Icons.star_rounded, size: 14, color: AppColors.warning),
-                const SizedBox(width: 4),
-                Text(
-                  '$rating'.replaceAll('.', ','),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.pine900,
-                    fontFamily: 'PlusJakartaSans',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Label KEN, kategori, dan rating.
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: _BadgeChip(
+                  label: badge,
+                  hasOutline: true,
+                  color: AppColors.goldChipBorder,
+                ),
+              ),
+              const SizedBox(width: 8),
+              _KategoriChip(kategori),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              InkWell(
+                key: const Key('event-rating-trigger'),
+                onTap: onRatingTap,
+                borderRadius: BorderRadius.circular(99),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.emerald50,
+                    borderRadius: BorderRadius.circular(99),
+                    border: Border.all(color: AppColors.emerald100),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.star_rounded,
+                        size: 14,
+                        color: AppColors.warning,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        rating?.toStringAsFixed(1) ?? 'Baru',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.pine900,
+                          fontFamily: 'PlusJakartaSans',
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        ratingCount >= 1000
+                            ? '(${(ratingCount / 1000).toStringAsFixed(1)}k+)'
+                            : '($ratingCount)',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textSecondary,
+                          fontFamily: 'PlusJakartaSans',
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 4),
-                Text(
-                  '($ratingCount+)'.replaceAll('.', ','),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            judul == 'Pasar Kreatif Sulteng'
+                ? 'Pasar Kreatif Sulawesi Tengah'
+                : judul,
+            style: const TextStyle(
+              fontSize: 24,
+              height: 1.18,
+              fontWeight: FontWeight.w800,
+              color: AppColors.pine900,
+              fontFamily: 'PlusJakartaSans',
+            ),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              const Icon(
+                Icons.place_rounded,
+                size: 14,
+                color: AppColors.pine700,
+              ),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  lokasi,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
+                    height: 1.35,
                     fontWeight: FontWeight.w500,
                     color: AppColors.textSecondary,
                     fontFamily: 'PlusJakartaSans',
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              judul,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: AppColors.pine900,
-                fontFamily: 'PlusJakartaSans',
               ),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                const Icon(Icons.place_rounded, size: 14, color: AppColors.pine700),
-                const SizedBox(width: 4),
-                Text(
-                  lokasi,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.pine700,
-                    fontFamily: 'PlusJakartaSans',
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -109,18 +156,23 @@ class _KategoriChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bold = kategori == 'UMKM';
+    final label = bold
+        ? kategori
+        : kategori.isEmpty
+        ? kategori
+        : '${kategori[0]}${kategori.substring(1).toLowerCase()}';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: bold ? AppColors.pine700 : AppColors.emerald100,
+        color: bold ? AppColors.emerald50 : AppColors.emerald100,
         borderRadius: BorderRadius.circular(9999),
       ),
       child: Text(
-        kategori,
+        label,
         style: TextStyle(
           fontSize: 9,
           fontWeight: FontWeight.w800,
-          color: bold ? Colors.white : AppColors.emerald600,
+          color: AppColors.emerald600,
           fontFamily: 'PlusJakartaSans',
         ),
       ),
@@ -145,7 +197,7 @@ class _BadgeChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: hasOutline ? Colors.white : color,
+        color: hasOutline ? const Color(0xFFFAF3EC) : color,
         borderRadius: BorderRadius.circular(9999),
         border: hasOutline ? Border.all(color: color) : null,
       ),

@@ -1,92 +1,125 @@
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../data/repositories/event_rating_repository.dart';
 import 'event_data.dart';
 import 'event_detail_data.dart';
 import 'widgets/event_countdown_card.dart';
 import 'widgets/event_header_hero.dart';
 import 'widgets/event_info_card.dart';
+import 'widgets/event_location_map.dart';
+import 'widgets/event_rating_sheet.dart';
 import 'widgets/event_schedule_section.dart';
+import 'widgets/event_share_sheet.dart';
 
 class DetailEventScreen extends StatefulWidget {
   final EventItem event;
+  final EventRatingRepository? ratingRepository;
 
-  const DetailEventScreen({required this.event, super.key});
+  const DetailEventScreen({
+    required this.event,
+    this.ratingRepository,
+    super.key,
+  });
 
   @override
   State<DetailEventScreen> createState() => _DetailEventScreenState();
 }
 
 class _DetailEventScreenState extends State<DetailEventScreen> {
+  static const _cardDecoration = BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.all(Radius.circular(24)),
+    boxShadow: AppColors.shadowSoft,
+  );
   late final EventDetail _detail;
-  late final DateTime _start;
+  EventRatingRepository? _ratingRepository;
+  EventRatingSummary? _ratingSummary;
+  bool _ratingLoaded = false;
+  bool get _isPasarKreatif => widget.event.nama == 'Pasar Kreatif Sulteng';
 
   @override
   void initState() {
     super.initState();
     _detail = EventDetailSeed.of(widget.event.nama);
-    _start = DateTime(
-      widget.event.start.year,
-      widget.event.start.month,
-      widget.event.start.day,
-    );
   }
 
-  Duration get _diff {
-    final now = DateTime.now();
-    final mulai = DateTime(_start.year, _start.month, _start.day);
-    var d = mulai.difference(DateTime(now.year, now.month, now.day));
-    if (d.isNegative) d = Duration.zero;
-    return d;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_ratingLoaded) return;
+    _ratingLoaded = true;
+    _ratingRepository =
+        widget.ratingRepository ?? context.read<EventRatingRepository?>();
+    _loadRating();
+  }
+
+  Future<void> _loadRating() async {
+    final repository = _ratingRepository;
+    if (repository == null) return;
+    try {
+      final summary = await repository.getSummary(widget.event.ratingKey);
+      if (mounted) setState(() => _ratingSummary = summary);
+    } catch (_) {
+      // Data seed tetap terlihat saat API belum dapat dijangkau.
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final d = _detail;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.detailBackground,
       body: CustomScrollView(
         slivers: [
           // HERO + INFO OVERLAY
           SliverToBoxAdapter(
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                EventHeaderHero(
-                  foto: widget.event.foto,
-                  onBack: () => Navigator.of(context).pop(),
-                  onShare: () => _share(),
-                ),
-                Positioned(
-                  left: 20,
-                  right: 20,
-                  bottom: -36,
-                  child: EventInfoCard(
-                    badge: d.badge,
-                    kategori: widget.event.kategori,
-                    rating: widget.event.rating,
-                    ratingCount: widget.event.ratingCount,
-                    judul: widget.event.nama,
-                    lokasi: widget.event.lokasi,
+            // Tinggi ini mencakup seluruh kartu info. Sebelumnya kartu keluar
+            // dari batas Stack sehingga bagian bawah chip rating terlihat,
+            // tetapi tidak ikut menerima sentuhan.
+            child: SizedBox(
+              height: 435,
+              child: Stack(
+                children: [
+                  EventHeaderHero(
+                    foto: widget.event.foto,
+                    onBack: () => Navigator.of(context).pop(),
+                    onShare: () => _share(),
                   ),
-                ),
-              ],
+                  Positioned(
+                    left: 16,
+                    right: 16,
+                    // Mempertahankan posisi visual kartu sebelumnya:
+                    // batas bawah kartu berada 16 px sebelum countdown.
+                    bottom: 16,
+                    child: EventInfoCard(
+                      badge: d.badge,
+                      kategori: widget.event.kategori,
+                      rating: _ratingSummary == null
+                          ? (widget.event.ratingCount == 0
+                                ? null
+                                : widget.event.rating)
+                          : _ratingSummary!.rating,
+                      ratingCount:
+                          _ratingSummary?.ratingCount ??
+                          widget.event.ratingCount,
+                      judul: widget.event.nama,
+                      lokasi: d.lokasi,
+                      onRatingTap: _showRating,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 52),
           ),
 
           // COUNTDOWN
           SliverToBoxAdapter(
             child: EventCountdownCard(
-              hari: _diff.inDays,
-              jam: (_diff.inSeconds % 86400) ~/ 3600,
-              menit: (_diff.inSeconds % 3600) ~/ 60,
-              detik: _diff.inSeconds % 60,
+              start: widget.event.start,
+              end: widget.event.end,
             ),
           ),
 
@@ -94,17 +127,24 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
           SliverToBoxAdapter(
             child: EventScheduleSection(
               jadwal: _jadwal(),
+              jumlahHari:
+                  (widget.event.end ?? widget.event.start)
+                      .difference(widget.event.start)
+                      .inDays +
+                  1,
               tiket: widget.event.harga == null
-                  ? 'Tiket Masuk GRATIS, Terbuka Umum'
-                  : 'Tiket Masuk Mulai Rp${widget.event.harga}, Terbuka Umum',
+                  ? 'GRATIS'
+                  : 'Mulai Rp${widget.event.harga}',
               onSaveCalendar: () => _saveCalendar(),
             ),
           ),
 
           // TENTANG FESTIVAL
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              padding: const EdgeInsets.all(20),
+              decoration: _cardDecoration,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -152,8 +192,10 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
 
           // RANGKAIAN PROGRAM UTAMA
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              padding: const EdgeInsets.all(20),
+              decoration: _cardDecoration,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -172,13 +214,15 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Text(
-                        'Rangkaian Program Utama',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.pine900,
-                          fontFamily: 'PlusJakartaSans',
+                      const Expanded(
+                        child: Text(
+                          'Rangkaian Program Utama',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.pine900,
+                            fontFamily: 'PlusJakartaSans',
+                          ),
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -188,7 +232,7 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.warning.withValues(alpha: 0.2),
+                          color: Colors.transparent,
                           borderRadius: BorderRadius.circular(9999),
                         ),
                         child: const Text(
@@ -196,7 +240,7 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                           style: TextStyle(
                             fontSize: 8,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.orangeBadge,
+                            color: AppColors.textTertiary,
                             fontFamily: 'PlusJakartaSans',
                           ),
                         ),
@@ -204,25 +248,55 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                   ...d.program.asMap().entries.map((e) {
-                     final prog = e.value;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
+                  const Text(
+                    'Pilih kegiatan yang ingin kamu ikuti untuk mengenal cerita, karya, dan suasana khas dari event ini.',
+                    style: TextStyle(
+                      fontSize: 11,
+                      height: 1.45,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textSecondary,
+                      fontFamily: 'PlusJakartaSans',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ...d.program.asMap().entries.map((e) {
+                    final parts = e.value.split('|');
+                    final foto = e.key < d.programImages.length
+                        ? d.programImages[e.key]
+                        : null;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF7F9F6),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE4ECE4)),
+                      ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            width: 80,
-                            height: 80,
+                            width: 64,
+                            height: 64,
                             decoration: BoxDecoration(
                               color: AppColors.surfaceElevated,
                               borderRadius: BorderRadius.circular(14),
                             ),
-                            child: const Icon(
-                              Icons.image_rounded,
-                              size: 32,
-                              color: AppColors.textTertiary,
-                            ),
+                            child: foto == null
+                                ? Icon(
+                                    _programIcon(parts.first),
+                                    size: 32,
+                                    color: AppColors.textTertiary,
+                                  )
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(14),
+                                    child: Image.asset(
+                                      foto,
+                                      width: 64,
+                                      height: 64,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
@@ -230,24 +304,26 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  prog,
+                                  parts.first,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w800,
                                     color: AppColors.pine900,
                                     height: 1.4,
                                     fontFamily: 'PlusJakartaSans',
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                const Text(
-                                  'Lihat detail →',
+                                Text(
+                                  parts.length > 1
+                                      ? parts[1]
+                                      : 'Lihat detail →',
                                   style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.pine700,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.textSecondary,
                                     fontFamily: 'PlusJakartaSans',
                                   ),
                                 ),
@@ -265,16 +341,20 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
 
           // JADWAL & RUNDOWN
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              padding: const EdgeInsets.all(20),
+              decoration: _cardDecoration,
               child: _RundownSection(rundown: d.rundown, zonaWita: d.zonaWita),
             ),
           ),
 
           // LOKASI & AKSES
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              padding: const EdgeInsets.all(20),
+              decoration: _cardDecoration,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -293,22 +373,36 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Text(
-                        'Lokasi & Akses Perjalanan',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.pine900,
-                          fontFamily: 'PlusJakartaSans',
+                      const Expanded(
+                        child: Text(
+                          'Lokasi & Akses Perjalanan',
+                          maxLines: 2,
+                          style: TextStyle(
+                            fontSize: 16,
+                            height: 1.25,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.pine900,
+                            fontFamily: 'PlusJakartaSans',
+                          ),
                         ),
                       ),
-                      const Spacer(),
-                      TextButton(
-                        onPressed: () => _openMaps(),
-                        child: const Text(
-                          'Buka Petunjuk di Google Maps',
-                          style: TextStyle(
-                            fontSize: 11,
+                      const SizedBox(width: 8),
+                      Container(
+                        constraints: const BoxConstraints(maxWidth: 116),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.emerald50,
+                          borderRadius: BorderRadius.circular(99),
+                        ),
+                        child: Text(
+                          d.region,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 10,
                             fontWeight: FontWeight.w700,
                             color: AppColors.pine700,
                             fontFamily: 'PlusJakartaSans',
@@ -318,38 +412,7 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  // Map placeholder
-                  Container(
-                    height: 160,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceElevated,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.map_rounded,
-                            size: 48,
-                            color: AppColors.textTertiary,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            d.lokasi,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textSecondary,
-                              fontFamily: 'PlusJakartaSans',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  EventLocationMap(detail: d, onOpenMaps: _openMaps),
                   const SizedBox(height: 14),
                   ...d.akses.map(
                     (a) => Padding(
@@ -368,41 +431,52 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
           // FOOTER ORGANIZER
           SliverToBoxAdapter(
             child: Container(
-              margin: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(22),
-                boxShadow: AppColors.shadowCard,
+                color: const Color(0xFFEBF0EA),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: AppColors.border),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              child: Row(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: d.organizer.map((o) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(
-                          o,
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.pine700,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.verified_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          d.organizer.first,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.pine900,
+                            fontFamily: 'PlusJakartaSans',
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          '${d.organizer.skip(1).join(' ')} ${widget.event.start.year}',
                           style: const TextStyle(
                             fontSize: 11,
-                            fontWeight: FontWeight.w600,
                             color: AppColors.textSecondary,
                             fontFamily: 'PlusJakartaSans',
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '© ${DateTime.now().year} Dinas Pariwisata Sulteng',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textTertiary,
-                      fontFamily: 'PlusJakartaSans',
+                      ],
                     ),
                   ),
                 ],
@@ -418,28 +492,126 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
 
   String _jadwal() {
     final mulai = widget.event.start;
-    final akhir = widget.event.start.add(const Duration(days: 1));
-    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGU', 'SEP', 'OKT', 'NOV', 'DES'];
-    final m1 = (mulai.month >= 1 && mulai.month <= 12) ? months[mulai.month - 1] : 'BLN';
-    final m2 = (akhir.month >= 1 && akhir.month <= 12) ? months[akhir.month - 1] : 'BLN';
-    return '${mulai.day} $m1 ${mulai.year} - ${akhir.day} $m2 ${akhir.year} • 2 Hari Penuh';
+    final akhir =
+        widget.event.end ?? widget.event.start.add(const Duration(days: 1));
+    const months = [
+      'JAN',
+      'FEB',
+      'MAR',
+      'APR',
+      'MEI',
+      'JUN',
+      'JUL',
+      'AGU',
+      'SEP',
+      'OKT',
+      'NOV',
+      'DES',
+    ];
+    final m1 = (mulai.month >= 1 && mulai.month <= 12)
+        ? months[mulai.month - 1]
+        : 'BLN';
+    final m2 = (akhir.month >= 1 && akhir.month <= 12)
+        ? months[akhir.month - 1]
+        : 'BLN';
+    if (mulai.year == akhir.year) {
+      return '${mulai.day} $m1 - ${akhir.day} $m2 ${akhir.year}';
+    }
+    return '${mulai.day} $m1 ${mulai.year} - ${akhir.day} $m2 ${akhir.year}';
+  }
+
+  IconData _programIcon(String title) {
+    final value = title.toLowerCase();
+    if (value.contains('perahu') ||
+        value.contains('pulau') ||
+        value.contains('laut')) {
+      return Icons.sailing_rounded;
+    }
+    if (value.contains('kuliner') || value.contains('rasa')) {
+      return Icons.restaurant_rounded;
+    }
+    if (value.contains('tari') ||
+        value.contains('musik') ||
+        value.contains('seni')) {
+      return Icons.theater_comedy_rounded;
+    }
+    if (value.contains('tenun') ||
+        value.contains('kriya') ||
+        value.contains('produk')) {
+      return Icons.palette_rounded;
+    }
+    if (value.contains('situs') || value.contains('megalit')) {
+      return Icons.landscape_rounded;
+    }
+    return Icons.celebration_rounded;
   }
 
   void _share() {
-    SharePlus.instance.share(ShareParams(
-      text: 'Ayo hadiri agenda wisata "${widget.event.nama}" di ${widget.event.lokasi}! Temukan informasi selengkapnya di aplikasi Berani Kamaimo.',
-    ));
-  }
-
-  void _saveCalendar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Agenda "${widget.event.nama}" dicatat untuk tanggal ${widget.event.rentangTanggal}')),
+    const pasarKreatifPublicUrl = String.fromEnvironment(
+      'PASAR_KREATIF_EVENT_URL',
+    );
+    showEventShareSheet(
+      context,
+      event: widget.event,
+      publicUrl: _isPasarKreatif ? pasarKreatifPublicUrl : null,
     );
   }
 
+  void _showRating() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.4),
+      builder: (_) => EventRatingSheet(
+        event: widget.event,
+        initialRating: _ratingSummary?.myRating,
+        onSubmit: (rating) async {
+          final repository = _ratingRepository;
+          if (repository == null) return false;
+          final summary = await repository.submit(
+            widget.event.ratingKey,
+            rating,
+          );
+          if (mounted) setState(() => _ratingSummary = summary);
+          return true;
+        },
+      ),
+    );
+  }
+
+  Future<void> _saveCalendar() async {
+    String date(DateTime value) =>
+        '${value.year}${value.month.toString().padLeft(2, '0')}${value.day.toString().padLeft(2, '0')}';
+    final end = (widget.event.end ?? widget.event.start).add(
+      const Duration(days: 1),
+    );
+    final uri = Uri.https('calendar.google.com', '/calendar/render', {
+      'action': 'TEMPLATE',
+      'text': widget.event.nama,
+      'dates': '${date(widget.event.start)}/${date(end)}',
+      'location': widget.event.lokasi,
+      'details': widget.event.deskripsi,
+    });
+    try {
+      if (await launchUrl(uri, mode: LaunchMode.externalApplication)) return;
+    } catch (_) {}
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kalender tidak dapat dibuka.')),
+      );
+    }
+  }
+
   Future<void> _openMaps() async {
-    final q = Uri.encodeComponent('${widget.event.nama} ${widget.event.lokasi}');
-    final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$q');
+    final uri = Uri.parse(
+      _detail.mapsUrl.isNotEmpty
+          ? _detail.mapsUrl
+          : Uri.https('www.google.com', '/maps/search/', {
+              'api': '1',
+              'query': widget.event.lokasi,
+            }).toString(),
+    );
     try {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -469,29 +641,27 @@ class _RundownSectionState extends State<_RundownSection> {
       children: [
         Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.emerald50,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                Icons.schedule_rounded,
-                size: 18,
-                color: AppColors.pine700,
+            Image.asset(
+              'assets/images/beranda/pasar_kreatif_rundown_calendar.png',
+              width: 15,
+              height: 17,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Text(
+                'Jadwal & Rundown',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.pine900,
+                  fontFamily: 'PlusJakartaSans',
+                ),
               ),
             ),
             const SizedBox(width: 8),
-            const Text(
-              'Jadwal & Rundown',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: AppColors.pine900,
-                fontFamily: 'PlusJakartaSans',
-              ),
-            ),
-            const Spacer(),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
@@ -511,42 +681,54 @@ class _RundownSectionState extends State<_RundownSection> {
           ],
         ),
         const SizedBox(height: 12),
-        // Tabs Hari 1 / Hari 2
-        Row(
-          children: List.generate(widget.rundown.length, (i) {
-            final day = widget.rundown[i]['hari'] as String;
-            final active = i == _activeTab;
-            return Expanded(
-              child: GestureDetector(
-                onTap: () => setState(() => _activeTab = i),
-                child: Container(
-                  margin: EdgeInsets.only(
-                    right: i < widget.rundown.length - 1 ? 8 : 0,
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                    color: active ? AppColors.pine700 : Colors.white,
-                    borderRadius: BorderRadius.circular(9999),
-                    border: active ? null : Border.all(color: AppColors.border),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    day,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: active ? FontWeight.w700 : FontWeight.w600,
-                      color: active ? Colors.white : AppColors.pine900,
-                      fontFamily: 'PlusJakartaSans',
+        // Segmented tabs sesuai frame Figma.
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: const Color(0xFFECEFEA),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: List.generate(widget.rundown.length, (i) {
+              final day = widget.rundown[i]['hari'] as String;
+              final active = i == _activeTab;
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _activeTab = i),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: active ? AppColors.pine700 : Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      day,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: active ? FontWeight.w700 : FontWeight.w600,
+                        color: active ? Colors.white : AppColors.pine900,
+                        fontFamily: 'PlusJakartaSans',
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         ),
         const SizedBox(height: 14), // Timeline items for active day
-        ...(widget.rundown[_activeTab]['items'] as List).map((item) {
+        ...(widget.rundown[_activeTab]['items'] as List).asMap().entries.map((
+          entry,
+        ) {
+          final item = entry.value;
+          final last =
+              entry.key ==
+              (widget.rundown[_activeTab]['items'] as List).length - 1;
           final chipColor = _chipColor(item['chipColor'] as String);
+          final dotColor = _chipColor(
+            (item['dotColor'] ?? item['chipColor']) as String,
+          );
           return Padding(
             padding: const EdgeInsets.only(bottom: 14),
             child: Row(
@@ -559,13 +741,18 @@ class _RundownSectionState extends State<_RundownSection> {
                       width: 14,
                       height: 14,
                       decoration: BoxDecoration(
-                        color: chipColor,
+                        color: dotColor,
                         shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: dotColor.withValues(alpha: 0.2),
+                            spreadRadius: 4,
+                          ),
+                        ],
                       ),
                     ),
-                    Expanded(
-                      child: Container(width: 2, color: AppColors.divider),
-                    ),
+                    if (!last)
+                      Container(width: 2, height: 92, color: AppColors.divider),
                   ],
                 ),
                 const SizedBox(width: 12),
@@ -576,6 +763,21 @@ class _RundownSectionState extends State<_RundownSection> {
                     children: [
                       Row(
                         children: [
+                          Expanded(
+                            child: Text(
+                              item['jam'] as String,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color:
+                                    item['chipColor'] == 'yellow' ||
+                                        item['chipColor'] == 'earth'
+                                    ? AppColors.earth
+                                    : AppColors.pine700,
+                                fontFamily: 'PlusJakartaSans',
+                              ),
+                            ),
+                          ),
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
@@ -595,16 +797,6 @@ class _RundownSectionState extends State<_RundownSection> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 6),
-                          Text(
-                            item['jam'] as String,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.pine700,
-                              fontFamily: 'PlusJakartaSans',
-                            ),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 4),
@@ -620,8 +812,7 @@ class _RundownSectionState extends State<_RundownSection> {
                       const SizedBox(height: 2),
                       Text(
                         item['deskripsi'] as String,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                        maxLines: 4,
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
@@ -647,6 +838,10 @@ class _RundownSectionState extends State<_RundownSection> {
         return AppColors.emerald600;
       case 'yellow':
         return AppColors.warning;
+      case 'slate':
+        return AppColors.textSecondary;
+      case 'earth':
+        return AppColors.earth;
       default:
         return AppColors.pine700;
     }
@@ -664,9 +859,9 @@ class _AccessTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFF7F9F6),
         borderRadius: BorderRadius.circular(14),
-        boxShadow: AppColors.shadowCard,
+        border: Border.all(color: const Color(0xFFE4ECE4)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -9,9 +9,26 @@ class EventItem {
   final String deskripsi;
   final String rentangTanggal; // tampil di card
   final DateTime start;
+  final DateTime? end;
   final int? harga; // null = Gratis
   final double rating;
   final int ratingCount;
+
+  /// Kunci rating stabil untuk Event seed. Event berbeda tetap terpisah.
+  String get ratingKey {
+    final rawSlug = nama
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        .replaceAll(RegExp(r'^-|-$'), '');
+    final slug = rawSlug.isEmpty
+        ? 'event'
+        : (rawSlug.length > 109 ? rawSlug.substring(0, 109) : rawSlug);
+    final date =
+        '${start.year.toString().padLeft(4, '0')}-'
+        '${start.month.toString().padLeft(2, '0')}-'
+        '${start.day.toString().padLeft(2, '0')}';
+    return '$slug-$date';
+  }
 
   const EventItem({
     required this.foto,
@@ -22,9 +39,10 @@ class EventItem {
     required this.deskripsi,
     required this.rentangTanggal,
     required this.start,
+    this.end,
     this.harga,
-    this.rating = 4.7,
-    this.ratingCount = 1100,
+    this.rating = 0,
+    this.ratingCount = 0,
   });
 }
 
@@ -34,20 +52,21 @@ class EventSeed {
   static final featured = EventItem(
     foto: 'assets/images/beranda/thumb_event1.png',
     kategori: 'BUDAYA',
-    lokasi: 'Tentena, Poso',
+    lokasi: 'Tepian Danau Poso, Anjungan Tentena, Kab. Poso',
     wilayah: 'Poso',
     nama: 'Festival Danau Poso ke-24',
     deskripsi:
         'Parade budaya, tari mogele, & lomba perahu naga di tepian Danau Poso.',
     rentangTanggal: '24 - 26 Oktober 2026',
     start: DateTime(2026, 10, 24),
-    rating: 4.5,
+    end: DateTime(2026, 10, 26),
+    rating: 4.9,
     ratingCount: 1200,
   );
 
   static final List<EventItem> agenda = [
     EventItem(
-      foto: 'assets/images/beranda/thumb_event1.png',
+      foto: 'assets/images/beranda/pasar_kreatif_hero.png',
       kategori: 'UMKM',
       lokasi: 'Taman GOR, Palu',
       wilayah: 'Palu',
@@ -55,18 +74,20 @@ class EventSeed {
       deskripsi: 'Kriya lokal, kuliner khas, dan musik serba.',
       rentangTanggal: '31 Oktober - 1 November 2026',
       start: DateTime(2026, 10, 31),
+      end: DateTime(2026, 11, 1),
       rating: 4.7,
-      ratingCount: 11000,
+      ratingCount: 1100,
     ),
     EventItem(
       foto: 'assets/images/destinasi/card_pulo_dua.png',
       kategori: 'BAHARI',
-      lokasi: 'Banggai Moutong',
-      wilayah: 'Banggai',
+      lokasi: 'Parigi Moutong',
+      wilayah: 'Parigi Moutong',
       nama: 'Festival Teluk Tomini (FTT)',
       deskripsi: 'Karnaval bahari & expo UMKM di tepi teluk.',
       rentangTanggal: '18 - 20 November 2026',
       start: DateTime(2026, 11, 18),
+      end: DateTime(2026, 11, 20),
     ),
     EventItem(
       foto: 'assets/images/destinasi/card_bada.png',
@@ -75,19 +96,21 @@ class EventSeed {
       wilayah: 'Poso',
       nama: 'Jelajah Megalitikum Lore',
       deskripsi: 'Jelajah situs purba bersama penduduk lokal.',
-      rentangTanggal: '25 - 29 November 2026',
-      start: DateTime(2026, 11, 25),
+      rentangTanggal: '28 - 29 November 2026',
+      start: DateTime(2026, 11, 28),
+      end: DateTime(2026, 11, 29),
       harga: 150000,
     ),
     EventItem(
       foto: 'assets/images/beranda/kartu_kolam_kaca.png',
       kategori: 'UMKM',
-      lokasi: 'Anguja Nusantara, Palu',
+      lokasi: 'Kota Palu',
       wilayah: 'Palu',
       nama: 'Pekan Kuliner Kaili',
       deskripsi: 'Cicipi kuliner nusantara rasa khas Kaili.',
       rentangTanggal: '12 - 13 Desember 2026',
       start: DateTime(2026, 12, 12),
+      end: DateTime(2026, 12, 13),
     ),
     EventItem(
       foto: 'assets/images/detail_wisata/hero_luk_panenteng.png',
@@ -98,6 +121,7 @@ class EventSeed {
       deskripsi: 'Lomba perahu, festival kuliner pesisir, dan pertunjukan seni pantai.',
       rentangTanggal: '6 - 8 Oktober 2026',
       start: DateTime(2026, 10, 6),
+      end: DateTime(2026, 10, 8),
     ),
     EventItem(
       foto: 'assets/images/beranda/kartu_sombori.png',
@@ -107,7 +131,8 @@ class EventSeed {
       nama: 'Gelar UMKM Kota Palu',
       deskripsi: 'Bazar kuliner Kaili, kriya lokal, dan oleh-oleh khas Sulawesi Tengah.',
       rentangTanggal: '4 - 6 April 2026',
-      start: DateTime(2026, 4, 6),
+      start: DateTime(2026, 4, 4),
+      end: DateTime(2026, 4, 6),
     ),
     EventItem(
       foto: 'assets/images/destinasi/card_togean.png',
@@ -115,9 +140,11 @@ class EventSeed {
       lokasi: 'Kepulauan Togean, Tojo Una-Una',
       wilayah: 'Tojo Una-Una',
       nama: 'Wisata Pulau Togean',
-      deskripsi: 'Snorkeling, jelajah pulau, dan pengalaman bermalam di tepi pantai.',
-      rentangTanggal: '26 - 31 Agustus 2026',
-      start: DateTime(2026, 8, 26),
+      deskripsi:
+          'Snorkeling, jelajah pulau, dan pengalaman bermalam di tepi pantai.',
+      rentangTanggal: '28 - 31 Agustus 2026',
+      start: DateTime(2026, 8, 28),
+      end: DateTime(2026, 8, 31),
     ),
     EventItem(
       foto: 'assets/images/beranda/kartu_sombori.png',
@@ -128,6 +155,7 @@ class EventSeed {
       deskripsi: 'Tenun khas Donggala, kerajinan lokal, dan demo menenun.',
       rentangTanggal: '14 - 18 Desember 2026',
       start: DateTime(2026, 12, 14),
+      end: DateTime(2026, 12, 18),
     ),
   ];
 

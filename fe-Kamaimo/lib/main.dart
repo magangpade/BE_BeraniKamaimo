@@ -15,6 +15,7 @@ import 'data/repositories/kuliner_repository.dart';
 import 'data/repositories/kunjungan_turis_repository.dart';
 import 'data/repositories/tour_package_repository.dart';
 import 'data/repositories/ulasan_repository.dart';
+import 'data/repositories/event_rating_repository.dart';
 import 'data/repositories/weather_repository.dart';
 import 'features/user/sambutan/halaman_sambutan.dart';
 import 'features/user/detail_wisata/detail_wisata_screen.dart';
@@ -35,52 +36,42 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<LanguageProvider>(
           create: (_) => LanguageProvider(),
         ),
-        Provider<TokenStore>(
-          create: (_) => InMemoryTokenStore(),
-        ),
+        Provider<TokenStore>(create: (_) => InMemoryTokenStore()),
         ProxyProvider<TokenStore, ApiClient>(
-          update: (_, tokenStore, _) =>
-              ApiClient(tokenStore: tokenStore),
+          update: (_, tokenStore, _) => ApiClient(tokenStore: tokenStore),
         ),
         ProxyProvider<ApiClient, KunjunganTurisRepository>(
-          update: (_, apiClient, _) =>
-              KunjunganTurisRepository(apiClient),
+          update: (_, apiClient, _) => KunjunganTurisRepository(apiClient),
         ),
         ProxyProvider<ApiClient, DesaWisataRepository>(
-          update: (_, apiClient, _) =>
-              DesaWisataRepository(apiClient),
+          update: (_, apiClient, _) => DesaWisataRepository(apiClient),
         ),
         ProxyProvider<ApiClient, WeatherRepository>(
-          update: (_, apiClient, _) =>
-              WeatherRepository(apiClient),
+          update: (_, apiClient, _) => WeatherRepository(apiClient),
         ),
         ProxyProvider<ApiClient, GisRepository>(
-          update: (_, apiClient, _) =>
-              GisRepository(apiClient),
+          update: (_, apiClient, _) => GisRepository(apiClient),
         ),
         ProxyProvider<ApiClient, AtraksiRepository>(
-          update: (_, apiClient, _) =>
-              AtraksiRepository(apiClient),
+          update: (_, apiClient, _) => AtraksiRepository(apiClient),
         ),
         ProxyProvider<ApiClient, HotelRepository>(
-          update: (_, apiClient, _) =>
-              HotelRepository(apiClient),
+          update: (_, apiClient, _) => HotelRepository(apiClient),
         ),
         ProxyProvider<ApiClient, KulinerRepository>(
-          update: (_, apiClient, _) =>
-              KulinerRepository(apiClient),
+          update: (_, apiClient, _) => KulinerRepository(apiClient),
         ),
         ProxyProvider<ApiClient, TourPackageRepository>(
-          update: (_, apiClient, _) =>
-              TourPackageRepository(apiClient),
+          update: (_, apiClient, _) => TourPackageRepository(apiClient),
         ),
         ProxyProvider<ApiClient, JarakRepository>(
-          update: (_, apiClient, _) =>
-              JarakRepository(apiClient),
+          update: (_, apiClient, _) => JarakRepository(apiClient),
         ),
         ProxyProvider<ApiClient, UlasanRepository>(
-          update: (_, apiClient, _) =>
-              UlasanRepository(apiClient),
+          update: (_, apiClient, _) => UlasanRepository(apiClient),
+        ),
+        ProxyProvider<ApiClient, EventRatingRepository>(
+          update: (_, apiClient, _) => EventRatingRepository(apiClient),
         ),
       ],
       child: MaterialApp(
@@ -91,7 +82,8 @@ class MyApp extends StatelessWidget {
         routes: {
           AppConstants.routeSambutan: (context) => const HalamanSambutan(),
           AppConstants.routeHome: (context) => const UserShell(),
-          AppConstants.routePaketWisata: (context) => const SemuaDestinasiScreen(),
+          AppConstants.routePaketWisata: (context) =>
+              const SemuaDestinasiScreen(),
         },
         onGenerateRoute: (settings) {
           if (settings.name == AppConstants.routeDetailDesa) {
@@ -125,8 +117,10 @@ class _NotFound extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Halaman Tidak Ditemukan')),
       body: Center(
-        child: Text('Halaman "${ModalRoute.of(context)?.settings.name}" tidak ada.',
-            style: Theme.of(context).textTheme.bodySmall),
+        child: Text(
+          'Halaman "${ModalRoute.of(context)?.settings.name}" tidak ada.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
       ),
     );
   }

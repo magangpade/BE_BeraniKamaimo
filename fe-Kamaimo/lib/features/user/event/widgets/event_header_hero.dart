@@ -1,11 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 
 /// Hero Tab Event: foto penuh layar + tombol kembali & bagikan di pojok.
-/// Tombol "Bagikan" dicabut ke M2 (belum ada dependency url_launcher).
 class EventHeaderHero extends StatelessWidget {
   final String foto;
   final VoidCallback onBack;
@@ -17,7 +14,7 @@ class EventHeaderHero extends StatelessWidget {
     required this.onShare,
   });
 
-  static const double _height = 380;
+  static const double _height = 295;
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +25,7 @@ class EventHeaderHero extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           // Foto hero + scrim bawah agar teks di card floating tetap readable.
-          LayoutBuilder(
-            builder: (context, _) => _heroImage(context),
-          ),
+          LayoutBuilder(builder: (context, _) => _heroImage(context)),
           const DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -72,10 +67,8 @@ class EventHeaderHero extends StatelessWidget {
       return Image.asset(
         f,
         fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => Image.asset(
-          fallbackAsset,
-          fit: BoxFit.cover,
-        ),
+        errorBuilder: (_, _, _) =>
+            Image.asset(fallbackAsset, fit: BoxFit.cover),
       );
     }
     return Image.asset(fallbackAsset, fit: BoxFit.cover);
@@ -88,11 +81,7 @@ class _GlassButton extends StatelessWidget {
   final VoidCallback? onTap;
   final String tooltip;
 
-  const _GlassButton({
-    required this.icon,
-    this.onTap,
-    required this.tooltip,
-  });
+  const _GlassButton({required this.icon, this.onTap, required this.tooltip});
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +93,9 @@ class _GlassButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.surfaceVariantSoft,
           borderRadius: BorderRadius.circular(9999),
-          border: Border.all(color: AppColors.textOnPrimary.withValues(alpha: 0.15)),
+          border: Border.all(
+            color: AppColors.textOnPrimary.withValues(alpha: 0.15),
+          ),
           boxShadow: const [
             BoxShadow(
               color: Color(0x1A000000),

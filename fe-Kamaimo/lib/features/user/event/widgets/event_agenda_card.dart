@@ -8,7 +8,7 @@ class EventAgendaCard extends StatelessWidget {
   final EventItem item;
   final VoidCallback onTap;
 
-  const EventAgendaCard({required this.item, required this.onTap});
+  const EventAgendaCard({required this.item, required this.onTap, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,11 +42,7 @@ class EventAgendaCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            _CategoryChip(kategori: item.kategori),
-                          ],
-                        ),
+                        Row(children: [_CategoryChip(kategori: item.kategori)]),
                         const SizedBox(height: 5),
                         Text(
                           item.nama,
@@ -62,8 +58,11 @@ class EventAgendaCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            const Icon(Icons.calendar_month_rounded,
-                                size: 10, color: AppColors.pine700),
+                            const Icon(
+                              Icons.calendar_month_rounded,
+                              size: 10,
+                              color: AppColors.pine700,
+                            ),
                             const SizedBox(width: 4),
                             Flexible(
                               child: Text(
@@ -82,11 +81,16 @@ class EventAgendaCard extends StatelessWidget {
                         const SizedBox(height: 3),
                         Row(
                           children: [
-                            const Icon(Icons.star_rounded,
-                                size: 9, color: AppColors.warning),
+                            const Icon(
+                              Icons.star_rounded,
+                              size: 9,
+                              color: AppColors.warning,
+                            ),
                             const SizedBox(width: 2),
                             Text(
-                              '${item.rating.toStringAsFixed(1)}',
+                              item.ratingCount == 0
+                                  ? 'Baru'
+                                  : item.rating.toStringAsFixed(1),
                               style: const TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
@@ -96,7 +100,9 @@ class EventAgendaCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '(${item.ratingCount}+)',
+                              item.ratingCount == 0
+                                  ? '(0)'
+                                  : '(${item.ratingCount}+)',
                               style: const TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
@@ -124,10 +130,7 @@ class EventAgendaCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const Divider(
-                height: 18,
-                color: AppColors.divider,
-              ),
+              const Divider(height: 18, color: AppColors.divider),
               Row(
                 children: [
                   Text(
@@ -164,8 +167,11 @@ class EventAgendaCard extends StatelessWidget {
                               fontFamily: 'PlusJakartaSans',
                             ),
                           ),
-                          Icon(Icons.arrow_forward_rounded,
-                              size: 9, color: AppColors.pine900),
+                          Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 9,
+                            color: AppColors.pine900,
+                          ),
                         ],
                       ),
                     ),
