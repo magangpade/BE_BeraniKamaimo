@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../paket_data.dart';
 
@@ -8,10 +10,15 @@ class PaketFilters extends StatelessWidget {
   final int kategoriIndex;
   final ValueChanged<int> onKategori;
 
-  const PaketFilters({required this.kategoriIndex, required this.onKategori});
+  const PaketFilters({
+    super.key,
+    required this.kategoriIndex,
+    required this.onKategori,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final isEnglish = context.watch<LanguageProvider>().isEnglish;
     return SizedBox(
       height: 44,
       child: ListView.separated(
@@ -33,7 +40,9 @@ class PaketFilters extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Text(
-                PaketSeed.kategori[i],
+                isEnglish
+                    ? const ['All', 'Marine', 'Culture', 'Trekking'][i]
+                    : PaketSeed.kategori[i],
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,

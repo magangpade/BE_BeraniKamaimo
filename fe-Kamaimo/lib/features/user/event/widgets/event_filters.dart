@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Chips kategori + dropdown tanggal & wilayah.
@@ -32,6 +34,14 @@ class EventFilters extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEnglish = context.watch<LanguageProvider?>()?.isEnglish ?? false;
+    final visibleCategories = isEnglish
+        ? const ['All', 'Culture', 'Marine', 'MSME', 'Ecotourism']
+        : labels;
+    final visibleDates = isEnglish
+        ? const ['All dates', 'This month', 'Next month', 'This year']
+        : tanggalOptions;
+    final allRegions = isEnglish ? 'All regions' : 'Semua wilayah';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -55,7 +65,7 @@ class EventFilters extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    labels[i],
+                    visibleCategories[i],
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: active ? FontWeight.w700 : FontWeight.w600,
@@ -76,19 +86,19 @@ class EventFilters extends StatelessWidget {
               Expanded(
                 child: _DropdownPill(
                   icon: Icons.event_available_rounded,
-                  label: tanggalOptions[tanggalIndex],
-                  items: tanggalOptions,
+                  label: visibleDates[tanggalIndex],
+                  items: visibleDates,
                   selectedIndex: tanggalIndex,
-                  onSelected: (v) => onTanggal(tanggalOptions.indexOf(v)),
+                  onSelected: (v) => onTanggal(visibleDates.indexOf(v)),
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: _DropdownPill(
                   icon: Icons.place_rounded,
-                  label: wilayah == null ? 'Semua wilayah' : wilayah!,
-                  items: ['Semua wilayah', ...wilayahList],
-                  onSelected: (v) => onWilayah(v),
+                  label: wilayah ?? allRegions,
+                  items: [allRegions, ...wilayahList],
+                  onSelected: (v) => onWilayah(v == allRegions ? null : v),
                 ),
               ),
             ],
@@ -161,8 +171,11 @@ class _DropdownPill extends StatelessWidget {
                 ),
               ),
             ),
-            const Icon(Icons.keyboard_arrow_down_rounded,
-                size: 14, color: AppColors.textTertiary),
+            const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 14,
+              color: AppColors.textTertiary,
+            ),
           ],
         ),
       ),

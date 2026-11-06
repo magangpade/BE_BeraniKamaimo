@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../event_data.dart';
+import '../event_locale.dart';
 
 /// Kartu baris untuk,total section "Agenda mendatang".
 class EventAgendaCard extends StatelessWidget {
@@ -12,6 +15,7 @@ class EventAgendaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEnglish = context.watch<LanguageProvider?>()?.isEnglish ?? false;
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -42,10 +46,17 @@ class EventAgendaCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(children: [_CategoryChip(kategori: item.kategori)]),
+                        Row(
+                          children: [
+                            _CategoryChip(
+                              kategori: item.kategori,
+                              isEnglish: isEnglish,
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 5),
                         Text(
-                          item.nama,
+                          EventLocale.name(item, isEnglish),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -66,7 +77,7 @@ class EventAgendaCard extends StatelessWidget {
                             const SizedBox(width: 4),
                             Flexible(
                               child: Text(
-                                item.rentangTanggal,
+                                EventLocale.dateRange(item, isEnglish),
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   fontSize: 10,
@@ -82,39 +93,29 @@ class EventAgendaCard extends StatelessWidget {
                         Row(
                           children: [
                             const Icon(
-                              Icons.star_rounded,
-                              size: 9,
-                              color: AppColors.warning,
-                            ),
-                            const SizedBox(width: 2),
-                            Text(
-                              item.ratingCount == 0
-                                  ? 'Baru'
-                                  : item.rating.toStringAsFixed(1),
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.pine900,
-                                fontFamily: 'PlusJakartaSans',
-                              ),
+                              Icons.place_rounded,
+                              size: 10,
+                              color: AppColors.pine700,
                             ),
                             const SizedBox(width: 4),
-                            Text(
-                              item.ratingCount == 0
-                                  ? '(0)'
-                                  : '(${item.ratingCount}+)',
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textBody,
-                                fontFamily: 'PlusJakartaSans',
+                            Expanded(
+                              child: Text(
+                                EventLocale.cardLocation(item, isEnglish),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textBody,
+                                  fontFamily: 'PlusJakartaSans',
+                                ),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          item.deskripsi,
+                          EventLocale.description(item, isEnglish),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -134,7 +135,9 @@ class EventAgendaCard extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    item.harga == null ? 'Gratis' : _hargaLabel(item.harga!),
+                    item.harga == null
+                        ? (isEnglish ? 'Free' : 'Gratis')
+                        : _hargaLabel(item.harga!, isEnglish),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
@@ -155,19 +158,19 @@ class EventAgendaCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(9999),
                       ),
                       alignment: Alignment.center,
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Info Detail ',
-                            style: TextStyle(
+                            isEnglish ? 'View Details ' : 'Info Detail ',
+                            style: const TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                               color: AppColors.pine900,
                               fontFamily: 'PlusJakartaSans',
                             ),
                           ),
-                          Icon(
+                          const Icon(
                             Icons.arrow_forward_rounded,
                             size: 9,
                             color: AppColors.pine900,
@@ -185,7 +188,7 @@ class EventAgendaCard extends StatelessWidget {
     );
   }
 
-  static String _hargaLabel(int harga) {
+  static String _hargaLabel(int harga, bool isEnglish) {
     final s = harga.toString();
     final buf = StringBuffer();
     for (var i = 0; i < s.length; i++) {
@@ -193,33 +196,33 @@ class EventAgendaCard extends StatelessWidget {
       buf.write(s[i]);
       if (sisa > 1 && sisa % 3 == 1) buf.write('.');
     }
-    return 'Mulai Rp$buf';
+    return isEnglish ? 'From Rp$buf' : 'Mulai Rp$buf';
   }
 }
 
-/// Chip kategori: UMKM = pine penuh, lainnya = mint lembut.
+/// Semua kategori memakai warna label yang sama.
 class _CategoryChip extends StatelessWidget {
   final String kategori;
+  final bool isEnglish;
 
-  const _CategoryChip({required this.kategori});
+  const _CategoryChip({required this.kategori, required this.isEnglish});
 
   @override
   Widget build(BuildContext context) {
-    final dark = kategori == 'UMKM';
     return Container(
       height: 18,
       padding: const EdgeInsets.symmetric(horizontal: 7),
       decoration: BoxDecoration(
-        color: dark ? AppColors.pine700 : AppColors.emerald100,
+        color: AppColors.emerald50,
         borderRadius: BorderRadius.circular(9999),
       ),
       alignment: Alignment.center,
       child: Text(
-        kategori[0] + kategori.substring(1).toLowerCase(),
-        style: TextStyle(
+        EventLocale.category(kategori, isEnglish),
+        style: const TextStyle(
           fontSize: 8,
           fontWeight: FontWeight.w800,
-          color: dark ? Colors.white : AppColors.emerald600,
+          color: AppColors.pine700,
           fontFamily: 'PlusJakartaSans',
         ),
       ),

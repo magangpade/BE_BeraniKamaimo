@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../event_data.dart';
+import '../event_locale.dart';
 
 class EventRatingSheet extends StatefulWidget {
   const EventRatingSheet({
@@ -32,6 +35,16 @@ class _EventRatingSheetState extends State<EventRatingSheet> {
     'Bagus',
     'Sangat bagus',
   ];
+  static const _englishLabels = [
+    '',
+    'Very poor',
+    'Poor',
+    'Fair',
+    'Good',
+    'Excellent',
+  ];
+
+  bool get _isEnglish => context.read<LanguageProvider?>()?.isEnglish ?? false;
 
   Future<void> _submit() async {
     if (_rating == 0 || _sending) return;
@@ -45,13 +58,18 @@ class _EventRatingSheetState extends State<EventRatingSheet> {
       if (saved) {
         Navigator.of(context).pop();
       } else {
-        setState(() => _error = 'Rating belum tersimpan. Coba lagi.');
+        setState(
+          () => _error = _isEnglish
+              ? 'Your rating was not saved. Please try again.'
+              : 'Rating belum tersimpan. Coba lagi.',
+        );
       }
     } catch (_) {
       if (mounted) {
         setState(
-          () =>
-              _error = 'Gagal mengirim rating. Periksa koneksi lalu coba lagi.',
+          () => _error = _isEnglish
+              ? 'Could not submit your rating. Check your connection and try again.'
+              : 'Gagal mengirim rating. Periksa koneksi lalu coba lagi.',
         );
       }
     } finally {
@@ -61,9 +79,18 @@ class _EventRatingSheetState extends State<EventRatingSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final isEnglish = context.watch<LanguageProvider?>()?.isEnglish ?? false;
     final isPasar = widget.event.nama == 'Pasar Kreatif Sulteng';
-    final title = isPasar ? 'Pasar Kreatif Sulawesi Tengah' : widget.event.nama;
-    final location = isPasar ? 'Taman GOR, Kota Palu' : widget.event.lokasi;
+    final title = isEnglish
+        ? EventLocale.name(widget.event, true)
+        : isPasar
+        ? 'Pasar Kreatif Sulawesi Tengah'
+        : widget.event.nama;
+    final location = isEnglish
+        ? EventLocale.location(widget.event, true)
+        : isPasar
+        ? 'Taman GOR, Kota Palu'
+        : widget.event.lokasi;
     final image = isPasar
         ? 'assets/images/beranda/pasar_kreatif_rating_thumb.png'
         : widget.event.foto;
@@ -100,10 +127,10 @@ class _EventRatingSheetState extends State<EventRatingSheet> {
                     const SizedBox(height: 16),
                     Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Beri rating',
-                            style: TextStyle(
+                            isEnglish ? 'Rate this event' : 'Beri rating',
+                            style: const TextStyle(
                               fontFamily: 'PlusJakartaSans',
                               fontSize: 24,
                               fontWeight: FontWeight.w800,
@@ -123,7 +150,7 @@ class _EventRatingSheetState extends State<EventRatingSheet> {
                             height: 32,
                           ),
                           padding: EdgeInsets.zero,
-                          tooltip: 'Tutup',
+                          tooltip: isEnglish ? 'Close' : 'Tutup',
                           style: IconButton.styleFrom(
                             backgroundColor: const Color(0xFFF7FAF7),
                             side: const BorderSide(color: Color(0xFFE4ECE4)),
@@ -133,9 +160,11 @@ class _EventRatingSheetState extends State<EventRatingSheet> {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'Bagaimana pengalamanmu di tempat ini?',
-                      style: TextStyle(
+                    Text(
+                      isEnglish
+                          ? 'How was your experience at this event?'
+                          : 'Bagaimana pengalamanmu di tempat ini?',
+                      style: const TextStyle(
                         fontFamily: 'PlusJakartaSans',
                         fontSize: 13,
                         color: AppColors.textSecondary,
@@ -211,10 +240,10 @@ class _EventRatingSheetState extends State<EventRatingSheet> {
                       ),
                     ),
                     const SizedBox(height: 22),
-                    const Center(
+                    Center(
                       child: Text(
-                        'Rating kamu',
-                        style: TextStyle(
+                        isEnglish ? 'Your rating' : 'Rating kamu',
+                        style: const TextStyle(
                           fontFamily: 'PlusJakartaSans',
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -239,7 +268,9 @@ class _EventRatingSheetState extends State<EventRatingSheet> {
                                   }),
                             borderRadius: BorderRadius.circular(12),
                             child: Semantics(
-                              label: '$value dari 5 bintang',
+                              label: isEnglish
+                                  ? '$value out of 5 stars'
+                                  : '$value dari 5 bintang',
                               selected: selected,
                               button: true,
                               child: Container(
@@ -278,7 +309,9 @@ class _EventRatingSheetState extends State<EventRatingSheet> {
                     Center(
                       child: Text(
                         _rating == 0
-                            ? 'Pilih rating'
+                            ? (isEnglish ? 'Choose a rating' : 'Pilih rating')
+                            : isEnglish
+                            ? '$_rating out of 5 · ${_englishLabels[_rating]}'
                             : '$_rating dari 5 · ${_labels[_rating]}',
                         style: const TextStyle(
                           fontFamily: 'PlusJakartaSans',
@@ -324,9 +357,9 @@ class _EventRatingSheetState extends State<EventRatingSheet> {
                                   color: Colors.white,
                                 ),
                               )
-                            : const Text(
-                                'KIRIM',
-                                style: TextStyle(
+                            : Text(
+                                isEnglish ? 'SUBMIT' : 'KIRIM',
+                                style: const TextStyle(
                                   fontFamily: 'PlusJakartaSans',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
@@ -345,9 +378,9 @@ class _EventRatingSheetState extends State<EventRatingSheet> {
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           padding: EdgeInsets.zero,
                         ),
-                        child: const Text(
-                          'Batal',
-                          style: TextStyle(
+                        child: Text(
+                          isEnglish ? 'Cancel' : 'Batal',
+                          style: const TextStyle(
                             fontFamily: 'PlusJakartaSans',
                             fontSize: 13,
                             color: AppColors.textSecondary,

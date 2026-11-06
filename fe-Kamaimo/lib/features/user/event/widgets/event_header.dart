@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Panel hero Tab Event: judul, subjudul, dan search bar.
@@ -10,6 +12,7 @@ class EventHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEnglish = context.watch<LanguageProvider?>()?.isEnglish ?? false;
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -20,11 +23,7 @@ class EventHeader extends StatelessWidget {
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Color(0xFFECFDF5),
-                Color(0xFFF2F4EE),
-                Color(0xFFFFFFFF),
-              ],
+              colors: [Color(0xFFECFDF5), Color(0xFFF2F4EE), Color(0xFFFFFFFF)],
             ),
             borderRadius: BorderRadius.circular(22),
           ),
@@ -40,11 +39,17 @@ class EventHeader extends StatelessWidget {
                     height: 1.3,
                     fontFamily: 'PlusJakartaSans',
                   ),
-                  children: const [
-                    TextSpan(text: 'Temukan cerita di setiap '),
+                  children: [
                     TextSpan(
-                      text: 'event Sulteng',
-                      style: TextStyle(
+                      text: isEnglish
+                          ? 'Discover stories at every '
+                          : 'Temukan cerita di setiap ',
+                    ),
+                    TextSpan(
+                      text: isEnglish
+                          ? 'Central Sulawesi event'
+                          : 'event Sulteng',
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
                         color: AppColors.pine700,
@@ -54,9 +59,11 @@ class EventHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
-                'Dari festival budaya hingga pesona bahari. Pilih momen terbaik untuk jelajah Sulawesi Tengah.',
-                style: TextStyle(
+              Text(
+                isEnglish
+                    ? 'From cultural festivals to coastal experiences. Find the best moment to explore Central Sulawesi.'
+                    : 'Dari festival budaya hingga pesona bahari. Pilih momen terbaik untuk jelajah Sulawesi Tengah.',
+                style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
                   color: AppColors.textBody,
@@ -75,8 +82,11 @@ class EventHeader extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.search_rounded,
-                        size: 18, color: AppColors.textTertiary),
+                    const Icon(
+                      Icons.search_rounded,
+                      size: 18,
+                      color: AppColors.textTertiary,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: TextField(
@@ -87,7 +97,7 @@ class EventHeader extends StatelessWidget {
                           color: AppColors.pine900,
                           fontFamily: 'PlusJakartaSans',
                         ),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           isCollapsed: true,
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
@@ -97,8 +107,10 @@ class EventHeader extends StatelessWidget {
                           focusedErrorBorder: InputBorder.none,
                           filled: false,
                           fillColor: Colors.transparent,
-                          hintText: 'Cari event atau lokasi...',
-                          hintStyle: TextStyle(
+                          hintText: isEnglish
+                              ? 'Search events or locations...'
+                              : 'Cari event atau lokasi...',
+                          hintStyle: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                             color: AppColors.textTertiary,
@@ -114,11 +126,7 @@ class EventHeader extends StatelessWidget {
             ],
           ),
         ),
-        const Positioned(
-          right: -12,
-          top: -26,
-          child: _Glow(),
-        ),
+        const Positioned(right: -12, top: -26, child: _Glow()),
       ],
     );
   }

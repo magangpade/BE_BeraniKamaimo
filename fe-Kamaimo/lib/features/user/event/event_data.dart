@@ -81,7 +81,7 @@ class EventSeed {
     EventItem(
       foto: 'assets/images/destinasi/card_pulo_dua.png',
       kategori: 'BAHARI',
-      lokasi: 'Parigi Moutong',
+      lokasi: 'Pesisir Teluk Tomini, Parigi Moutong',
       wilayah: 'Parigi Moutong',
       nama: 'Festival Teluk Tomini (FTT)',
       deskripsi: 'Karnaval bahari & expo UMKM di tepi teluk.',

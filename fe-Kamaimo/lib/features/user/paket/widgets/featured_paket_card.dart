@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../paket_data.dart';
 
@@ -8,11 +10,19 @@ import '../paket_data.dart';
 class FeaturedPaketCard extends StatelessWidget {
   final PaketItem item;
   final VoidCallback onWhatsApp;
+  final VoidCallback onRate;
 
-  const FeaturedPaketCard({required this.item, required this.onWhatsApp});
+  const FeaturedPaketCard({
+    super.key,
+    required this.item,
+    required this.onWhatsApp,
+    required this.onRate,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final isEnglish = context.watch<LanguageProvider>().isEnglish;
+    final facilities = item.displayFacilities(isEnglish);
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -50,7 +60,7 @@ class FeaturedPaketCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 5),
                           Text(
-                            item.durasi,
+                            item.displayDuration(isEnglish),
                             style: const TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w800,
@@ -65,35 +75,51 @@ class FeaturedPaketCard extends StatelessWidget {
                   Positioned(
                     right: 14,
                     top: 14,
-                    child: _GlassPill(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.star_rounded,
-                            size: 12,
-                            color: AppColors.warning,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${item.rating}',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.pine900,
-                              fontFamily: 'PlusJakartaSans',
+                    child: Semantics(
+                      key: Key('paket-rating-trigger-${item.ratingKey}'),
+                      button: true,
+                      label: isEnglish
+                          ? 'Rating ${item.rating}, ${item.ratingCount} reviews'
+                          : 'Rating ${item.rating}, ${item.ratingCount} ulasan',
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: onRate,
+                          borderRadius: BorderRadius.circular(9999),
+                          child: _GlassPill(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.star_rounded,
+                                  size: 12,
+                                  color: AppColors.warning,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${item.rating}',
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.pine900,
+                                    fontFamily: 'PlusJakartaSans',
+                                  ),
+                                ),
+                                Text(
+                                  ' (${item.ratingCount})',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.pine900.withValues(
+                                      alpha: 0.6,
+                                    ),
+                                    fontFamily: 'PlusJakartaSans',
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          Text(
-                            ' (${item.ratingCount})',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.pine900.withValues(alpha: 0.6),
-                              fontFamily: 'PlusJakartaSans',
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -113,7 +139,7 @@ class FeaturedPaketCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(9999),
                           ),
                           child: Text(
-                            item.tag,
+                            item.displayTag(isEnglish),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -127,7 +153,7 @@ class FeaturedPaketCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 7),
                         Text(
-                          item.nama,
+                          item.displayName(isEnglish),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -154,9 +180,9 @@ class FeaturedPaketCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Text(
-                          'MULAI DARI',
-                          style: TextStyle(
+                        Text(
+                          isEnglish ? 'STARTING AT' : 'MULAI DARI',
+                          style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w800,
                             color: AppColors.textTertiary,
@@ -174,7 +200,7 @@ class FeaturedPaketCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(9999),
                           ),
                           child: Text(
-                            item.tipe,
+                            item.displayType(isEnglish),
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -201,7 +227,7 @@ class FeaturedPaketCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          ' ${item.satuan}',
+                          isEnglish ? ' /person' : ' ${item.satuan}',
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
@@ -215,7 +241,7 @@ class FeaturedPaketCard extends StatelessWidget {
                     const Divider(height: 1, color: AppColors.divider),
                     const SizedBox(height: 12),
                     Text(
-                      item.deskripsi,
+                      item.displayDescription(isEnglish),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -227,9 +253,9 @@ class FeaturedPaketCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 11),
-                    const Text(
-                      'FASILITAS TERMASUK:',
-                      style: TextStyle(
+                    Text(
+                      isEnglish ? 'INCLUDED:' : 'FASILITAS TERMASUK:',
+                      style: const TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w900,
                         color: AppColors.pine700,
@@ -246,11 +272,11 @@ class FeaturedPaketCard extends StatelessWidget {
                             child: Row(
                               children: [
                                 Expanded(
-                                  child: _FasilitasChip(f: item.fasilitas[0]),
+                                  child: _FasilitasChip(f: facilities[0]),
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(
-                                  child: _FasilitasChip(f: item.fasilitas[1]),
+                                  child: _FasilitasChip(f: facilities[1]),
                                 ),
                               ],
                             ),
@@ -260,11 +286,11 @@ class FeaturedPaketCard extends StatelessWidget {
                             child: Row(
                               children: [
                                 Expanded(
-                                  child: _FasilitasChip(f: item.fasilitas[2]),
+                                  child: _FasilitasChip(f: facilities[2]),
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(
-                                  child: _FasilitasChip(f: item.fasilitas[3]),
+                                  child: _FasilitasChip(f: facilities[3]),
                                 ),
                               ],
                             ),
@@ -273,34 +299,42 @@ class FeaturedPaketCard extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    // CTA WhatsApp — ponytail: url_launcher masuk di M2-1.10
-                    GestureDetector(
-                      onTap: onWhatsApp,
-                      child: Container(
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: AppColors.pine900,
-                          borderRadius: BorderRadius.circular(9999),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.chat_bubble_rounded,
-                              size: 15,
-                              color: Colors.white,
-                            ),
-                            SizedBox(width: 9),
-                            Text(
-                              'Hubungi Agen via WhatsApp',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
+                    Semantics(
+                      button: true,
+                      label: isEnglish
+                          ? 'Contact agent via WhatsApp'
+                          : 'Hubungi agen via WhatsApp',
+                      child: InkWell(
+                        onTap: onWhatsApp,
+                        borderRadius: BorderRadius.circular(9999),
+                        child: Container(
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: AppColors.pine900,
+                            borderRadius: BorderRadius.circular(9999),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.chat_bubble_rounded,
+                                size: 15,
                                 color: Colors.white,
-                                fontFamily: 'PlusJakartaSans',
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 9),
+                              Text(
+                                isEnglish
+                                    ? 'Contact Agent on WhatsApp'
+                                    : 'Hubungi Agen via WhatsApp',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  fontFamily: 'PlusJakartaSans',
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

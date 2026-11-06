@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Hero Tab Event: foto penuh layar + tombol kembali & bagikan di pojok.
@@ -18,6 +20,7 @@ class EventHeaderHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEnglish = context.watch<LanguageProvider?>()?.isEnglish ?? false;
     return SizedBox(
       height: _height,
       width: double.infinity,
@@ -43,7 +46,7 @@ class EventHeaderHero extends StatelessWidget {
             child: _GlassButton(
               icon: Icons.chevron_left_rounded,
               onTap: onBack,
-              tooltip: 'Kembali',
+              tooltip: isEnglish ? 'Back' : 'Kembali',
             ),
           ),
           Positioned(
@@ -52,7 +55,7 @@ class EventHeaderHero extends StatelessWidget {
             child: _GlassButton(
               icon: Icons.ios_share,
               onTap: onShare,
-              tooltip: 'Bagikan',
+              tooltip: isEnglish ? 'Share' : 'Bagikan',
             ),
           ),
         ],

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../event_locale.dart';
 
 /// Kartu info floating di atas hero, menampilkan badge, rating, judul, lokasi.
 class EventInfoCard extends StatelessWidget {
@@ -25,6 +28,7 @@ class EventInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEnglish = context.watch<LanguageProvider?>()?.isEnglish ?? false;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -48,7 +52,7 @@ class EventInfoCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              _KategoriChip(kategori),
+              _KategoriChip(EventLocale.category(kategori, isEnglish)),
             ],
           ),
           const SizedBox(height: 8),
@@ -77,7 +81,8 @@ class EventInfoCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        rating?.toStringAsFixed(1) ?? 'Baru',
+                        rating?.toStringAsFixed(1) ??
+                            (isEnglish ? 'New' : 'Baru'),
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -155,16 +160,13 @@ class _KategoriChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bold = kategori == 'UMKM';
-    final label = bold
-        ? kategori
-        : kategori.isEmpty
+    final label = kategori == 'UMKM' || kategori == 'MSME' || kategori.isEmpty
         ? kategori
         : '${kategori[0]}${kategori.substring(1).toLowerCase()}';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: bold ? AppColors.emerald50 : AppColors.emerald100,
+        color: AppColors.emerald50,
         borderRadius: BorderRadius.circular(9999),
       ),
       child: Text(
@@ -172,7 +174,7 @@ class _KategoriChip extends StatelessWidget {
         style: TextStyle(
           fontSize: 9,
           fontWeight: FontWeight.w800,
-          color: AppColors.emerald600,
+          color: AppColors.pine700,
           fontFamily: 'PlusJakartaSans',
         ),
       ),

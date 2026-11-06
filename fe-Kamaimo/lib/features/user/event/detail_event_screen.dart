@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/providers/language_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/repositories/event_rating_repository.dart';
 import 'event_data.dart';
 import 'event_detail_data.dart';
+import 'event_english_detail.dart';
+import 'event_locale.dart';
 import 'widgets/event_countdown_card.dart';
 import 'widgets/event_header_hero.dart';
 import 'widgets/event_info_card.dart';
@@ -69,7 +72,10 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final d = _detail;
+    final isEnglish = context.watch<LanguageProvider?>()?.isEnglish ?? false;
+    final d = isEnglish
+        ? EventEnglishDetail.of(widget.event.nama, _detail)
+        : _detail;
     return Scaffold(
       backgroundColor: AppColors.detailBackground,
       body: CustomScrollView(
@@ -105,7 +111,7 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                       ratingCount:
                           _ratingSummary?.ratingCount ??
                           widget.event.ratingCount,
-                      judul: widget.event.nama,
+                      judul: EventLocale.name(widget.event, isEnglish),
                       lokasi: d.lokasi,
                       onRatingTap: _showRating,
                     ),
@@ -126,15 +132,15 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
           // SCHEDULE + TICKET + SAVE CALENDAR
           SliverToBoxAdapter(
             child: EventScheduleSection(
-              jadwal: _jadwal(),
+              jadwal: _jadwal(isEnglish),
               jumlahHari:
                   (widget.event.end ?? widget.event.start)
                       .difference(widget.event.start)
                       .inDays +
                   1,
               tiket: widget.event.harga == null
-                  ? 'GRATIS'
-                  : 'Mulai Rp${widget.event.harga}',
+                  ? (isEnglish ? 'FREE' : 'GRATIS')
+                  : '${isEnglish ? 'From' : 'Mulai'} Rp${widget.event.harga}',
               onSaveCalendar: () => _saveCalendar(),
             ),
           ),
@@ -163,9 +169,9 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Text(
-                        'Tentang Festival',
-                        style: TextStyle(
+                      Text(
+                        isEnglish ? 'About the Festival' : 'Tentang Festival',
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           color: AppColors.pine900,
@@ -176,7 +182,7 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    _detail.tentang,
+                    d.tentang,
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -214,10 +220,12 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'Rangkaian Program Utama',
-                          style: TextStyle(
+                          isEnglish
+                              ? 'Main Program Highlights'
+                              : 'Rangkaian Program Utama',
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
                             color: AppColors.pine900,
@@ -248,9 +256,11 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    'Pilih kegiatan yang ingin kamu ikuti untuk mengenal cerita, karya, dan suasana khas dari event ini.',
-                    style: TextStyle(
+                  Text(
+                    isEnglish
+                        ? 'Choose activities to discover the stories, creative work, and atmosphere of this event.'
+                        : 'Pilih kegiatan yang ingin kamu ikuti untuk mengenal cerita, karya, dan suasana khas dari event ini.',
+                    style: const TextStyle(
                       fontSize: 11,
                       height: 1.45,
                       fontWeight: FontWeight.w500,
@@ -319,7 +329,9 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                                 Text(
                                   parts.length > 1
                                       ? parts[1]
-                                      : 'Lihat detail →',
+                                      : (isEnglish
+                                            ? 'View details →'
+                                            : 'Lihat detail →'),
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w500,
@@ -373,9 +385,11 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'Lokasi & Akses Perjalanan',
+                          isEnglish
+                              ? 'Location & Travel Access'
+                              : 'Lokasi & Akses Perjalanan',
                           maxLines: 2,
                           style: TextStyle(
                             fontSize: 16,
@@ -490,24 +504,39 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
     );
   }
 
-  String _jadwal() {
+  String _jadwal(bool isEnglish) {
     final mulai = widget.event.start;
     final akhir =
         widget.event.end ?? widget.event.start.add(const Duration(days: 1));
-    const months = [
-      'JAN',
-      'FEB',
-      'MAR',
-      'APR',
-      'MEI',
-      'JUN',
-      'JUL',
-      'AGU',
-      'SEP',
-      'OKT',
-      'NOV',
-      'DES',
-    ];
+    final months = isEnglish
+        ? const [
+            'JAN',
+            'FEB',
+            'MAR',
+            'APR',
+            'MAY',
+            'JUN',
+            'JUL',
+            'AUG',
+            'SEP',
+            'OCT',
+            'NOV',
+            'DEC',
+          ]
+        : const [
+            'JAN',
+            'FEB',
+            'MAR',
+            'APR',
+            'MEI',
+            'JUN',
+            'JUL',
+            'AGU',
+            'SEP',
+            'OKT',
+            'NOV',
+            'DES',
+          ];
     final m1 = (mulai.month >= 1 && mulai.month <= 12)
         ? months[mulai.month - 1]
         : 'BLN';
@@ -524,23 +553,38 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
     final value = title.toLowerCase();
     if (value.contains('perahu') ||
         value.contains('pulau') ||
-        value.contains('laut')) {
+        value.contains('laut') ||
+        value.contains('boat') ||
+        value.contains('island') ||
+        value.contains('sea')) {
       return Icons.sailing_rounded;
     }
-    if (value.contains('kuliner') || value.contains('rasa')) {
+    if (value.contains('kuliner') ||
+        value.contains('rasa') ||
+        value.contains('food') ||
+        value.contains('flavor')) {
       return Icons.restaurant_rounded;
     }
     if (value.contains('tari') ||
         value.contains('musik') ||
-        value.contains('seni')) {
+        value.contains('seni') ||
+        value.contains('dance') ||
+        value.contains('music') ||
+        value.contains('art')) {
       return Icons.theater_comedy_rounded;
     }
     if (value.contains('tenun') ||
         value.contains('kriya') ||
-        value.contains('produk')) {
+        value.contains('produk') ||
+        value.contains('weav') ||
+        value.contains('craft') ||
+        value.contains('product')) {
       return Icons.palette_rounded;
     }
-    if (value.contains('situs') || value.contains('megalit')) {
+    if (value.contains('situs') ||
+        value.contains('megalit') ||
+        value.contains('site') ||
+        value.contains('megalith')) {
       return Icons.landscape_rounded;
     }
     return Icons.celebration_rounded;
@@ -588,17 +632,32 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
     );
     final uri = Uri.https('calendar.google.com', '/calendar/render', {
       'action': 'TEMPLATE',
-      'text': widget.event.nama,
+      'text': EventLocale.name(
+        widget.event,
+        context.read<LanguageProvider?>()?.isEnglish ?? false,
+      ),
       'dates': '${date(widget.event.start)}/${date(end)}',
-      'location': widget.event.lokasi,
-      'details': widget.event.deskripsi,
+      'location': EventLocale.location(
+        widget.event,
+        context.read<LanguageProvider?>()?.isEnglish ?? false,
+      ),
+      'details': EventLocale.description(
+        widget.event,
+        context.read<LanguageProvider?>()?.isEnglish ?? false,
+      ),
     });
     try {
       if (await launchUrl(uri, mode: LaunchMode.externalApplication)) return;
     } catch (_) {}
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kalender tidak dapat dibuka.')),
+        SnackBar(
+          content: Text(
+            (context.read<LanguageProvider?>()?.isEnglish ?? false)
+                ? 'Calendar could not be opened.'
+                : 'Kalender tidak dapat dibuka.',
+          ),
+        ),
       );
     }
   }
@@ -648,12 +707,14 @@ class _RundownSectionState extends State<_RundownSection> {
               fit: BoxFit.contain,
             ),
             const SizedBox(width: 8),
-            const Expanded(
+            Expanded(
               child: Text(
-                'Jadwal & Rundown',
+                (context.watch<LanguageProvider?>()?.isEnglish ?? false)
+                    ? 'Schedule & Rundown'
+                    : 'Jadwal & Rundown',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                   color: AppColors.pine900,

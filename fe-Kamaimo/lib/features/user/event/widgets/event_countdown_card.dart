@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Kartu hitung mundur real-time menuju tanggal mulai event.
@@ -10,11 +12,7 @@ class EventCountdownCard extends StatefulWidget {
   final DateTime start;
   final DateTime? end;
 
-  const EventCountdownCard({
-    required this.start,
-    this.end,
-    super.key,
-  });
+  const EventCountdownCard({required this.start, this.end, super.key});
 
   @override
   State<EventCountdownCard> createState() => _EventCountdownCardState();
@@ -63,31 +61,32 @@ class _EventCountdownCardState extends State<EventCountdownCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isEnglish = context.watch<LanguageProvider?>()?.isEnglish ?? false;
     final now = DateTime.now();
     final beforeStart = now.isBefore(_start);
     final ongoing = !beforeStart && now.isBefore(_finish);
     final status = beforeStart
-        ? 'Segera Hadir'
+        ? (isEnglish ? 'Coming Soon' : 'Segera Hadir')
         : ongoing
-            ? 'Sedang Berlangsung'
-            : 'Telah Selesai';
+        ? (isEnglish ? 'Ongoing' : 'Sedang Berlangsung')
+        : (isEnglish ? 'Ended' : 'Telah Selesai');
     final header = beforeStart
-        ? 'MENUJU HARI EVENT'
+        ? (isEnglish ? 'UNTIL THE EVENT' : 'MENUJU HARI EVENT')
         : ongoing
-            ? 'EVENT SEDANG BERLANGSUNG'
-            : 'EVENT TELAH SELESAI';
+        ? (isEnglish ? 'EVENT IN PROGRESS' : 'EVENT SEDANG BERLANGSUNG')
+        : (isEnglish ? 'EVENT HAS ENDED' : 'EVENT TELAH SELESAI');
     final remaining = beforeStart ? _start.difference(now) : Duration.zero;
     final totalDetik = remaining.inSeconds;
     final chipColor = beforeStart
         ? AppColors.emerald600
         : ongoing
-            ? AppColors.earth
-            : AppColors.textSecondary;
+        ? AppColors.earth
+        : AppColors.textSecondary;
     final chipBackground = beforeStart
         ? AppColors.emerald50
         : ongoing
-            ? AppColors.warning.withValues(alpha: 0.15)
-            : AppColors.surfaceVariant;
+        ? AppColors.warning.withValues(alpha: 0.15)
+        : AppColors.surfaceVariant;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -129,10 +128,7 @@ class _EventCountdownCardState extends State<EventCountdownCard> {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 3,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: chipBackground,
                   borderRadius: BorderRadius.circular(9999),
@@ -158,13 +154,23 @@ class _EventCountdownCardState extends State<EventCountdownCard> {
           const SizedBox(height: 16),
           Row(
             children: [
-              _Box(label: 'HARI', val: remaining.inDays),
+              _Box(label: isEnglish ? 'DAYS' : 'HARI', val: remaining.inDays),
               const SizedBox(width: 8),
-              _Box(label: 'JAM', val: (totalDetik % 86400) ~/ 3600),
+              _Box(
+                label: isEnglish ? 'HOURS' : 'JAM',
+                val: (totalDetik % 86400) ~/ 3600,
+              ),
               const SizedBox(width: 8),
-              _Box(label: 'MENIT', val: (totalDetik % 3600) ~/ 60),
+              _Box(
+                label: isEnglish ? 'MINS' : 'MENIT',
+                val: (totalDetik % 3600) ~/ 60,
+              ),
               const SizedBox(width: 8),
-              _Box(label: 'DETIK', val: totalDetik % 60, isHighlight: true),
+              _Box(
+                label: isEnglish ? 'SECS' : 'DETIK',
+                val: totalDetik % 60,
+                isHighlight: true,
+              ),
             ],
           ),
         ],

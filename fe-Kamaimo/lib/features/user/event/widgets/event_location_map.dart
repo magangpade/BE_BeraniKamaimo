@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../event_detail_data.dart';
 
@@ -18,6 +20,7 @@ class EventLocationMap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEnglish = context.watch<LanguageProvider?>()?.isEnglish ?? false;
     final latitude = detail.mapLatitude;
     final longitude = detail.mapLongitude;
     final hasCoordinates = latitude != null && longitude != null;
@@ -132,14 +135,16 @@ class EventLocationMap extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.near_me_rounded, size: 16),
-                    SizedBox(width: 8),
+                    const Icon(Icons.near_me_rounded, size: 16),
+                    const SizedBox(width: 8),
                     Flexible(
                       child: Text(
-                        'Buka Petunjuk di Google Maps',
+                        isEnglish
+                            ? 'Open Directions in Google Maps'
+                            : 'Buka Petunjuk di Google Maps',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,

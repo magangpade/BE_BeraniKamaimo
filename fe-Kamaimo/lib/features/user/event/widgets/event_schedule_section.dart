@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Bagian Jadwal + Tiket + Tombol Simpan Kalender.
@@ -19,6 +21,7 @@ class EventScheduleSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEnglish = context.watch<LanguageProvider?>()?.isEnglish ?? false;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       padding: const EdgeInsets.all(20),
@@ -34,18 +37,19 @@ class EventScheduleSection extends StatelessWidget {
               Expanded(
                 child: _InfoTile(
                   icon: Icons.calendar_month_rounded,
-                  title: 'Jadwal Acara',
+                  title: isEnglish ? 'Event Dates' : 'Jadwal Acara',
                   subtitle: jadwal,
-                  footer: '$jumlahHari Hari Penuh',
+                  footer:
+                      '$jumlahHari ${isEnglish ? 'Full Days' : 'Hari Penuh'}',
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: _InfoTile(
                   icon: Icons.confirmation_number_rounded,
-                  title: 'Tiket Masuk',
+                  title: isEnglish ? 'Admission' : 'Tiket Masuk',
                   subtitle: tiket,
-                  footer: 'Terbuka Umum',
+                  footer: isEnglish ? 'Open to Public' : 'Terbuka Umum',
                   highlight: true,
                 ),
               ),
@@ -62,9 +66,9 @@ class EventScheduleSection extends StatelessWidget {
                 size: 16,
                 color: Colors.white,
               ),
-              label: const Text(
-                'Simpan ke Kalender Saya',
-                style: TextStyle(
+              label: Text(
+                isEnglish ? 'Save to My Calendar' : 'Simpan ke Kalender Saya',
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,

@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/providers/language_provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/repositories/paket_rating_repository.dart';
 import '../home/user_shell.dart';
 import 'paket_data.dart';
 import 'widgets/featured_paket_card.dart';
 import 'widgets/paket_filters.dart';
 import 'widgets/paket_header.dart';
+import 'widgets/paket_rating_sheet.dart';
 import 'widgets/trust_paket_card.dart';
 
-// Tab Paket — Figma 4965:1243 "Paket Wisata Sulteng (Modern)".
+// Tab Paket — Figma 5064:2245 "Paket Wisata Sulteng Trekking (Modern)".
 class PaketScreen extends StatefulWidget {
   const PaketScreen({super.key});
 
@@ -18,6 +23,7 @@ class PaketScreen extends StatefulWidget {
 
 class _PaketScreenState extends State<PaketScreen> {
   final PageController _page = PageController(viewportFraction: 0.86);
+  final PaketRatingRepository _ratingRepository = PaketRatingRepository();
   int _kategori = 0;
   String _query = '';
 
@@ -29,6 +35,7 @@ class _PaketScreenState extends State<PaketScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEnglish = context.watch<LanguageProvider>().isEnglish;
     final q = _query.trim().toLowerCase();
     final shown = PaketSeed.items.where((p) {
       final cocokKategori =
@@ -37,8 +44,10 @@ class _PaketScreenState extends State<PaketScreen> {
       final cocokQuery =
           q.isEmpty ||
           p.nama.toLowerCase().contains(q) ||
+          p.displayName(true).toLowerCase().contains(q) ||
           p.wilayah.toLowerCase().contains(q) ||
-          p.kategori.toLowerCase().contains(q);
+          p.kategori.toLowerCase().contains(q) ||
+          p.displayCategory(true).toLowerCase().contains(q);
       return cocokKategori && cocokQuery;
     }).toList();
 
@@ -69,7 +78,7 @@ class _PaketScreenState extends State<PaketScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 4),
             sliver: SliverToBoxAdapter(
               child: shown.isEmpty
-                  ? const _EmptyPaket()
+                  ? _EmptyPaket(isEnglish: isEnglish)
                   : SizedBox(
                       height: 578,
                       child: PageView.builder(
@@ -83,7 +92,8 @@ class _PaketScreenState extends State<PaketScreen> {
                           ),
                           child: FeaturedPaketCard(
                             item: shown[i],
-                            onWhatsApp: _onWhatsApp,
+                            onWhatsApp: () => _onWhatsApp(shown[i]),
+                            onRate: () => _showRating(shown[i]),
                           ),
                         ),
                       ),
@@ -106,29 +116,207 @@ class _PaketScreenState extends State<PaketScreen> {
     );
   }
 
-  void _onWhatsApp() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Chat WhatsApp: aktif saat data API (M2)')),
+  Future<void> _onWhatsApp(PaketItem item) async {
+    final isEnglish = context.read<LanguageProvider>().isEnglish;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => _PaketWhatsAppSheet(
+        item: item,
+        isEnglish: isEnglish,
+        onContinue: () => _openWhatsApp(item, isEnglish),
+      ),
+    );
+  }
+
+  Future<void> _openWhatsApp(PaketItem item, bool isEnglish) async {
+    final message = isEnglish
+        ? 'Hello, I am interested in the ${item.displayName(true)} package. Could you share more details?'
+        : 'Halo, saya tertarik dengan paket ${item.nama}. Boleh minta informasi lebih lanjut?';
+    final uri = Uri.https('wa.me', '/', {'text': message});
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isEnglish
+                ? 'WhatsApp could not be opened on this device.'
+                : 'WhatsApp tidak dapat dibuka di perangkat ini.',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _showRating(PaketItem item) async {
+    final isEnglish = context.read<LanguageProvider>().isEnglish;
+    final initialRating = await _ratingRepository.getMyRating(item.ratingKey);
+    if (!mounted) return;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => PaketRatingSheet(
+        item: item,
+        isEnglish: isEnglish,
+        initialRating: initialRating,
+        onSubmit: (rating) => _ratingRepository.submit(item.ratingKey, rating),
+      ),
     );
   }
 }
 
 class _EmptyPaket extends StatelessWidget {
-  const _EmptyPaket();
+  final bool isEnglish;
+
+  const _EmptyPaket({required this.isEnglish});
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 60),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 60),
       child: Center(
         child: Text(
-          'Belum ada paket untuk filter ini',
-          style: TextStyle(
+          isEnglish
+              ? 'No packages match these filters'
+              : 'Belum ada paket untuk filter ini',
+          style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w500,
             color: AppColors.textTertiary,
             fontFamily: 'PlusJakartaSans',
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PaketWhatsAppSheet extends StatelessWidget {
+  final PaketItem item;
+  final bool isEnglish;
+  final VoidCallback onContinue;
+
+  const _PaketWhatsAppSheet({
+    required this.item,
+    required this.isEnglish,
+    required this.onContinue,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(22, 12, 22, 22),
+        decoration: const BoxDecoration(
+          color: Color(0xFFF5F7F3),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 42,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+            const SizedBox(height: 22),
+            Text(
+              isEnglish ? 'Contact the tour agent' : 'Hubungi agen wisata',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: AppColors.pine900,
+                fontFamily: 'PlusJakartaSans',
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              isEnglish
+                  ? 'You are about to ask for more information about this package.'
+                  : 'Anda akan meminta informasi lebih lanjut tentang paket ini.',
+              style: const TextStyle(fontSize: 13, color: AppColors.textBody),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.asset(
+                      item.foto,
+                      width: 64,
+                      height: 64,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.displayName(isEnglish),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.pine900,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          item.wilayah,
+                          style: const TextStyle(color: AppColors.textBody),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${PaketSeed.formatRupiah(item.harga)} ${isEnglish ? '/person' : item.satuan}',
+                          style: const TextStyle(
+                            color: AppColors.emerald600,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: onContinue,
+                icon: const Icon(Icons.chat_rounded),
+                label: Text(
+                  isEnglish ? 'Continue to WhatsApp' : 'Lanjutkan ke WhatsApp',
+                ),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.pine900,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+            ),
+            Center(
+              child: TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(isEnglish ? 'Cancel' : 'Batal'),
+              ),
+            ),
+          ],
         ),
       ),
     );

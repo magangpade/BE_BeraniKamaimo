@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Header Tab Paket: badge resmi, judul, subjudul, dan search bar (Figma 4965:1243).
 class PaketHeader extends StatelessWidget {
   final ValueChanged<String> onChanged;
 
-  const PaketHeader({required this.onChanged});
+  const PaketHeader({super.key, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
+    final isEnglish = context.watch<LanguageProvider>().isEnglish;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
       child: Column(
@@ -22,18 +25,20 @@ class PaketHeader extends StatelessWidget {
               color: AppColors.emerald100,
               borderRadius: BorderRadius.circular(9999),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                const Icon(
                   Icons.verified_rounded,
                   size: 14,
                   color: AppColors.emerald600,
                 ),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Text(
-                  'RESMI DINAS & TERAKREDITASI HPI',
-                  style: TextStyle(
+                  isEnglish
+                      ? 'OFFICIAL & HPI ACCREDITED'
+                      : 'RESMI DINAS & TERAKREDITASI HPI',
+                  style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
                     color: AppColors.emerald600,
@@ -45,9 +50,9 @@ class PaketHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          const Text(
-            'Paket Tur Wisata',
-            style: TextStyle(
+          Text(
+            isEnglish ? 'Travel Packages' : 'Paket Tur Wisata',
+            style: const TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w800,
               color: AppColors.pine900,
@@ -56,9 +61,11 @@ class PaketHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Paket tur kurasi resmi pemandu lokal berlisensi. Keberangkatan\ntransparan, jaminan keselamatan, dan pengalaman alam autentik.',
-            style: TextStyle(
+          Text(
+            isEnglish
+                ? 'Curated tours led by licensed local guides. Transparent departures, safety assurance, and authentic nature experiences.'
+                : 'Paket tur kurasi resmi pemandu lokal berlisensi. Keberangkatan transparan, jaminan keselamatan, dan pengalaman alam autentik.',
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
               color: AppColors.textBody,
@@ -92,7 +99,7 @@ class PaketHeader extends StatelessWidget {
                       color: AppColors.pine900,
                       fontFamily: 'PlusJakartaSans',
                     ),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       isCollapsed: true,
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
@@ -102,8 +109,10 @@ class PaketHeader extends StatelessWidget {
                       focusedErrorBorder: InputBorder.none,
                       filled: false,
                       fillColor: Colors.transparent,
-                      hintText: 'Cari paket wisata, pulau, atau destinasi...',
-                      hintStyle: TextStyle(
+                      hintText: isEnglish
+                          ? 'Search packages, islands, or destinations...'
+                          : 'Cari paket wisata, pulau, atau destinasi...',
+                      hintStyle: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         color: AppColors.textTertiary,

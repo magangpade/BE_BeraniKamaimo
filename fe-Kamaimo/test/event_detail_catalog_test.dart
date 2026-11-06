@@ -1,6 +1,8 @@
 import 'package:berani_kamaimo/features/user/event/detail_event_screen.dart';
 import 'package:berani_kamaimo/features/user/event/event_data.dart';
 import 'package:berani_kamaimo/features/user/event/event_detail_data.dart';
+import 'package:berani_kamaimo/features/user/event/event_english_detail.dart';
+import 'package:berani_kamaimo/features/user/event/event_locale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -48,6 +50,49 @@ void main() {
       }
     }
   });
+
+  test(
+    'setiap Event memiliki teks Inggris dan jumlah rundown tetap selaras',
+    () {
+      for (final event in events) {
+        final original = EventDetailSeed.of(event.nama);
+        final english = EventEnglishDetail.of(event.nama, original);
+        expect(
+          EventLocale.name(event, true),
+          isNot(event.nama),
+          reason: event.nama,
+        );
+        expect(
+          EventLocale.description(event, true),
+          isNot(event.deskripsi),
+          reason: event.nama,
+        );
+        expect(english.tentang, isNot(original.tentang), reason: event.nama);
+        expect(
+          english.program.length,
+          original.program.length,
+          reason: event.nama,
+        );
+        expect(
+          english.rundown.length,
+          original.rundown.length,
+          reason: event.nama,
+        );
+        for (var i = 0; i < original.rundown.length; i++) {
+          final oldItems = original.rundown[i]['items'] as List;
+          final newItems = english.rundown[i]['items'] as List;
+          expect(newItems.length, oldItems.length, reason: event.nama);
+          for (var j = 0; j < oldItems.length; j++) {
+            expect(
+              newItems[j]['judul'],
+              isNot(oldItems[j]['judul']),
+              reason: event.nama,
+            );
+          }
+        }
+      }
+    },
+  );
 
   testWidgets(
     'detail Danau Poso menampilkan isi khusus dan tiga hari rundown',

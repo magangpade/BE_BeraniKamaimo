@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../core/providers/language_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../home/user_shell.dart';
 import 'detail_event_screen.dart';
 import 'event_data.dart';
+import 'event_locale.dart';
 import 'widgets/event_agenda_card.dart';
 import 'widgets/event_filters.dart';
 import 'widgets/event_header.dart';
@@ -27,7 +30,6 @@ class _EventScreenState extends State<EventScreen> {
 
   bool _lolosTanggal(EventItem e) {
     if (_tanggal == 0) return true;
-    final kini = DateTime(_now.year, _now.month, _now.day);
     final start = DateTime(e.start.year, e.start.month, e.start.day);
     if (_tanggal == 1) {
       return start.year == _now.year && start.month == _now.month;
@@ -41,14 +43,19 @@ class _EventScreenState extends State<EventScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEnglish = context.watch<LanguageProvider?>()?.isEnglish ?? false;
     final q = _query.trim().toLowerCase();
     final shown = EventSeed.agenda.where((e) {
       final cocokKategori =
-          _kategori == 0 || e.kategori == EventFilters.labels[_kategori].toUpperCase();
+          _kategori == 0 ||
+          e.kategori == EventFilters.labels[_kategori].toUpperCase();
       final cocokWilayah = _wilayah == null || e.wilayah == _wilayah;
-      final cocokQuery = q.isEmpty ||
+      final cocokQuery =
+          q.isEmpty ||
           e.nama.toLowerCase().contains(q) ||
-          e.lokasi.toLowerCase().contains(q);
+          e.lokasi.toLowerCase().contains(q) ||
+          EventLocale.name(e, true).toLowerCase().contains(q) ||
+          EventLocale.location(e, true).toLowerCase().contains(q);
       return cocokKategori && cocokWilayah && cocokQuery && _lolosTanggal(e);
     }).toList();
 
@@ -67,9 +74,7 @@ class _EventScreenState extends State<EventScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  EventHeader(
-                    onChanged: (v) => setState(() => _query = v),
-                  ),
+                  EventHeader(onChanged: (v) => setState(() => _query = v)),
                   const SizedBox(height: 13),
                   EventFilters(
                     kategoriIndex: _kategori,
@@ -78,13 +83,14 @@ class _EventScreenState extends State<EventScreen> {
                     wilayahList: EventSeed.wilayahList,
                     onKategori: (i) => setState(() => _kategori = i),
                     onTanggal: (i) => setState(() => _tanggal = i),
-                    onWilayah: (v) =>
-                        setState(() => _wilayah = v == 'Semua wilayah' ? null : v),
+                    onWilayah: (v) => setState(() => _wilayah = v),
                   ),
-                  const _SectionHeader(
+                  _SectionHeader(
                     eyebrowIcon: Icons.auto_awesome_rounded,
-                    eyebrow: 'JANGAN TERLEWATKAN',
-                    judul: 'Event pilihan bulan ini',
+                    eyebrow: isEnglish ? 'DON’T MISS' : 'JANGAN TERLEWATKAN',
+                    judul: isEnglish
+                        ? 'Featured event this month'
+                        : 'Event pilihan bulan ini',
                   ),
                   if (_kategori == 0 && q.isEmpty) ...[
                     FeaturedEventCard(
@@ -93,16 +99,19 @@ class _EventScreenState extends State<EventScreen> {
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => DetailEventScreen(event: EventSeed.featured),
+                            builder: (_) =>
+                                DetailEventScreen(event: EventSeed.featured),
                           ),
                         );
                       },
                     ),
                   ],
-                  const _SectionHeader(
+                  _SectionHeader(
                     eyebrowIcon: Icons.map_rounded,
-                    eyebrow: 'RENCANAKAN PERJALANANMU',
-                    judul: 'Agenda mendatang',
+                    eyebrow: isEnglish
+                        ? 'PLAN YOUR TRIP'
+                        : 'RENCANAKAN PERJALANANMU',
+                    judul: isEnglish ? 'Upcoming events' : 'Agenda mendatang',
                   ),
                 ],
               ),
@@ -115,12 +124,14 @@ class _EventScreenState extends State<EventScreen> {
               separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (ctx, i) {
                 if (shown.isEmpty) {
-                  return const Padding(
+                  return Padding(
                     padding: EdgeInsets.symmetric(vertical: 40),
                     child: Center(
                       child: Text(
-                        'Belum ada event untuk filter ini',
-                        style: TextStyle(
+                        isEnglish
+                            ? 'No events match these filters'
+                            : 'Belum ada event untuk filter ini',
+                        style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
                           color: AppColors.textTertiary,

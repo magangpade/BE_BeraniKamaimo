@@ -2,11 +2,14 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../event_data.dart';
+import '../event_locale.dart';
 
 const _assetRoot = 'assets/images/beranda/';
 
@@ -40,12 +43,21 @@ class _EventShareSheet extends StatefulWidget {
 
 class _EventShareSheetState extends State<_EventShareSheet> {
   String? _feedback;
+  bool get _isEnglish => context.read<LanguageProvider?>()?.isEnglish ?? false;
 
   bool get _isPasarKreatif => widget.event.nama == 'Pasar Kreatif Sulteng';
 
-  String get _title => _isPasarKreatif ? 'Pasar Kreatif' : widget.event.nama;
+  String get _title => _isEnglish
+      ? EventLocale.name(widget.event, true)
+      : _isPasarKreatif
+      ? 'Pasar Kreatif'
+      : widget.event.nama;
 
-  String get _location => _isPasarKreatif ? 'Kota Palu' : widget.event.lokasi;
+  String get _location => _isEnglish
+      ? EventLocale.location(widget.event, true)
+      : _isPasarKreatif
+      ? 'Kota Palu'
+      : widget.event.lokasi;
 
   String? get _shareUrl {
     final value = widget.publicUrl?.trim();
@@ -55,7 +67,9 @@ class _EventShareSheetState extends State<_EventShareSheet> {
     return value;
   }
 
-  String get _shareText => 'Ajak teman menjelajahi $_title di $_location!';
+  String get _shareText => _isEnglish
+      ? 'Explore $_title in $_location with me!'
+      : 'Ajak teman menjelajahi $_title di $_location!';
 
   void _setFeedback(String message) {
     if (mounted) setState(() => _feedback = message);
@@ -64,11 +78,15 @@ class _EventShareSheetState extends State<_EventShareSheet> {
   Future<void> _copyLink() async {
     final url = _shareUrl;
     if (url == null) {
-      _setFeedback('Tautan publik event belum tersedia.');
+      _setFeedback(
+        _isEnglish
+            ? 'A public event link is not available yet.'
+            : 'Tautan publik event belum tersedia.',
+      );
       return;
     }
     await Clipboard.setData(ClipboardData(text: url));
-    _setFeedback('Tautan berhasil disalin.');
+    _setFeedback(_isEnglish ? 'Link copied.' : 'Tautan berhasil disalin.');
   }
 
   Future<void> _shareTo(String destination) async {
@@ -80,14 +98,22 @@ class _EventShareSheetState extends State<_EventShareSheet> {
           ),
         );
       } catch (_) {
-        _setFeedback('Menu berbagi tidak dapat dibuka.');
+        _setFeedback(
+          _isEnglish
+              ? 'The share menu could not be opened.'
+              : 'Menu berbagi tidak dapat dibuka.',
+        );
       }
       return;
     }
 
     final url = _shareUrl;
     if (url == null) {
-      _setFeedback('Tautan publik diperlukan untuk berbagi ke $destination.');
+      _setFeedback(
+        _isEnglish
+            ? 'A public link is needed to share via $destination.'
+            : 'Tautan publik diperlukan untuk berbagi ke $destination.',
+      );
       return;
     }
 
@@ -107,11 +133,16 @@ class _EventShareSheetState extends State<_EventShareSheet> {
     try {
       if (await launchUrl(target, mode: LaunchMode.externalApplication)) return;
     } catch (_) {}
-    _setFeedback('$destination tidak dapat dibuka.');
+    _setFeedback(
+      _isEnglish
+          ? '$destination could not be opened.'
+          : '$destination tidak dapat dibuka.',
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final isEnglish = context.watch<LanguageProvider?>()?.isEnglish ?? false;
     final availableHeight =
         MediaQuery.sizeOf(context).height -
         MediaQuery.paddingOf(context).top -
@@ -161,9 +192,9 @@ class _EventShareSheetState extends State<_EventShareSheet> {
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text(
-              'Batal',
-              style: TextStyle(
+            child: Text(
+              isEnglish ? 'Cancel' : 'Batal',
+              style: const TextStyle(
                 fontFamily: 'PlusJakartaSans',
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
@@ -191,10 +222,10 @@ class _EventShareSheetState extends State<_EventShareSheet> {
       children: [
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
-                'Bagikan Event',
-                style: TextStyle(
+                _isEnglish ? 'Share Event' : 'Bagikan Event',
+                style: const TextStyle(
                   fontFamily: 'PlusJakartaSans',
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
@@ -226,7 +257,9 @@ class _EventShareSheetState extends State<_EventShareSheet> {
         ),
         const SizedBox(height: 4),
         Text(
-          _isPasarKreatif
+          _isEnglish
+              ? 'Invite friends to explore $_title.'
+              : _isPasarKreatif
               ? 'Ajak teman menjelajahi Pasar Kreatif.'
               : 'Ajak teman menjelajahi $_title.',
           style: const TextStyle(
@@ -267,7 +300,7 @@ class _EventShareSheetState extends State<_EventShareSheet> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Event ${widget.event.kategori}',
+                  'Event ${EventLocale.category(widget.event.kategori, _isEnglish)}',
                   style: const TextStyle(
                     fontFamily: 'PlusJakartaSans',
                     fontSize: 10,
@@ -329,9 +362,9 @@ class _EventShareSheetState extends State<_EventShareSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Bagikan melalui',
-          style: TextStyle(
+        Text(
+          _isEnglish ? 'Share via' : 'Bagikan melalui',
+          style: const TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -365,7 +398,7 @@ class _EventShareSheetState extends State<_EventShareSheet> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        label,
+                        _isEnglish && label == 'Lainnya' ? 'More' : label,
                         style: const TextStyle(
                           fontFamily: 'PlusJakartaSans',
                           fontSize: 12,
@@ -387,9 +420,9 @@ class _EventShareSheetState extends State<_EventShareSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Tautan event',
-          style: TextStyle(
+        Text(
+          _isEnglish ? 'Event link' : 'Tautan event',
+          style: const TextStyle(
             fontFamily: 'PlusJakartaSans',
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -418,7 +451,9 @@ class _EventShareSheetState extends State<_EventShareSheet> {
                   _shareUrl ??
                       (_isPasarKreatif
                           ? 'kamaimo.id/event/pasar-kreatif'
-                          : 'Tautan publik belum tersedia'),
+                          : (_isEnglish
+                                ? 'Public link not available yet'
+                                : 'Tautan publik belum tersedia')),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -434,7 +469,10 @@ class _EventShareSheetState extends State<_EventShareSheet> {
         if (_shareUrl == null || _feedback != null) ...[
           const SizedBox(height: 5),
           Text(
-            _feedback ?? 'Pratinjau tautan — belum aktif untuk publik.',
+            _feedback ??
+                (_isEnglish
+                    ? 'Link preview — not available to the public yet.'
+                    : 'Pratinjau tautan — belum aktif untuk publik.'),
             style: TextStyle(
               fontFamily: 'PlusJakartaSans',
               fontSize: 10,
@@ -457,9 +495,9 @@ class _EventShareSheetState extends State<_EventShareSheet> {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: const Text(
-              'SALIN TAUTAN',
-              style: TextStyle(
+            child: Text(
+              _isEnglish ? 'COPY LINK' : 'SALIN TAUTAN',
+              style: const TextStyle(
                 fontFamily: 'PlusJakartaSans',
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
