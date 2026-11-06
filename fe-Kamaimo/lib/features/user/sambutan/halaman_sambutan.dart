@@ -1,10 +1,44 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../../core/utils/constants.dart';
 
-/// Halaman Sambutan (Launch Screen) sesuai desain Figma (430x932).
+/// Halaman Sambutan (Launch Screen) sesuai desain Figma dengan animasi orbit berputar otomatis.
 /// Tampil pertama kali saat aplikasi dibuka sebelum masuk ke Beranda (UserShell).
-class HalamanSambutan extends StatelessWidget {
+class HalamanSambutan extends StatefulWidget {
   const HalamanSambutan({super.key});
+
+  @override
+  State<HalamanSambutan> createState() => _HalamanSambutanState();
+}
+
+class _HalamanSambutanState extends State<HalamanSambutan>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _orbitController;
+
+  // 6 foto destinasi Sulawesi Tengah yang bersih (tanpa teks/badge terpotong)
+  static const List<String> _orbitPhotos = [
+    'assets/images/detail_wisata/hero_luk_panenteng.png',
+    'assets/images/paket/figma_package_asset_3.png',
+    'assets/images/detail_wisata/fasilitas_homestay.png',
+    'assets/images/paket/figma_package_asset_4.png',
+    'assets/images/detail_wisata/fasilitas_kano.png',
+    'assets/images/paket/figma_package_asset_1.png',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _orbitController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 24),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _orbitController.dispose();
+    super.dispose();
+  }
 
   void _onStart(BuildContext context) {
     Navigator.pushReplacementNamed(context, AppConstants.routeHome);
@@ -13,570 +47,449 @@ class HalamanSambutan extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFFFFFFF),
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Background atas hijau & bawah putih agar menyatu di segala rasio layar
-          Column(
-            children: [
-              Expanded(
-                flex: 6,
-                child: Container(color: const Color(0xFF2E5C43)),
-              ),
-              Expanded(
-                flex: 4,
-                child: Container(color: const Color(0xFFFFFFFF)),
-              ),
-            ],
+          // 1. Background Hijau Melengkung Mulus dari ujung kiri ke ujung kanan layar (tanpa patahan)
+          const Positioned.fill(
+            child: CustomPaint(
+              painter: _CurvedGreenBackgroundPainter(),
+            ),
           ),
+
+          // 2. Konten Utama Proporsional (mengikuti kanvas 430x932 Figma)
           Center(
             child: FittedBox(
               fit: BoxFit.contain,
               child: SizedBox(
                 width: 430,
                 height: 932,
-                child: ClipRect(
-                  child: Container(
-                    width: 430,
-                    height: 932,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFFFFFF),
-                    ),
-                    alignment: Alignment.topLeft,
-                    child: Stack(
-                      alignment: Alignment.topLeft,
-                      clipBehavior: Clip.none,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 68),
+
+                    // Header Logo BERANI KAMAIMO
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Lingkaran besar latar hijau atas
-                        Positioned(
-                          left: -185,
-                          top: -87,
-                          child: Container(
-                            width: 799,
-                            height: 689,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF2E5C43),
-                              shape: BoxShape.circle,
-                            ),
+                        Container(
+                          width: 39,
+                          height: 39,
+                          padding: const EdgeInsets.all(6.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF35644A),
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                          child: const CustomPaint(
+                            painter: _KamaimoEmblemPainter(),
                           ),
                         ),
-
-                        // Lingkaran glow tengah
-                        Positioned(
-                          left: 75,
-                          top: 202,
-                          child: Opacity(
-                            opacity: 0.4,
-                            child: Container(
-                              width: 300,
-                              height: 280,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF679F7F),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Logo tengah dalam lingkaran berlapis (120x120)
-                        Positioned(
-                          left: 155,
-                          top: 312,
-                          child: Container(
-                            width: 120,
-                            height: 120,
-                            alignment: Alignment.topLeft,
-                            child: Stack(
-                              alignment: Alignment.topLeft,
-                              children: [
-                                Positioned(
-                                  left: 0,
-                                  top: 0,
-                                  child: Container(
-                                    width: 120,
-                                    height: 120,
-                                    decoration: const BoxDecoration(
-                                      color: Color(0x208CE1A6),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  left: 16,
-                                  top: 16,
-                                  child: Container(
-                                    width: 88,
-                                    height: 88,
-                                    decoration: const BoxDecoration(
-                                      color: Color(0x408CE1A6),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                                const Positioned(
-                                  left: 41,
-                                  top: 41,
-                                  child: SizedBox(
-                                    width: 38,
-                                    height: 38,
-                                    child: CustomPaint(
-                                      painter: _KamaimoEmblemPainter(),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Deskripsi bawah
-                        const Positioned(
-                          left: 55,
-                          right: 55,
-                          top: 778,
-                          child: Text(
-                            'Destinasi wisata terbaik Sulawesi Tengah\ndalam genggaman tanganmu.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: 'PlusJakartaSans',
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF2E5C43),
-                              height: 1.35,
-                            ),
-                          ),
-                        ),
-
-                        // Chip "Budaya"
-                        Positioned(
-                          left: 91,
-                          top: 651,
-                          child: Container(
-                            width: 73,
-                            height: 23,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
-                              border: Border.all(
-                                color: const Color(0xFF2E5C43),
-                                width: 1,
-                              ),
-                            ),
-                            child: const Text(
-                              'Budaya',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'PlusJakartaSans',
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF2E5C43),
-                                height: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Chip "Alam"
-                        Positioned(
-                          left: 178,
-                          top: 652,
-                          child: Container(
-                            width: 73,
-                            height: 23,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
-                              border: Border.all(
-                                color: const Color(0xFF2E5C43),
-                                width: 1,
-                              ),
-                            ),
-                            child: const Text(
-                              'Alam',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'PlusJakartaSans',
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFFF4B251),
-                                height: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Chip "Festival"
-                        Positioned(
-                          left: 265,
-                          top: 652,
-                          child: Container(
-                            width: 73,
-                            height: 23,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
-                              border: Border.all(
-                                color: const Color(0xFF2E5C43),
-                                width: 1,
-                              ),
-                            ),
-                            child: const Text(
-                              'Festival',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'PlusJakartaSans',
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF8CB894),
-                                height: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Tombol "Start"
-                        Positioned(
-                          left: 145,
-                          top: 834,
-                          child: GestureDetector(
-                            onTap: () => _onStart(context),
-                            behavior: HitTestBehavior.opaque,
-                            child: SizedBox(
-                              width: 139.78,
-                              height: 43.17,
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    width: 139.44,
-                                    height: 43.17,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF09903B),
-                                      borderRadius: BorderRadius.circular(50),
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Color(0x40000000),
-                                          blurRadius: 4,
-                                          offset: Offset(0, 4),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const Text(
-                                    'Start',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontFamily: 'PlusJakartaSans',
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFFFFFFFF),
-                                      height: 1.0,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Judul Utama: "Jelajahi Surga / Tersembunyi Sulteng"
-                        Positioned(
-                          left: 40,
-                          right: 40,
-                          top: 695,
-                          child: RichText(
-                            textAlign: TextAlign.center,
-                            text: const TextSpan(
-                              style: TextStyle(
-                                fontFamily: 'PlusJakartaSans',
-                                fontSize: 24,
-                                fontWeight: FontWeight.w800,
-                                height: 1.33,
-                              ),
-                              children: [
-                                TextSpan(
-                                  text: 'Jelajahi Surga\n',
-                                  style: TextStyle(color: Color(0xFF467A5C)),
-                                ),
-                                TextSpan(
-                                  text: 'Tersembunyi Sulteng',
-                                  style: TextStyle(color: Color(0xFFF4B251)),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Header Logo BERANI KAMAIMO
-                        Positioned(
-                          left: 162,
-                          top: 79,
-                          child: SizedBox(
-                            width: 118,
-                            height: 38.94,
-                            child: Stack(
-                              alignment: Alignment.topLeft,
-                              children: [
-                                Positioned(
-                                  left: 0,
-                                  top: 0,
-                                  child: Container(
-                                    width: 38.6,
-                                    height: 38.94,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF35644A),
-                                      borderRadius: BorderRadius.circular(8.46),
-                                    ),
-                                  ),
-                                ),
-                                const Positioned(
-                                  left: 6,
-                                  top: 6,
-                                  child: SizedBox(
-                                    width: 26,
-                                    height: 26,
-                                    child: CustomPaint(
-                                      painter: _KamaimoEmblemPainter(),
-                                    ),
-                                  ),
-                                ),
-                                const Positioned(
-                                  left: 44,
-                                  top: 8,
-                                  child: Text(
-                                    'BERANI\nKAMAIMO',
-                                    style: TextStyle(
-                                      fontFamily: 'PlusJakartaSans',
-                                      fontSize: 10.84,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFFFFFFFF),
-                                      height: 1.1,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Badge "DINAS PARIWISATA SULTENG"
-                        Positioned(
-                          left: 112,
-                          top: 129,
-                          child: Container(
-                            width: 206,
-                            height: 23,
-                            decoration: BoxDecoration(
-                              color: const Color(0x33284D3D),
-                              borderRadius: BorderRadius.circular(100),
-                              border: Border.all(
-                                color: const Color(0xFFE2E8E0),
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 6,
-                                  height: 6,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFF8CE1A6),
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Color(0xFF8CE1A6),
-                                        blurRadius: 3,
-                                        offset: Offset(0, 0),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                const Text(
-                                  'DINAS PARIWISATA SULTENG',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontFamily: 'PlusJakartaSans',
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF8CE1A6),
-                                    height: 1.0,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Orbit Lingkaran + 6 Foto Destinasi + Titik Cahaya
-                        Positioned(
-                          left: 16,
-                          top: 200,
-                          child: SizedBox(
-                            width: 400,
-                            height: 348,
-                            child: Stack(
-                              alignment: Alignment.topLeft,
-                              clipBehavior: Clip.none,
-                              children: [
-                                // Lingkaran orbit luar (340x340)
-                                Positioned(
-                                  left: 30,
-                                  top: 0,
-                                  child: Container(
-                                    width: 340,
-                                    height: 340,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: const Color(0x18FFFFFF),
-                                        width: 2,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                // Lingkaran orbit dalam (260x260) + titik-titik cahaya
-                                Positioned(
-                                  left: 70,
-                                  top: 40,
-                                  child: SizedBox(
-                                    width: 260,
-                                    height: 260,
-                                    child: Stack(
-                                      alignment: Alignment.topLeft,
-                                      children: [
-                                        Positioned(
-                                          left: 0,
-                                          top: 0,
-                                          child: Container(
-                                            width: 260,
-                                            height: 260,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: const Color(0x10FFFFFF),
-                                                width: 2,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        const Positioned(
-                                          left: 29,
-                                          top: 42,
-                                          child: _GlowDot(
-                                            color: Color(0xFFA7F3D0),
-                                            shadowColor: Color(0xFF8CE1A6),
-                                          ),
-                                        ),
-                                        const Positioned(
-                                          left: 52,
-                                          top: 230,
-                                          child: _GlowDot(
-                                            color: Color(0xFFA7F3D0),
-                                            shadowColor: Color(0xFF8CE1A6),
-                                          ),
-                                        ),
-                                        const Positioned(
-                                          left: 255,
-                                          top: 112,
-                                          child: _GlowDot(
-                                            color: Color(0xFFA7F3D0),
-                                            shadowColor: Color(0xFF8CE1A6),
-                                          ),
-                                        ),
-                                        const Positioned(
-                                          left: 5,
-                                          top: 177,
-                                          child: _GlowDot(
-                                            color: Color(0xFFF4B251),
-                                            shadowColor: Color(0xFFF4B251),
-                                          ),
-                                        ),
-                                        const Positioned(
-                                          left: 214,
-                                          top: 222,
-                                          child: _GlowDot(
-                                            color: Color(0xFFF4B251),
-                                            shadowColor: Color(0xFFF4B251),
-                                          ),
-                                        ),
-                                        const Positioned(
-                                          left: 206,
-                                          top: 26,
-                                          child: _GlowDot(
-                                            color: Color(0xFFF4B251),
-                                            shadowColor: Color(0xFFF4B251),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-
-                                // 6 Foto Destinasi Melingkar
-                                const Positioned(
-                                  left: 276,
-                                  top: 6,
-                                  child: _OrbitPhotoCircle(
-                                    assetPath:
-                                        'assets/images/destinasi/card_pulo_dua.png',
-                                  ),
-                                ),
-                                const Positioned(
-                                  left: 20,
-                                  top: 58,
-                                  child: _OrbitPhotoCircle(
-                                    assetPath:
-                                        'assets/images/destinasi/card_togean.png',
-                                  ),
-                                ),
-                                const Positioned(
-                                  left: 338,
-                                  top: 156,
-                                  child: _OrbitPhotoCircle(
-                                    assetPath:
-                                        'assets/images/beranda/kartu_kolam_kaca.png',
-                                  ),
-                                ),
-                                const Positioned(
-                                  left: 0,
-                                  top: 196,
-                                  child: _OrbitPhotoCircle(
-                                    assetPath:
-                                        'assets/images/destinasi/card_saluopa.png',
-                                  ),
-                                ),
-                                const Positioned(
-                                  left: 262,
-                                  top: 280,
-                                  child: _OrbitPhotoCircle(
-                                    assetPath:
-                                        'assets/images/destinasi/card_bada.png',
-                                  ),
-                                ),
-                                const Positioned(
-                                  left: 88,
-                                  top: 288,
-                                  child: _OrbitPhotoCircle(
-                                    assetPath:
-                                        'assets/images/detail_wisata/fasilitas_homestay.png',
-                                  ),
-                                ),
-                              ],
-                            ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'BERANI\nKAMAIMO',
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFFFFFFFF),
+                            height: 1.12,
+                            letterSpacing: 0.4,
                           ),
                         ),
                       ],
                     ),
-                  ),
+
+                    const SizedBox(height: 14),
+
+                    // Badge "DINAS PARIWISATA SULTENG"
+                    Container(
+                      width: 214,
+                      height: 25,
+                      decoration: BoxDecoration(
+                        color: const Color(0x33284D3D),
+                        borderRadius: BorderRadius.circular(100),
+                        border: Border.all(
+                          color: const Color(0xB3E2E8E0),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 6.5,
+                            height: 6.5,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF8CE1A6),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color(0xFF8CE1A6),
+                                  blurRadius: 4,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 7),
+                          const Text(
+                            'DINAS PARIWISATA SULTENG',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontSize: 10.8,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF8CE1A6),
+                              letterSpacing: 0.3,
+                              height: 1.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // 3. Sistem Orbit Konsentris (100% Simetris di Titik Tengah & Berputar Otomatis)
+                    SizedBox(
+                      width: 390,
+                      height: 390,
+                      child: AnimatedBuilder(
+                        animation: _orbitController,
+                        builder: (context, _) {
+                          final double progress = _orbitController.value;
+                          final double outerRotation = progress * 2 * math.pi;
+                          final double innerRotation =
+                              -progress * 2 * math.pi * 0.75;
+                          final double pulse =
+                              math.sin(progress * 4 * math.pi) * 0.04;
+
+                          const double outerRadius = 164.0;
+                          const double innerRadius = 122.0;
+
+                          return Stack(
+                            alignment: Alignment.center,
+                            clipBehavior: Clip.none,
+                            children: [
+                              // Lingkaran Glow Tengah (100% di titik pusat yang sama)
+                              Container(
+                                width: 280,
+                                height: 280,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: const Color(0xFF679F7F)
+                                      .withValues(alpha: 0.36),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF679F7F)
+                                          .withValues(alpha: 0.28),
+                                      blurRadius: 28,
+                                      spreadRadius: 4,
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // Garis Lingkaran Orbit Luar (diameter = 328)
+                              Container(
+                                width: outerRadius * 2,
+                                height: outerRadius * 2,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: const Color(0x22FFFFFF),
+                                    width: 1.6,
+                                  ),
+                                ),
+                              ),
+
+                              // Garis Lingkaran Orbit Dalam (diameter = 244)
+                              Container(
+                                width: innerRadius * 2,
+                                height: innerRadius * 2,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: const Color(0x16FFFFFF),
+                                    width: 1.5,
+                                  ),
+                                ),
+                              ),
+
+                              // Lingkaran Halo Tengah Luar (120x120)
+                              Transform.scale(
+                                scale: 1.0 + pulse,
+                                child: Container(
+                                  width: 120,
+                                  height: 120,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0x228CE1A6),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+
+                              // Lingkaran Halo Tengah Dalam (88x88)
+                              Container(
+                                width: 88,
+                                height: 88,
+                                decoration: const BoxDecoration(
+                                  color: Color(0x458CE1A6),
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Color(0x338CE1A6),
+                                      blurRadius: 20,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // Ikon Emblem Tengah (40x40)
+                              const SizedBox(
+                                width: 40,
+                                height: 40,
+                                child: CustomPaint(
+                                  painter: _KamaimoEmblemPainter(),
+                                ),
+                              ),
+
+                              // 6 Titik Cahaya di Garis Orbit Dalam (Seimbang 60° & Berputar Mulus)
+                              for (int i = 0; i < 6; i++)
+                                Builder(
+                                  builder: (_) {
+                                    final double angle = (i * math.pi / 3) -
+                                        (math.pi / 4) +
+                                        innerRotation;
+                                    final double dx =
+                                        innerRadius * math.cos(angle);
+                                    final double dy =
+                                        innerRadius * math.sin(angle);
+                                    final bool isGreen = i.isEven;
+
+                                    return Transform.translate(
+                                      offset: Offset(dx, dy),
+                                      child: _GlowDot(
+                                        color: isGreen
+                                            ? const Color(0xFFA7F3D0)
+                                            : const Color(0xFFF4B251),
+                                        shadowColor: isGreen
+                                            ? const Color(0xFF8CE1A6)
+                                            : const Color(0xFFF4B251),
+                                      ),
+                                    );
+                                  },
+                                ),
+
+                              // 6 Foto Destinasi di Garis Orbit Luar (Seimbang 60°, Berputar Otomatis & Tetap Tegak)
+                              for (int i = 0; i < _orbitPhotos.length; i++)
+                                Builder(
+                                  builder: (_) {
+                                    final double angle = (i * math.pi / 3) -
+                                        (math.pi / 3.2) +
+                                        outerRotation;
+                                    final double dx =
+                                        outerRadius * math.cos(angle);
+                                    final double dy =
+                                        outerRadius * math.sin(angle);
+
+                                    return Transform.translate(
+                                      offset: Offset(dx, dy),
+                                      child: _OrbitPhotoCircle(
+                                        assetPath: _orbitPhotos[i],
+                                      ),
+                                    );
+                                  },
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 68),
+
+                    // 4. Tiga Chip Kategori: Budaya, Alam, Festival
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _CategoryPill(
+                          label: 'Budaya',
+                          textColor: Color(0xFF2E5C43),
+                        ),
+                        SizedBox(width: 14),
+                        _CategoryPill(
+                          label: 'Alam',
+                          textColor: Color(0xFFF4B251),
+                        ),
+                        SizedBox(width: 14),
+                        _CategoryPill(
+                          label: 'Festival',
+                          textColor: Color(0xFF8CB894),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // 5. Judul Utama: "Jelajahi Surga / Tersembunyi Sulteng"
+                    RichText(
+                      textAlign: TextAlign.center,
+                      text: const TextSpan(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontSize: 25,
+                          fontWeight: FontWeight.w800,
+                          height: 1.3,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: 'Jelajahi Surga\n',
+                            style: TextStyle(
+                              color: Color(0xFF467A5C),
+                            ),
+                          ),
+                          TextSpan(
+                            text: 'Tersembunyi Sulteng',
+                            style: TextStyle(
+                              color: Color(0xFFF4B251),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    // 6. Subjudul Deskripsi
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 48),
+                      child: Text(
+                        'Destinasi wisata terbaik Sulawesi Tengah\ndalam genggaman tanganmu.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF2E5C43),
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 26),
+
+                    // 7. Tombol "Start"
+                    GestureDetector(
+                      onTap: () => _onStart(context),
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(
+                        width: 142,
+                        height: 44,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF09903B),
+                          borderRadius: BorderRadius.circular(50),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x38000000),
+                              blurRadius: 6,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Text(
+                          'Start',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFFFFFFFF),
+                            height: 1.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Painter untuk latar belakang hijau atas dengan lengkungan kurva bawah yang mulus dari ujung kiri ke ujung kanan layar.
+class _CurvedGreenBackgroundPainter extends CustomPainter {
+  const _CurvedGreenBackgroundPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF2E5C43)
+      ..style = PaintingStyle.fill;
+
+    // Proporsi lengkungan sama persis dengan desain Figma (58.5% di pinggir, melengkung hingga ~64.6% di tengah)
+    final double sideY = size.height * 0.585;
+    final double bottomControlY = size.height * 0.708;
+
+    final path = Path()
+      ..moveTo(0, 0)
+      ..lineTo(0, sideY)
+      ..quadraticBezierTo(
+        size.width * 0.5,
+        bottomControlY,
+        size.width,
+        sideY,
+      )
+      ..lineTo(size.width, 0)
+      ..close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Pill kategori (Budaya, Alam, Festival).
+class _CategoryPill extends StatelessWidget {
+  final String label;
+  final Color textColor;
+
+  const _CategoryPill({
+    required this.label,
+    required this.textColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 75,
+      height: 24,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(100),
+        border: Border.all(
+          color: const Color(0xFF2E5C43),
+          width: 1,
+        ),
+      ),
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontFamily: 'PlusJakartaSans',
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          color: textColor,
+          height: 1.0,
+        ),
       ),
     );
   }
@@ -595,12 +508,12 @@ class _OrbitPhotoCircle extends StatelessWidget {
       height: 60,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: const Color(0x80E2E8E0), width: 2),
+        border: Border.all(color: const Color(0xCCE2E8E0), width: 2),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x26000000),
-            blurRadius: 6,
-            offset: Offset(0, 2),
+            color: Color(0x2E000000),
+            blurRadius: 8,
+            offset: Offset(0, 3),
           ),
         ],
       ),
@@ -624,16 +537,16 @@ class _GlowDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 8,
-      height: 8,
+      width: 8.5,
+      height: 8.5,
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
             color: shadowColor,
-            blurRadius: 4,
-            spreadRadius: 1,
+            blurRadius: 6,
+            spreadRadius: 1.5,
             offset: Offset.zero,
           ),
         ],
@@ -662,13 +575,13 @@ class _KamaimoEmblemPainter extends CustomPainter {
     final strokePaint = Paint()
       ..color = const Color(0xFF1D3A30)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = w * 0.045
+      ..strokeWidth = w * 0.042
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
 
     // Lingkaran kepala (kanan atas)
     final headCenter = Offset(w * 0.64, h * 0.22);
-    final headRadius = w * 0.14;
+    final headRadius = w * 0.135;
     canvas.drawCircle(headCenter, headRadius, goldPaint);
     canvas.drawCircle(headCenter, headRadius, strokePaint);
 
