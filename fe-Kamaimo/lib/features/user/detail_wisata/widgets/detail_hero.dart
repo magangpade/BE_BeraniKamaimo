@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Hero parallax-styled untuk Detail Wisata (frame 4714:452).
@@ -33,6 +35,8 @@ class DetailHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
+
     return SizedBox(
       height: _height,
       width: double.infinity,
@@ -67,20 +71,24 @@ class DetailHero extends StatelessWidget {
               children: [
                 _GlassIconButton(
                   icon: Icons.chevron_left_rounded,
-                  tooltip: 'Kembali',
+                  tooltip: isEn ? 'Back' : 'Kembali',
                   onTap: () => Navigator.of(context).maybePop(),
                 ),
                 _GlassIconButton(
                   icon: Icons.ios_share,
-                  tooltip: 'Bagikan',
+                  tooltip: isEn ? 'Share' : 'Bagikan',
                   onTap: onShare ??
                       () {
                         final title = (namaDesa != null && namaDesa!.isNotEmpty)
                             ? namaDesa!
-                            : 'Destinasi Wisata Sulawesi Tengah';
+                            : (isEn
+                                ? 'Central Sulawesi Tourist Destination'
+                                : 'Destinasi Wisata Sulawesi Tengah');
                         SharePlus.instance.share(
                           ShareParams(
-                            text: 'Jelajahi keindahan $title di Sulawesi Tengah lewat aplikasi Berani Kamaimo!',
+                            text: isEn
+                                ? 'Explore the beauty of $title in Central Sulawesi via the Berani Kamaimo app!'
+                                : 'Jelajahi keindahan $title di Sulawesi Tengah lewat aplikasi Berani Kamaimo!',
                           ),
                         );
                       },

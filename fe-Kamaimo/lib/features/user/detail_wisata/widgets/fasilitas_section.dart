@@ -1,5 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Section "Fasilitas Desa Wisata" (KENYAMANAN BERKELANJUTAN) sesuai
@@ -67,13 +69,15 @@ class FasilitasSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Header
-        const Text(
-          'KENYAMANAN BERKELANJUTAN',
-          style: TextStyle(
+        Text(
+          isEn ? 'SUSTAINABLE COMFORT' : 'KENYAMANAN BERKELANJUTAN',
+          style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
             height: 16 / 12,
@@ -82,9 +86,9 @@ class FasilitasSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 2.5),
-        const Text(
-          'Fasilitas Desa Wisata',
-          style: TextStyle(
+        Text(
+          isEn ? 'Tourism Village Facilities' : 'Fasilitas Desa Wisata',
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w800,
             height: 28 / 20,
@@ -162,8 +166,71 @@ class _FasilitasCard extends StatelessWidget {
 
   const _FasilitasCard({required this.item});
 
+  String _translateTitle(String t, bool isEn) {
+    if (!isEn) return t;
+    switch (t) {
+      case 'Sewa Kano Transparan':
+        return 'Transparent Canoe Rental';
+      case 'Homestay Kayu Pesisir':
+        return 'Coastal Wooden Homestay';
+      case 'Pemandu Pokdarwis':
+        return 'Pokdarwis Local Guide';
+      case 'Kuliner Ikan Bakar':
+        return 'Grilled Fish Culinary';
+      default:
+        return t;
+    }
+  }
+
+  String _translateDeskripsi(String d, bool isEn) {
+    if (!isEn) return d;
+    if (d.startsWith('Kano bening akrilik')) {
+      return 'Clear acrylic canoe for aesthetic photos on the lake.';
+    }
+    if (d.startsWith('Pondok kayu estetik')) {
+      return 'Eco-friendly aesthetic wooden cottages side by side.';
+    }
+    if (d.startsWith('Pemandu lokal berlisensi')) {
+      return 'Licensed local guide for photo spots & Sea-Sea myth stories.';
+    }
+    if (d.startsWith('Ikan kuah asam rica')) {
+      return 'Spicy sour fish soup, tender boiled Banggai yam & fresh young coconut.';
+    }
+    return d;
+  }
+
+  String? _translateBadge(String? b, bool isEn) {
+    if (!isEn || b == null) return b;
+    if (b == 'Terpopuler') return 'Most Popular';
+    if (b == '8 Kamar') return '8 Rooms';
+    return b;
+  }
+
+  String _translateFooter(String? f, bool isEn) {
+    if (f == null) return '';
+    if (!isEn) return f;
+    switch (f) {
+      case 'Mulai':
+        return 'From';
+      case 'Tersedia Harian':
+        return 'Available Daily';
+      case 'Harga':
+        return 'Price';
+      default:
+        return f;
+    }
+  }
+
+  String _translateSatuan(String s, bool isEn) {
+    if (!isEn) return s;
+    if (s == '/jam') return '/hr';
+    if (s == '/malam') return '/night';
+    return s;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
     final hasFooter =
         item.footerLabel != null || (item.harga?.isNotEmpty ?? false);
 
@@ -215,14 +282,14 @@ class _FasilitasCard extends StatelessWidget {
                       )
                     : Icon(item.icon, size: 18, color: item.iconColor),
               ),
-              if (item.badge != null) _badgeOverlay(item),
+              if (item.badge != null) _badgeOverlay(item, isEn),
             ],
           ),
           const SizedBox(height: 6),
 
           // Judul
           Text(
-            item.title,
+            _translateTitle(item.title, isEn),
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -234,7 +301,7 @@ class _FasilitasCard extends StatelessWidget {
 
           // Deskripsi
           Text(
-            item.deskripsi,
+            _translateDeskripsi(item.deskripsi, isEn),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
@@ -259,7 +326,7 @@ class _FasilitasCard extends StatelessWidget {
                 children: [
                   Flexible(
                     child: Text(
-                      item.footerLabel ?? '',
+                      _translateFooter(item.footerLabel, isEn),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -289,7 +356,7 @@ class _FasilitasCard extends StatelessWidget {
                           ),
                           if (item.satuan.isNotEmpty)
                             Text(
-                              item.satuan,
+                              _translateSatuan(item.satuan, isEn),
                               style: const TextStyle(
                                 fontSize: 10,
                                 height: 16 / 10,
@@ -309,7 +376,7 @@ class _FasilitasCard extends StatelessWidget {
     );
   }
 
-  Positioned _badgeOverlay(FasilitasItem item) {
+  Positioned _badgeOverlay(FasilitasItem item, bool isEn) {
     final dark = item.badgeStyle == BadgeStyle.dark;
     return Positioned(
       top: 8,
@@ -324,7 +391,7 @@ class _FasilitasCard extends StatelessWidget {
           border: dark ? null : Border.all(color: AppColors.detailBorder),
         ),
         child: Text(
-          item.badge!,
+          _translateBadge(item.badge, isEn) ?? '',
           style: TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w700,

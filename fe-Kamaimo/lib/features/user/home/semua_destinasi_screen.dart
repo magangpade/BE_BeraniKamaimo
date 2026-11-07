@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/providers/language_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/repositories/desa_wisata_repository.dart';
 import '../detail_wisata/detail_wisata_screen.dart';
@@ -32,6 +33,24 @@ class _SemuaDestinasiScreenState extends State<SemuaDestinasiScreen> {
     'Budaya & Adat',
     'Danau & Alam',
   ];
+
+  static String _filterLabel(String f, bool isEn) {
+    if (!isEn) return f;
+    switch (f) {
+      case 'Semua':
+        return 'All';
+      case 'Bahari & Karst':
+        return 'Marine & Karst';
+      case 'Megalitikum':
+        return 'Megalithic';
+      case 'Budaya & Adat':
+        return 'Culture & Tradition';
+      case 'Danau & Alam':
+        return 'Lakes & Nature';
+      default:
+        return f;
+    }
+  }
 
   static const _defaultDestinations = [
     {
@@ -169,6 +188,7 @@ class _SemuaDestinasiScreenState extends State<SemuaDestinasiScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
     final items = filteredDestinations;
 
     return Scaffold(
@@ -188,9 +208,9 @@ class _SemuaDestinasiScreenState extends State<SemuaDestinasiScreen> {
               ),
               onPressed: () => Navigator.pop(context),
             ),
-            title: const Text(
-              'Semua Destinasi',
-              style: TextStyle(
+            title: Text(
+              isEn ? 'All Destinations' : 'Semua Destinasi',
+              style: const TextStyle(
                 color: AppColors.pine900,
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -204,6 +224,7 @@ class _SemuaDestinasiScreenState extends State<SemuaDestinasiScreen> {
           SliverPersistentHeader(
             pinned: true,
             delegate: _SearchHeaderDelegate(
+              isEn: isEn,
               selectedFilter: _selectedFilter,
               onFilterChanged: (filter) {
                 setState(() => _selectedFilter = filter);
@@ -225,7 +246,9 @@ class _SemuaDestinasiScreenState extends State<SemuaDestinasiScreen> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
                   child: Text(
-                    '${items.length} Destinasi Ditemukan',
+                    isEn
+                        ? '${items.length} Destinations Found'
+                        : '${items.length} Destinasi Ditemukan',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -239,12 +262,14 @@ class _SemuaDestinasiScreenState extends State<SemuaDestinasiScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: items.isEmpty
-                      ? const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 40),
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 40),
                           child: Center(
                             child: Text(
-                              'Tidak ada destinasi yang cocok',
-                              style: TextStyle(
+                              isEn
+                                  ? 'No matching destinations found'
+                                  : 'Tidak ada destinasi yang cocok',
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: AppColors.textTertiary,
                                 fontFamily: 'PlusJakartaSans',
@@ -294,6 +319,7 @@ class _SemuaDestinasiScreenState extends State<SemuaDestinasiScreen> {
 }
 
 class _SearchHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final bool isEn;
   final String selectedFilter;
   final ValueChanged<String> onFilterChanged;
   final List<String> filters;
@@ -301,6 +327,7 @@ class _SearchHeaderDelegate extends SliverPersistentHeaderDelegate {
   final ValueChanged<String> onSearchChanged;
 
   _SearchHeaderDelegate({
+    required this.isEn,
     required this.selectedFilter,
     required this.onFilterChanged,
     required this.filters,
@@ -372,7 +399,7 @@ class _SearchHeaderDelegate extends SliverPersistentHeaderDelegate {
                           color: AppColors.textPrimary,
                           fontFamily: 'PlusJakartaSans',
                         ),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,
@@ -381,8 +408,8 @@ class _SearchHeaderDelegate extends SliverPersistentHeaderDelegate {
                           focusedErrorBorder: InputBorder.none,
                           filled: false,
                           fillColor: Colors.transparent,
-                          hintText: 'Cari destinasi...',
-                          hintStyle: TextStyle(
+                          hintText: isEn ? 'Search destinations...' : 'Cari destinasi...',
+                          hintStyle: const TextStyle(
                             fontSize: 14,
                             color: AppColors.textTertiary,
                             fontFamily: 'PlusJakartaSans',
@@ -430,7 +457,7 @@ class _SearchHeaderDelegate extends SliverPersistentHeaderDelegate {
                         ),
                         child: Center(
                           child: Text(
-                            filter,
+                            _SemuaDestinasiScreenState._filterLabel(filter, isEn),
                             style: TextStyle(
                               color: isSelected
                                   ? Colors.white
@@ -457,7 +484,8 @@ class _SearchHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant _SearchHeaderDelegate oldDelegate) {
-    return oldDelegate.selectedFilter != selectedFilter ||
+    return oldDelegate.isEn != isEn ||
+        oldDelegate.selectedFilter != selectedFilter ||
         oldDelegate.filters != filters ||
         oldDelegate.searchController != searchController;
   }
@@ -472,8 +500,34 @@ class _DestinationGridCard extends StatelessWidget {
     required this.onTap,
   });
 
+  String _translateBadge(String b, bool isEn) {
+    if (!isEn) return b;
+    switch (b.toUpperCase()) {
+      case 'UNGGULAN SULTENG':
+        return 'TOP FEATURED';
+      case 'BAHARI':
+        return 'MARINE';
+      case 'EKOWISATA':
+        return 'ECOTOURISM';
+      case 'BUDAYA':
+        return 'CULTURE';
+      case 'UMKM':
+        return 'MSME';
+      default:
+        return b;
+    }
+  }
+
+  String _translateSatuan(String s, bool isEn) {
+    if (!isEn) return s;
+    if (s == '/orang') return '/person';
+    if (s == '/tur') return '/tour';
+    return s;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
     final foto = item['foto'] as String?;
     return GestureDetector(
       onTap: onTap,
@@ -531,7 +585,7 @@ class _DestinationGridCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        item['badge'] as String,
+                        _translateBadge(item['badge'] as String, isEn),
                         style: const TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
@@ -589,9 +643,9 @@ class _DestinationGridCard extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'MULAI DARI',
-                              style: TextStyle(
+                            Text(
+                              isEn ? 'STARTS FROM' : 'MULAI DARI',
+                              style: const TextStyle(
                                 fontSize: 8,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.textTertiary,
@@ -611,7 +665,7 @@ class _DestinationGridCard extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  item['satuan'] as String,
+                                  _translateSatuan(item['satuan'] as String, isEn),
                                   style: const TextStyle(
                                     fontSize: 9,
                                     color: AppColors.textTertiary,

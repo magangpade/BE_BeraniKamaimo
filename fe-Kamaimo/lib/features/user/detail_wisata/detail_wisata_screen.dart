@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/network/token_store.dart';
+import '../../../core/providers/language_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/repositories/jarak_repository.dart';
 import '../../../data/repositories/ulasan_repository.dart';
@@ -115,6 +117,11 @@ class _DetailWisataScreenState extends State<DetailWisataScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
+    final statusText = isEn
+        ? 'Open Today \u2022 07:00 \u2013 17:30 WITA'
+        : _statusBuka;
+
     return Scaffold(
       backgroundColor: AppColors.detailBackground,
       body: CustomScrollView(
@@ -123,19 +130,19 @@ class _DetailWisataScreenState extends State<DetailWisataScreen> {
           SliverToBoxAdapter(
             child: DetailHero(
               foto: widget.foto,
-              statusText: _statusBuka,
+              statusText: statusText,
               namaDesa: widget.namaDesa,
             ),
           ),
 
           // 2..5. Konten section (padding 20px horizontal)
-          SliverToBoxAdapter(child: _body()),
+          SliverToBoxAdapter(child: _body(isEn)),
         ],
       ),
     );
   }
 
-  Widget _body() {
+  Widget _body(bool isEn) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 32, 20, 120),
       child: Column(
@@ -169,8 +176,12 @@ class _DetailWisataScreenState extends State<DetailWisataScreen> {
                 ulasanList: snap.data!,
                 onTulisUlasan: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Form ulasan akan tersedia di tahap M2.'),
+                    SnackBar(
+                      content: Text(
+                        isEn
+                            ? 'Review form will be available in M2.'
+                            : 'Form ulasan akan tersedia di tahap M2.',
+                      ),
                     ),
                   );
                 },

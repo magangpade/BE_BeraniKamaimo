@@ -29,6 +29,8 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
     nama: 'Luk Panenteng & Danau Paisu Pok',
     deskripsi:
         'Air sebening kaca dengan vegetasi hutan yang masih alami—ikon tersembunyi di Kepulauan Banggai.',
+    deskripsiEn:
+        'Crystal-clear waters surrounded by pristine forest vegetation—a hidden icon in the Banggai Islands.',
     rating: '4.9',
     jarak: '1.4k ulasan',
   );
@@ -41,6 +43,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
       kabupaten: 'Tojo Una-Una',
       nama: 'Kepulauan Togean',
       deskripsi: 'Laguna jernih, terumbu karang, dan pulau sunyi dalam satu gugusan.',
+      deskripsiEn: 'Clear lagoons, coral reefs, and tranquil islands in one archipelago.',
       rating: '4.9',
       jarak: '375 km dari Palu',
     ),
@@ -51,6 +54,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
       kabupaten: 'Poso',
       nama: 'Danau Tambing',
       deskripsi: 'Danau pegunungan sejuk di jantung Taman Nasional Lore Lindu.',
+      deskripsiEn: 'A cool highland lake in the heart of Lore Lindu National Park.',
       rating: '4.8',
       jarak: '90 km dari Palu',
     ),
@@ -61,6 +65,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
       kabupaten: 'Poso',
       nama: 'Air Terjun Saluopa',
       deskripsi: 'Dua belas tingkat air terjun alami dengan jalur teduh yang mudah dijelajahi.',
+      deskripsiEn: 'Twelve tiers of natural cascades with shaded, easy-to-explore trails.',
       rating: '4.8',
       jarak: '265 km dari Palu',
     ),
@@ -71,6 +76,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
       kabupaten: 'Lore Selatan, Poso',
       nama: 'Lembah Bada',
       deskripsi: 'Bentang lembah megah dengan arca batu purba berusia ribuan tahun.',
+      deskripsiEn: 'A majestic valley landscape home to ancient stone statues thousands of years old.',
       rating: '4.7',
       jarak: '177 km dari Palu',
     ),
@@ -81,6 +87,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
       kabupaten: 'Banggai',
       nama: 'Pulo Dua Balantak',
       deskripsi: 'Perbukitan karst ikonik bertemu laut biru di ujung timur Sulawesi.',
+      deskripsiEn: 'Iconic karst hills meeting the deep blue sea at the eastern tip of Sulawesi.',
       rating: '4.9',
       jarak: '610 km dari Palu',
     ),
@@ -255,8 +262,31 @@ class _Item {
     required this.jarak,
   });
 
-  String getTitle(bool isEn) => (isEn && namaEn != null && namaEn!.isNotEmpty) ? namaEn! : nama;
+  // Nama wisata merupakan nama asli (proper noun), sehingga tetap menggunakan nama asli.
+  String getTitle(bool isEn) => nama;
   String getDesc(bool isEn) => (isEn && deskripsiEn != null && deskripsiEn!.isNotEmpty) ? deskripsiEn! : deskripsi;
+  String getKategoriLabel(bool isEn) {
+    if (!isEn) return kategori;
+    switch (kategori.toUpperCase()) {
+      case 'BAHARI':
+        return 'MARINE';
+      case 'EKOWISATA':
+        return 'ECOTOURISM';
+      case 'BUDAYA':
+        return 'CULTURE';
+      case 'UMKM':
+        return 'MSME';
+      default:
+        return kategori;
+    }
+  }
+
+  String getJarakLabel(bool isEn) {
+    if (!isEn) return jarak;
+    return jarak
+        .replaceAll('dari Palu', 'from Palu')
+        .replaceAll('ulasan', 'reviews');
+  }
 }
 
 // ─── Panel mint: judul + search ───────────────────────────────────────────────
@@ -527,15 +557,15 @@ class _FeaturedCard extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.93),
                         borderRadius: BorderRadius.circular(9999),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.auto_awesome_rounded,
+                          const Icon(Icons.auto_awesome_rounded,
                               size: 10, color: AppColors.warning),
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Text(
-                            'Pilihan terbaik',
-                            style: TextStyle(
+                            isEn ? 'Best choice' : 'Pilihan terbaik',
+                            style: const TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.w800,
                               color: AppColors.pine900,
@@ -611,22 +641,22 @@ class _FeaturedCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Waktu terbaik',
-                          style: TextStyle(
+                          isEn ? 'Best time' : 'Waktu terbaik',
+                          style: const TextStyle(
                             fontSize: 8,
                             fontWeight: FontWeight.w700,
                             color: AppColors.textTertiary,
                             fontFamily: 'PlusJakartaSans',
                           ),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
-                          'Apr–Okt • 2–3 hari',
-                          style: TextStyle(
+                          isEn ? 'Apr–Oct • 2–3 days' : 'Apr–Okt • 2–3 hari',
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
                             color: AppColors.pine900,
@@ -647,22 +677,22 @@ class _FeaturedCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(9999),
                         ),
                         alignment: Alignment.center,
-                        child: const FittedBox(
+                        child: FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Lihat detail',
-                                style: TextStyle(
+                                isEn ? 'View details' : 'Lihat detail',
+                                style: const TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white,
                                   fontFamily: 'PlusJakartaSans',
                                 ),
                               ),
-                              SizedBox(width: 2),
-                              Icon(Icons.arrow_forward_rounded,
+                              const SizedBox(width: 2),
+                              const Icon(Icons.arrow_forward_rounded,
                                   size: 9, color: Colors.white),
                             ],
                           ),
@@ -728,7 +758,7 @@ class _DestinasiCard extends StatelessWidget {
                           ),
                           alignment: Alignment.center,
                           child: Text(
-                            item.kategori,
+                            item.getKategoriLabel(isEn),
                             style: const TextStyle(
                               fontSize: 8,
                               fontWeight: FontWeight.w800,
@@ -812,7 +842,7 @@ class _DestinasiCard extends StatelessWidget {
                           ),
                           const Spacer(),
                           Text(
-                            item.jarak,
+                            item.getJarakLabel(isEn),
                             style: const TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,

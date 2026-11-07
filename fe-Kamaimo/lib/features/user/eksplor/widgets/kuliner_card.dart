@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../eksplor_data.dart';
 import 'kontak_row.dart';
@@ -23,8 +25,68 @@ class KulinerCard extends StatelessWidget {
     this.onWebsite,
   });
 
+  String _translateDeskripsi(String d, bool isEn) {
+    if (!isEn) return d;
+    if (d.startsWith('Kuah asam pedas segar')) {
+      return 'Fresh spicy-sour broth made with young tamarind, coconut milk, fresh fish cuts, and green bird\'s eye chili — a legendary lunch along Palu Bay.';
+    }
+    if (d.startsWith('Sup sumsum tulang kaki sapi')) {
+      return 'Tender beef leg bone marrow soup in a signature spicy-sour raw tamarind (uve kalopo) and green chili broth, sipped directly with a bamboo straw.';
+    }
+    if (d.startsWith('Beras ketan berisi ikan tuna')) {
+      return 'Glutinous rice stuffed with spicy grilled tuna, wrapped in banana leaves and char-grilled — a legendary snack along the Toboli route to Poso.';
+    }
+    if (d.startsWith('Kuah kuning santan rempah')) {
+      return 'Spiced yellow coconut milk broth with tender meat and traditional Kaili highland vegetables — a warm, sought-after homestyle dish during the rainy season.';
+    }
+    return d;
+  }
+
+  String _translateBahan(String b, bool isEn) {
+    if (!isEn) return b;
+    switch (b) {
+      case '🌿 Asam Jawa Muda':
+        return '🌿 Young Tamarind';
+      case '🌿 Asam Jawa Segar':
+        return '🌿 Fresh Tamarind';
+      case '🌶️ Cabai Rawit Hijau':
+        return '🌶️ Green Chili';
+      case '🍠 Singkong Rebus':
+        return '🍠 Boiled Cassava';
+      case '🌾 Beras Ketan':
+        return '🌾 Glutinous Rice';
+      case '🐟 Tuna Bumbu':
+        return '🐟 Spiced Tuna';
+      case '🌿 Daun Pisang':
+        return '🌿 Banana Leaf';
+      case '🌶️ Kunyit Segar':
+        return '🌶️ Fresh Turmeric';
+      case '🥥 Santan Kental':
+        return '🥥 Rich Coconut Milk';
+      case '🍲 Daging Sapi':
+        return '🍲 Beef';
+      case '🌿 Rempah Tradisional':
+        return '🌿 Traditional Spices';
+      case '🌶️ Bumbu Khas Sulteng':
+        return '🌶️ Central Sulawesi Spices';
+      case '🍲 Resep Warisan':
+        return '🍲 Heritage Recipe';
+      default:
+        return b;
+    }
+  }
+
+  String _translateTag(String t, bool isEn) {
+    if (!isEn) return t;
+    if (t == 'Legendaris') return 'Legendary';
+    if (t == 'Autentik') return 'Authentic';
+    return t;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -35,14 +97,14 @@ class KulinerCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _media(),
+          _media(isEn),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.deskripsi,
+                  _translateDeskripsi(item.deskripsi, isEn),
                   style: const TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w500,
@@ -58,7 +120,10 @@ class KulinerCard extends StatelessWidget {
                   runSpacing: 8,
                   children: [
                     for (final (label, kind) in item.bahan)
-                      _BahanChip(label: label, kind: kind),
+                      _BahanChip(
+                        label: _translateBahan(label, isEn),
+                        kind: kind,
+                      ),
                   ],
                 ),
                 const SizedBox(height: 14),
@@ -84,7 +149,7 @@ class KulinerCard extends StatelessWidget {
     );
   }
 
-  Widget _media() {
+  Widget _media(bool isEn) {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       child: SizedBox(
@@ -120,7 +185,7 @@ class KulinerCard extends StatelessWidget {
                     border: Border.all(color: AppColors.goldChipBorder),
                   ),
                   child: Text(
-                    item.tag!,
+                    _translateTag(item.tag!, isEn),
                     style: const TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w800,

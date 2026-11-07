@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Kartu "Jaminan Harga Resmi Dinas Pariwisata" — tab Tempat Menginap.
@@ -8,6 +10,8 @@ class TrustCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -34,13 +38,15 @@ class TrustCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Jaminan Harga Resmi Dinas Pariwisata',
-                  style: TextStyle(
+                  isEn
+                      ? 'Official Tourism Office Price Guarantee'
+                      : 'Jaminan Harga Resmi Dinas Pariwisata',
+                  style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
                     height: 1.35,
@@ -48,11 +54,12 @@ class TrustCard extends StatelessWidget {
                     fontFamily: 'PlusJakartaSans',
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'Semua nomor telepon dan WhatsApp terhubung langsung ke '
-                  'meja resepsionis penginapan tanpa perantara pihak ketiga.',
-                  style: TextStyle(
+                  isEn
+                      ? 'All phone and WhatsApp numbers connect directly to the accommodation front desk without third-party intermediaries.'
+                      : 'Semua nomor telepon dan WhatsApp terhubung langsung ke meja resepsionis penginapan tanpa perantara pihak ketiga.',
+                  style: const TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.w500,
                     height: 1.5,

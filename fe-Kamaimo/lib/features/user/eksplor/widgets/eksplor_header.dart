@@ -187,11 +187,17 @@ class EksplorHeader extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               itemCount: EksplorSeed.wilayah.length,
               separatorBuilder: (_, _) => const SizedBox(width: 8),
-              itemBuilder: (ctx, i) => _WilayahChip(
-                label: EksplorSeed.wilayah[i],
-                selected: i == wilayahIndex,
-                onTap: () => onWilayah(i),
-              ),
+              itemBuilder: (ctx, i) {
+                final raw = EksplorSeed.wilayah[i];
+                final label = (isEn && raw == 'Semua Wilayah')
+                    ? 'All Regions'
+                    : raw;
+                return _WilayahChip(
+                  label: label,
+                  selected: i == wilayahIndex,
+                  onTap: () => onWilayah(i),
+                );
+              },
             ),
           ),
         ],

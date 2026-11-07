@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../models/jarak_desa.dart';
 
@@ -37,6 +39,7 @@ class _HowToGetThereState extends State<HowToGetThere> {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
     final jarak = _active;
 
     // Tidak ada data jarak sama sekali → sembunyikan section.
@@ -46,9 +49,9 @@ class _HowToGetThereState extends State<HowToGetThere> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Header: eyebrow + judul nama desa
-        const Text(
-          'AKSESIBILITAS & RUTE',
-          style: TextStyle(
+        Text(
+          isEn ? 'ACCESSIBILITY & ROUTES' : 'AKSESIBILITAS & RUTE',
+          style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
             height: 16 / 12,
@@ -80,12 +83,16 @@ class _HowToGetThereState extends State<HowToGetThere> {
           child: Row(
             children: [
               _SegmentButton(
-                label: 'Dari Luwuk (Rute Tercepat)',
+                label: isEn
+                    ? 'From Luwuk (Fastest Route)'
+                    : 'Dari Luwuk (Rute Tercepat)',
                 selected: _selected == 'LUWUK',
                 onTap: () => setState(() => _selected = 'LUWUK'),
               ),
               _SegmentButton(
-                label: 'Dari Palu (Ibukota)',
+                label: isEn
+                    ? 'From Palu (Capital City)'
+                    : 'Dari Palu (Ibukota)',
                 selected: _selected == 'PALU',
                 onTap: () => setState(() => _selected = 'PALU'),
               ),
@@ -104,8 +111,9 @@ class _HowToGetThereState extends State<HowToGetThere> {
           _RouteCard(jalur: Jalur.udara, deskripsi: jarak.jalur_udara),
         ] else
           Text(
-            'Rute dari ${_namaTik(jarak?.titikKota ?? _selected)} '
-            'belum tersedia.',
+            isEn
+                ? 'Routes from ${_namaTik(jarak?.titikKota ?? _selected)} are not yet available.'
+                : 'Rute dari ${_namaTik(jarak?.titikKota ?? _selected)} belum tersedia.',
             style: const TextStyle(
               fontSize: 12,
               height: 19.5 / 12,
@@ -246,9 +254,57 @@ class _RouteCard extends StatelessWidget {
 
   const _RouteCard({required this.jalur, required this.deskripsi});
 
+  String _translateDeskripsi(String desc, bool isEn) {
+    if (!isEn) return desc;
+    if (desc.startsWith('Perjalanan darat aspal pesisir')) {
+      return 'Coastal paved road trip along karst hills by rental car or local ojek from Salakan directly to the lake gate.';
+    }
+    if (desc.startsWith('Berangkat dari Pelabuhan Rakyat Luwuk')) {
+      return 'Departs every morning from Luwuk Public Port to Salakan Port (Banggai Kepulauan) at 09:00 WITA.';
+    }
+    if (desc.startsWith('Penerbangan reguler terjadwal dari Makassar')) {
+      return 'Scheduled regular flights from Makassar (UPG) or Manado (MDC) to Luwuk Airport (Wings Air / Batik Air).';
+    }
+    if (desc.startsWith('Perjalanan darat trans-Sulawesi')) {
+      return 'Trans-Sulawesi overland trip from Palu to Luwuk by night bus (±10–12 hours), followed by ferry to Salakan and car to the village.';
+    }
+    if (desc.startsWith('Ferreguler KM dari Pelabuhan Pantoloan')) {
+      return 'Regular ferry from Pantoloan Port (Palu) to Luwuk on a non-daily schedule — check the latest schedule before departure.';
+    }
+    if (desc.startsWith('Penerbangan dari Palu (PLW)')) {
+      return 'Flights from Palu (PLW) generally transit via Makassar (UPG) or Manado (MDC) to Luwuk Airport (Wings Air / Batik Air).';
+    }
+    return desc;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
     final s = _styleOf(jalur);
+    final labelText = !isEn
+        ? s.label
+        : (jalur == Jalur.laut
+            ? 'SEA ROUTE'
+            : (jalur == Jalur.darat ? 'LAND ROUTE' : 'AIR ROUTE'));
+    final titleText = !isEn
+        ? s.title
+        : (jalur == Jalur.laut
+            ? 'Speedboat / Ferry\nCrossing'
+            : (jalur == Jalur.darat
+                ? 'Salakan to Luk Panenteng\nvia Liang'
+                : 'Syukuran Aminuddin\nAmir Airport (LUW)'));
+    final durasiText = !isEn || s.durasi == null
+        ? s.durasi
+        : s.durasi!
+            .replaceAll('jam', 'hrs')
+            .replaceAll('Jam', 'Hrs')
+            .replaceAll('Menit', 'Mins');
+    final footerLabelText = !isEn || s.footerLabel == null
+        ? s.footerLabel
+        : (jalur == Jalur.laut ? 'Estimated Ticket:' : 'Vehicle\nRental:');
+    final footerPriceText = !isEn || s.footerPrice == null
+        ? s.footerPrice
+        : s.footerPrice!.replaceAll('/ Hari', '/ Day');
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -288,7 +344,7 @@ class _RouteCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      s.label,
+                      labelText,
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
@@ -299,7 +355,7 @@ class _RouteCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2.5),
                     Text(
-                      s.title,
+                      titleText,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -310,7 +366,7 @@ class _RouteCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (s.durasi != null)
+              if (durasiText != null)
                 Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 15,
@@ -321,7 +377,7 @@ class _RouteCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(9999),
                   ),
                   child: Text(
-                    s.durasi!,
+                    durasiText,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -336,7 +392,7 @@ class _RouteCard extends StatelessWidget {
 
           // Deskripsi rute (dari backend)
           Text(
-            deskripsi,
+            _translateDeskripsi(deskripsi, isEn),
             style: const TextStyle(
               fontSize: 12,
               height: 19.5 / 12,
@@ -345,7 +401,7 @@ class _RouteCard extends StatelessWidget {
           ),
 
           // Footer harga (laut & darat saja, sesuai Figma)
-          if (s.footerLabel != null) ...[
+          if (footerLabelText != null) ...[
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
@@ -362,7 +418,7 @@ class _RouteCard extends StatelessWidget {
                 children: [
                   Flexible(
                     child: Text(
-                      s.footerLabel!,
+                      footerLabelText,
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -372,7 +428,7 @@ class _RouteCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    s.footerPrice ?? '',
+                    footerPriceText ?? '',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,

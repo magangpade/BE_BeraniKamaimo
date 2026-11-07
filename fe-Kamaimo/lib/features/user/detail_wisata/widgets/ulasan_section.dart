@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../models/ulasan.dart';
 
@@ -52,6 +54,7 @@ class UlasanSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
     final row = ulasanList.isEmpty
         ? _demoTestimoni
         : [
@@ -70,13 +73,13 @@ class UlasanSection extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'TESTIMONI NYATA',
-                    style: TextStyle(
+                    isEn ? 'REAL TESTIMONIALS' : 'TESTIMONI NYATA',
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       height: 16 / 12,
@@ -84,10 +87,10 @@ class UlasanSection extends StatelessWidget {
                       color: AppColors.pine500,
                     ),
                   ),
-                  SizedBox(height: 2.5),
+                  const SizedBox(height: 2.5),
                   Text(
-                    'Ulasan Pengunjung',
-                    style: TextStyle(
+                    isEn ? 'Visitor Reviews' : 'Ulasan Pengunjung',
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
                       height: 28 / 20,
@@ -138,6 +141,7 @@ class _TulisUlasanButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
     return Material(
       color: AppColors.pine800,
       borderRadius: BorderRadius.circular(9999),
@@ -156,14 +160,14 @@ class _TulisUlasanButton extends StatelessWidget {
               ),
             ],
           ),
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.add_rounded, size: 16, color: AppColors.textOnPrimary),
-              SizedBox(width: 6),
+              const Icon(Icons.add_rounded, size: 16, color: AppColors.textOnPrimary),
+              const SizedBox(width: 6),
               Text(
-                'Tulis Ulasan',
-                style: TextStyle(
+                isEn ? 'Write Review' : 'Tulis Ulasan',
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   height: 16 / 12,
@@ -198,19 +202,39 @@ class _TestimonialCard extends StatelessWidget {
     return initials.join().toUpperCase();
   }
 
-  String get _meta {
+  String _metaText(bool isEn) {
     final t = DateTime.tryParse(ulasan.createdAt);
+    final tipe = (!isEn || tipeWisatawan == null)
+        ? tipeWisatawan
+        : (tipeWisatawan == 'Keluarga' ? 'Family' : tipeWisatawan);
     if (t == null) return ulasan.createdAt;
-    const bulan = [
+    const bulanId = [
       'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
       'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
     ];
+    const bulanEn = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+    final bulan = isEn ? bulanEn : bulanId;
     final label = '${bulan[t.month - 1]} ${t.year}';
-    return tipeWisatawan == null ? label : '$tipeWisatawan \u2022 $label';
+    return tipe == null ? label : '$tipe \u2022 $label';
+  }
+
+  String _komentarText(bool isEn) {
+    if (!isEn) return ulasan.komentar;
+    if (ulasan.id == -1) {
+      return 'Renting the transparent canoe is highly recommended—the lake view over the crystal-clear water is stunning. The local guide is also great at telling Sea-Sea myth stories, super fun for a family road trip.';
+    }
+    if (ulasan.id == -2) {
+      return 'The ferry route from Luwuk Port is very easy to follow, just remember to check the tide schedule before snorkeling around the seagrass area.';
+    }
+    return ulasan.komentar;
   }
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
     final rating = ulasan.rating.clamp(1, 5);
 
     return Container(
@@ -277,7 +301,7 @@ class _TestimonialCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      _meta,
+                      _metaText(isEn),
                       style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
@@ -307,7 +331,7 @@ class _TestimonialCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            '"${ulasan.komentar}"',
+            '"${_komentarText(isEn)}"',
             style: const TextStyle(
               fontSize: 12,
               height: 19.5 / 12,

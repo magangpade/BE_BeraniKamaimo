@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../core/providers/language_provider.dart';
 import '../../../core/utils/constants.dart';
 
 /// Halaman Sambutan (Launch Screen) sesuai desain Figma dengan animasi orbit berputar otomatis.
@@ -46,6 +48,8 @@ class _HalamanSambutanState extends State<HalamanSambutan>
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
+
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF),
       body: Stack(
@@ -312,20 +316,20 @@ class _HalamanSambutanState extends State<HalamanSambutan>
                     const SizedBox(height: 68),
 
                     // 4. Tiga Chip Kategori: Budaya, Alam, Festival
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _CategoryPill(
-                          label: 'Budaya',
-                          textColor: Color(0xFF2E5C43),
+                          label: isEn ? 'Culture' : 'Budaya',
+                          textColor: const Color(0xFF2E5C43),
                         ),
-                        SizedBox(width: 14),
+                        const SizedBox(width: 14),
                         _CategoryPill(
-                          label: 'Alam',
-                          textColor: Color(0xFFF4B251),
+                          label: isEn ? 'Nature' : 'Alam',
+                          textColor: const Color(0xFFF4B251),
                         ),
-                        SizedBox(width: 14),
-                        _CategoryPill(
+                        const SizedBox(width: 14),
+                        const _CategoryPill(
                           label: 'Festival',
                           textColor: Color(0xFF8CB894),
                         ),
@@ -337,8 +341,8 @@ class _HalamanSambutanState extends State<HalamanSambutan>
                     // 5. Judul Utama: "Jelajahi Surga / Tersembunyi Sulteng"
                     RichText(
                       textAlign: TextAlign.center,
-                      text: const TextSpan(
-                        style: TextStyle(
+                      text: TextSpan(
+                        style: const TextStyle(
                           fontFamily: 'PlusJakartaSans',
                           fontSize: 25,
                           fontWeight: FontWeight.w800,
@@ -346,14 +350,18 @@ class _HalamanSambutanState extends State<HalamanSambutan>
                         ),
                         children: [
                           TextSpan(
-                            text: 'Jelajahi Surga\n',
-                            style: TextStyle(
+                            text: isEn
+                                ? 'Explore the Hidden\n'
+                                : 'Jelajahi Surga\n',
+                            style: const TextStyle(
                               color: Color(0xFF467A5C),
                             ),
                           ),
                           TextSpan(
-                            text: 'Tersembunyi Sulteng',
-                            style: TextStyle(
+                            text: isEn
+                                ? 'Paradise of Central Sulawesi'
+                                : 'Tersembunyi Sulteng',
+                            style: const TextStyle(
                               color: Color(0xFFF4B251),
                             ),
                           ),
@@ -364,12 +372,14 @@ class _HalamanSambutanState extends State<HalamanSambutan>
                     const SizedBox(height: 14),
 
                     // 6. Subjudul Deskripsi
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 48),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 48),
                       child: Text(
-                        'Destinasi wisata terbaik Sulawesi Tengah\ndalam genggaman tanganmu.',
+                        isEn
+                            ? 'The best tourist destinations of Central Sulawesi\nin the palm of your hand.'
+                            : 'Destinasi wisata terbaik Sulawesi Tengah\ndalam genggaman tanganmu.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: 'PlusJakartaSans',
                           fontSize: 12.5,
                           fontWeight: FontWeight.w500,

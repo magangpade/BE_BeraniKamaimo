@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../eksplor_data.dart';
 import 'kontak_row.dart';
@@ -23,8 +25,64 @@ class HotelCard extends StatelessWidget {
     this.onWebsite,
   });
 
+  String _translateTag(String t, bool isEn) {
+    if (!isEn) return t;
+    switch (t) {
+      case 'Bintang 4 Resor':
+        return '4-Star Resort';
+      case 'Resor Pantai':
+        return 'Beach Resort';
+      case 'Guesthouse Pesisir':
+        return 'Coastal Guesthouse';
+      case 'Akomodasi Nyaman':
+        return 'Comfortable Stay';
+      default:
+        return t;
+    }
+  }
+
+  String _translateHighlight(String h, bool isEn) {
+    if (!isEn) return h;
+    switch (h) {
+      case 'Snorkeling Langsung':
+        return 'Direct Snorkeling';
+      case 'Pilihan Terbaik':
+        return 'Best Choice';
+      default:
+        return h;
+    }
+  }
+
+  String _translateChipLabel(String l, bool isEn) {
+    if (!isEn) return l;
+    switch (l) {
+      case 'Kolam View Laut':
+        return 'Ocean View Pool';
+      case '2 King Bed Opsi':
+        return '2 King Bed Options';
+      case 'Panorama Laut':
+        return 'Ocean Panorama';
+      case 'Panorama Alam':
+        return 'Nature Panorama';
+      case 'Buffet Sarapan':
+        return 'Breakfast Buffet';
+      case 'Napas Pantai':
+        return 'Beach Breeze';
+      case 'Pasir Putih Privat':
+        return 'Private White Sand';
+      case 'Snorkeling Gratis':
+        return 'Free Snorkeling';
+      default:
+        return l
+            .replaceAll('Kamar', 'Rooms')
+            .replaceAll('Tempat Tidur', 'Beds');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -35,7 +93,7 @@ class HotelCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _media(),
+          _media(isEn),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
             child: Column(
@@ -59,7 +117,10 @@ class HotelCard extends StatelessWidget {
                   runSpacing: 8,
                   children: [
                     for (final (icon, label) in item.chips)
-                      _FasilitasChip(icon: icon, label: label),
+                      _FasilitasChip(
+                        icon: icon,
+                        label: _translateChipLabel(label, isEn),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 14),
@@ -73,9 +134,9 @@ class HotelCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'MULAI TARIF KAMAR',
-                        style: TextStyle(
+                      Text(
+                        isEn ? 'STARTING ROOM RATE' : 'MULAI TARIF KAMAR',
+                        style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.4,
@@ -86,9 +147,9 @@ class HotelCard extends StatelessWidget {
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          const Text(
-                            'Mulai dari',
-                            style: TextStyle(
+                          Text(
+                            isEn ? 'Starting from' : 'Mulai dari',
+                            style: const TextStyle(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w500,
                               color: AppColors.textSecondary,
@@ -113,9 +174,9 @@ class HotelCard extends StatelessWidget {
                                       fontFamily: 'PlusJakartaSans',
                                     ),
                                   ),
-                                  const Text(
-                                    ' /mlm',
-                                    style: TextStyle(
+                                  Text(
+                                    isEn ? ' /night' : ' /mlm',
+                                    style: const TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w500,
                                       color: AppColors.textTertiary,
@@ -157,7 +218,7 @@ class HotelCard extends StatelessWidget {
     );
   }
 
-  Widget _media() {
+  Widget _media(bool isEn) {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       child: SizedBox(
@@ -192,7 +253,9 @@ class HotelCard extends StatelessWidget {
                         size: 13, color: AppColors.starGold),
                     const SizedBox(width: 4),
                     Text(
-                      '${item.rating} (${item.ratingCount} ulasan)',
+                      isEn
+                          ? '${item.rating} (${item.ratingCount} reviews)'
+                          : '${item.rating} (${item.ratingCount} ulasan)',
                       style: const TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w800,
@@ -211,7 +274,7 @@ class HotelCard extends StatelessWidget {
               child: _Pill(
                 bg: AppColors.pine800,
                 child: Text(
-                  item.tag,
+                  _translateTag(item.tag, isEn),
                   style: const TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w700,
@@ -257,7 +320,7 @@ class HotelCard extends StatelessWidget {
                   _Pill(
                     bg: const Color(0xCC1D3A30),
                     child: Text(
-                      item.highlight,
+                      _translateHighlight(item.highlight, isEn),
                       style: const TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w700,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Baris 3 tombol aksi kartu katalog Eksplor: Telepon (WA), Maps, Website.
@@ -19,10 +21,11 @@ class KontakRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
     return Row(
       children: [
         _KontakBtn(
-          label: 'Telepon',
+          label: isEn ? 'Phone' : 'Telepon',
           icon: Icons.chat_rounded,
           iconColor: AppColors.emerald600,
           onTap: onTelepon ?? onTap ?? () {},

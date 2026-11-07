@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/providers/language_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/repositories/hotel_repository.dart';
 import '../../../data/repositories/kuliner_repository.dart';
@@ -120,8 +121,13 @@ class _EksplorScreenState extends State<EksplorScreen> {
       }
     } catch (_) {
       if (mounted) {
+        final isEn = context.read<LanguageProvider>().isEnglish;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Tidak dapat membuka tautan: $url')),
+          SnackBar(
+            content: Text(
+              isEn ? 'Could not open link: $url' : 'Tidak dapat membuka tautan: $url',
+            ),
+          ),
         );
       }
     }
@@ -224,6 +230,7 @@ class _EksplorScreenState extends State<EksplorScreen> {
 
   /// Blok kontekstual di atas carousel per tab.
   Widget _intro() {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
     final isHotel = _tab == 0;
     final jumlah = isHotel ? _hotels.length : _kuliners.length;
 
@@ -232,7 +239,7 @@ class _EksplorScreenState extends State<EksplorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!isHotel) ..._gastronomi(),
+          if (!isHotel) ..._gastronomi(isEn),
           // Bullet + label verifikasi (kuliner diberi angka, seperti desain)
           Row(
             children: [
@@ -247,8 +254,12 @@ class _EksplorScreenState extends State<EksplorScreen> {
               const SizedBox(width: 6),
               Text(
                 isHotel
-                    ? 'AKOMODASI TERVERIFIKASI ($jumlah)'
-                    : 'KULINER KHAS TERVERIFIKASI ($jumlah)',
+                    ? (isEn
+                        ? 'VERIFIED ACCOMMODATIONS ($jumlah)'
+                        : 'AKOMODASI TERVERIFIKASI ($jumlah)')
+                    : (isEn
+                        ? 'VERIFIED LOCAL CULINARY ($jumlah)'
+                        : 'KULINER KHAS TERVERIFIKASI ($jumlah)'),
                 style: const TextStyle(
                   fontSize: 10.5,
                   fontWeight: FontWeight.w800,
@@ -269,7 +280,9 @@ class _EksplorScreenState extends State<EksplorScreen> {
           ),
           const SizedBox(height: 3),
           Text(
-            isHotel ? 'Pilihan Penginapan Terbaik' : 'Warung & Rasa Otentik',
+            isHotel
+                ? (isEn ? 'Best Places to Stay' : 'Pilihan Penginapan Terbaik')
+                : (isEn ? 'Authentic Stalls & Flavors' : 'Warung & Rasa Otentik'),
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -281,8 +294,12 @@ class _EksplorScreenState extends State<EksplorScreen> {
           const SizedBox(height: 3),
           Text(
             isHotel
-                ? 'Resor pantai, hotel bintang, hingga guesthouse dekat spot wisata'
-                : 'Cita rasa khas Sulawesi Tengah dengan rempah asli dan bahan segar lokal',
+                ? (isEn
+                    ? 'Beach resorts, star-rated hotels, and guesthouses near tourist spots'
+                    : 'Resor pantai, hotel bintang, hingga guesthouse dekat spot wisata')
+                : (isEn
+                    ? 'Signature Central Sulawesi flavors crafted with authentic spices and fresh local ingredients'
+                    : 'Cita rasa khas Sulawesi Tengah dengan rempah asli dan bahan segar lokal'),
             style: const TextStyle(
               fontSize: 11.5,
               fontWeight: FontWeight.w500,
@@ -297,16 +314,18 @@ class _EksplorScreenState extends State<EksplorScreen> {
     );
   }
 
-  List<Widget> _gastronomi() {
+  List<Widget> _gastronomi(bool isEn) {
     return [
       Row(
         children: [
           const Icon(Icons.restaurant_menu_rounded,
               size: 13, color: AppColors.pine500),
           const SizedBox(width: 6),
-          const Text(
-            'WARISAN GASTRONOMI SULTENG',
-            style: TextStyle(
+          Text(
+            isEn
+                ? 'CENTRAL SULAWESI GASTRONOMY HERITAGE'
+                : 'WARISAN GASTRONOMI SULTENG',
+            style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w800,
               color: AppColors.pine500,
@@ -317,9 +336,11 @@ class _EksplorScreenState extends State<EksplorScreen> {
         ],
       ),
       const SizedBox(height: 3),
-      const Text(
-        'Kuliner Otentik Kaili & Pesisir',
-        style: TextStyle(
+      Text(
+        isEn
+            ? 'Authentic Kaili & Coastal Culinary'
+            : 'Kuliner Otentik Kaili & Pesisir',
+        style: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w800,
           color: AppColors.pine900,
@@ -328,9 +349,11 @@ class _EksplorScreenState extends State<EksplorScreen> {
         ),
       ),
       const SizedBox(height: 3),
-      const Text(
-        'Dari kuah asam segar Teluk Palu, kaledo legendaris, hingga jajanan pasar trans-Sulawesi',
-        style: TextStyle(
+      Text(
+        isEn
+            ? 'From fresh Palu Bay sour fish soup and legendary Kaledo to trans-Sulawesi traditional delicacies'
+            : 'Dari kuah asam segar Teluk Palu, kaledo legendaris, hingga jajanan pasar trans-Sulawesi',
+        style: const TextStyle(
           fontSize: 11.5,
           fontWeight: FontWeight.w500,
           color: AppColors.textBody,
@@ -345,16 +368,19 @@ class _EksplorScreenState extends State<EksplorScreen> {
   Widget _trust() => const TrustCard();
 
   Widget _carousel() {
+    final isEn = context.watch<LanguageProvider>().isEnglish;
     final isHotel = _tab == 0;
     final kosong = isHotel ? _hotels.isEmpty : _kuliners.isEmpty;
 
     if (kosong) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 60),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 60),
         child: Center(
           child: Text(
-            'Belum ada katalog untuk pencarian ini',
-            style: TextStyle(
+            isEn
+                ? 'No catalog items found for this search'
+                : 'Belum ada katalog untuk pencarian ini',
+            style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w500,
               color: AppColors.textTertiary,
