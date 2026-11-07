@@ -1,3 +1,5 @@
+import '../../../models/atraksi.dart';
+
 /// Seed data Tab Event — dummy, meniru desain Figma Tab Event.
 /// ponytail: data hardcode + aset dari folder lain; ganti ke /atraksi saat sambung API.
 class EventItem {
@@ -44,6 +46,46 @@ class EventItem {
     this.rating = 0,
     this.ratingCount = 0,
   });
+
+  factory EventItem.fromModel(Atraksi a) {
+    DateTime start = DateTime.tryParse(a.startdate) ?? DateTime.now();
+    DateTime end = DateTime.tryParse(a.enddate) ?? start;
+    
+    final months = [
+      '', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    String rentang = '${start.day} ${months[start.month]} ${start.year}';
+    if (end.isAfter(start)) {
+      rentang = '${start.day} - ${end.day} ${months[end.month]} ${end.year}';
+    }
+
+    String wil = 'Sulteng';
+    final lok = (a.lokasi_id + ' ' + a.nameEvent).toLowerCase();
+    if (lok.contains('poso')) wil = 'Poso';
+    else if (lok.contains('sigi') || lok.contains('kulawi') || lok.contains('marawola')) wil = 'Sigi';
+    else if (lok.contains('palu')) wil = 'Palu';
+    else if (lok.contains('banggai')) wil = 'Banggai';
+    else if (lok.contains('togean') || lok.contains('ampana') || lok.contains('tojo')) wil = 'Tojo Una-Una';
+    else if (lok.contains('donggala')) wil = 'Donggala';
+    else if (lok.contains('parigi')) wil = 'Parigi Moutong';
+    else if (lok.contains('morowali')) wil = 'Morowali';
+    else if (lok.contains('lupi')) wil = 'Donggala';
+
+    return EventItem(
+      foto: a.foto ?? 'assets/images/beranda/thumb_event1.png',
+      kategori: 'BUDAYA',
+      lokasi: a.lokasi_id,
+      wilayah: wil,
+      nama: a.nameEvent,
+      deskripsi: a.deskripsi_id,
+      rentangTanggal: rentang,
+      start: start,
+      end: end,
+      rating: 4.8,
+      ratingCount: 120,
+    );
+  }
 }
 
 class EventSeed {

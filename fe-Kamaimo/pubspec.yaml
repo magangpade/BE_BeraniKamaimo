@@ -71,6 +71,7 @@ flutter:
     - assets/images/detail_wisata/
     - assets/images/eksplor/
     - assets/images/paket/
+    - assets/images/uploads/
 
   # Fonts
   fonts:

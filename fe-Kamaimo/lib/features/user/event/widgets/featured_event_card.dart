@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/kamaimo_image.dart';
 import '../event_data.dart';
 import '../event_locale.dart';
 
@@ -59,7 +60,7 @@ class FeaturedEventCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.asset(item.foto, fit: BoxFit.cover),
+                  KamaimoImage(path: item.foto, fit: BoxFit.cover),
                   Positioned(
                     left: 12,
                     top: 12,

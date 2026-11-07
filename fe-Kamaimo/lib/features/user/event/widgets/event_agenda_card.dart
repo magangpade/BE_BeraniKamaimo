@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/kamaimo_image.dart';
 import '../event_data.dart';
 import '../event_locale.dart';
 
@@ -38,7 +39,7 @@ class EventAgendaCard extends StatelessWidget {
                     child: SizedBox(
                       width: 96,
                       height: 96,
-                      child: Image.asset(item.foto, fit: BoxFit.cover),
+                      child: KamaimoImage(path: item.foto, fit: BoxFit.cover),
                     ),
                   ),
                   const SizedBox(width: 12),

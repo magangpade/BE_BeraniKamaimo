@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/kamaimo_image.dart';
 import '../paket_data.dart';
 
 class PaketRatingSheet extends StatefulWidget {
@@ -167,15 +168,12 @@ class _PaketRatingSheetState extends State<PaketRatingSheet> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: Image.asset(
-                              widget.item.foto,
+                            child: SizedBox(
                               width: 58,
                               height: 58,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, _, _) => const SizedBox(
-                                width: 58,
-                                height: 58,
-                                child: Icon(Icons.landscape_rounded),
+                              child: KamaimoImage(
+                                path: widget.item.foto,
+                                fit: BoxFit.cover,
                               ),
                             ),
                           ),

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/providers/language_provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/repositories/atraksi_repository.dart';
 import '../home/user_shell.dart';
 import 'detail_event_screen.dart';
 import 'event_data.dart';
@@ -25,8 +26,27 @@ class _EventScreenState extends State<EventScreen> {
   int _tanggal = 0;
   String? _wilayah;
   String _query = '';
+  List<EventItem> _events = [];
 
   DateTime get _now => DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchEvents());
+  }
+
+  Future<void> _fetchEvents() async {
+    try {
+      final repo = context.read<AtraksiRepository>();
+      final list = await repo.getAll();
+      if (list.isNotEmpty && mounted) {
+        setState(() {
+          _events = list.map((a) => EventItem.fromModel(a)).toList();
+        });
+      }
+    } catch (_) {}
+  }
 
   bool _lolosTanggal(EventItem e) {
     if (_tanggal == 0) return true;
@@ -45,7 +65,9 @@ class _EventScreenState extends State<EventScreen> {
   Widget build(BuildContext context) {
     final isEnglish = context.watch<LanguageProvider?>()?.isEnglish ?? false;
     final q = _query.trim().toLowerCase();
-    final shown = EventSeed.agenda.where((e) {
+    final sourceList = _events.isNotEmpty ? _events : EventSeed.agenda;
+    final featuredItem = _events.isNotEmpty ? _events.first : EventSeed.featured;
+    final shown = sourceList.where((e) {
       final cocokKategori =
           _kategori == 0 ||
           e.kategori == EventFilters.labels[_kategori].toUpperCase();
@@ -94,13 +116,13 @@ class _EventScreenState extends State<EventScreen> {
                   ),
                   if (_kategori == 0 && q.isEmpty) ...[
                     FeaturedEventCard(
-                      item: EventSeed.featured,
+                      item: featuredItem,
                       now: _now,
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) =>
-                                DetailEventScreen(event: EventSeed.featured),
+                                DetailEventScreen(event: featuredItem),
                           ),
                         );
                       },

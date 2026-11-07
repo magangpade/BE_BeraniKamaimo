@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../models/tour_package.dart';
 
 /// Seed data Tab Paket — dummy, meniru desain Figma 4965:1243 "Paket Wisata Sulteng (Modern)".
 /// ponytail: data hardcode; ganti ke /tourPackage saat sambung API.
@@ -47,6 +48,57 @@ class PaketItem {
     this.fasilitas = const [],
     this.fasilitasEn,
   });
+
+  factory PaketItem.fromModel(TourPackage p) {
+    String kat = 'BAHARI';
+    final n = (p.nama_wisata_id + ' ' + p.lokasi_id).toLowerCase();
+    if (n.contains('bada') || n.contains('desa') || n.contains('tenun') || n.contains('budaya')) {
+      kat = 'BUDAYA';
+    } else if (n.contains('lindu') || n.contains('paralayang') || n.contains('salena') || n.contains('valley')) {
+      kat = 'TREKKING';
+    }
+
+    String wil = 'Sulteng';
+    if (n.contains('poso')) wil = 'Poso';
+    else if (n.contains('togean') || n.contains('ampana') || n.contains('kadidiri')) wil = 'Tojo Una-Una';
+    else if (n.contains('banggai') || n.contains('paisupok')) wil = 'Banggai';
+    else if (n.contains('morowali') || n.contains('sombori') || n.contains('sambori')) wil = 'Morowali';
+    else if (n.contains('donggala') || n.contains('towale') || n.contains('tanjung karang')) wil = 'Donggala';
+    else if (n.contains('palu') || n.contains('salena')) wil = 'Palu';
+    else if (n.contains('sigi') || n.contains('lindu')) wil = 'Sigi';
+
+    return PaketItem(
+      foto: p.media ?? 'assets/images/paket/foto_card1_togean.png',
+      kategori: kat,
+      wilayah: wil,
+      nama: p.nama_wisata_id,
+      namaEn: p.nama_wisata_en,
+      tag: 'Paket Populer',
+      tagEn: 'Popular Package',
+      durasi: '3 Hari 2 Malam',
+      durasiEn: '3 Days 2 Nights',
+      tipe: 'Tur Terbimbing',
+      tipeEn: 'Guided Tour',
+      harga: p.harga > 0 ? p.harga : 1500000,
+      satuan: '/orang',
+      deskripsi: p.deskripsi_id,
+      deskripsiEn: p.deskripsi_en,
+      rating: 4.9,
+      ratingCount: 95,
+      fasilitas: const [
+        (Icons.directions_boat_rounded, 'Transportasi'),
+        (Icons.hotel_rounded, 'Akomodasi'),
+        (Icons.restaurant_rounded, 'Konsumsi'),
+        (Icons.person_rounded, 'Pemandu Lokal'),
+      ],
+      fasilitasEn: const [
+        (Icons.directions_boat_rounded, 'Transportation'),
+        (Icons.hotel_rounded, 'Accommodation'),
+        (Icons.restaurant_rounded, 'Meals Included'),
+        (Icons.person_rounded, 'Local Guide'),
+      ],
+    );
+  }
 
   String displayName(bool isEnglish) => isEnglish ? (namaEn ?? nama) : nama;
   String displayTag(bool isEnglish) => isEnglish ? (tagEn ?? tag) : tag;

@@ -14,14 +14,14 @@ class Atraksi {
   });
 
   factory Atraksi.fromJson(Map<String, dynamic> json) => Atraksi(
-        id: json['id'] as int,
-        nameEvent: json['nameEvent'] as String,
-        lokasi_id: json['location_id'] as String,
+        id: (json['id'] is num) ? (json['id'] as num).toInt() : (int.tryParse(json['id']?.toString() ?? '') ?? 0),
+        nameEvent: json['nameEvent'] as String? ?? '',
+        lokasi_id: json['location_id'] as String? ?? '',
         lokasi_en: json['location_en'] as String?,
-        deskripsi_id: json['description_id'] as String,
+        deskripsi_id: json['description_id'] as String? ?? '',
         deskripsi_en: json['description_en'] as String?,
-        startdate: json['startdate'] as String,
-        enddate: json['enddate'] as String,
+        startdate: json['startdate']?.toString() ?? '',
+        enddate: json['enddate']?.toString() ?? '',
         foto: json['foto'] as String?,
         linkVideo: json['link_video'] as String?,
       );

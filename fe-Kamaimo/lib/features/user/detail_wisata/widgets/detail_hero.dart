@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/config/env.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'destinasi_share_sheet.dart';
@@ -176,6 +177,13 @@ class DetailHero extends StatelessWidget {
     if (f.startsWith('http://') || f.startsWith('https://')) {
       return Image.network(
         f,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => Image.asset(fallbackAsset, fit: BoxFit.cover),
+      );
+    }
+    if (f.startsWith('/uploads/')) {
+      return Image.network(
+        '${Env.serverBaseUrl}$f',
         fit: BoxFit.cover,
         errorBuilder: (_, _, _) => Image.asset(fallbackAsset, fit: BoxFit.cover),
       );

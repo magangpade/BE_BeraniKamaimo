@@ -98,6 +98,13 @@ class AppColors {
     end: Alignment.bottomCenter,
   );
 
+  // ── Admin login gradient ──
+  static const LinearGradient adminLoginGradient = LinearGradient(
+    colors: [AppColors.pine800, AppColors.pine900],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
   // Hero overlay gradient (match Figma: rgba(18, 40, 29, 0.8) to transparent)
   static const LinearGradient heroImageOverlay = LinearGradient(
     colors: [Color(0xCC12281D), Color(0x0012281D)],

@@ -14,11 +14,21 @@ class TourPackage {
     this.linkVideo,
   });
 
+  static int _asInt(dynamic v) {
+    if (v == null) return 0;
+    if (v is num) return v.toInt();
+    if (v is String) {
+      final cleaned = v.replaceAll(RegExp(r'\D'), '');
+      return int.tryParse(cleaned) ?? 0;
+    }
+    return 0;
+  }
+
   factory TourPackage.fromJson(Map<String, dynamic> json) => TourPackage(
         id: json['id'] as int,
-        nama_wisata_id: json['nama_wisata_id'] as String,
+        nama_wisata_id: json['nama_wisata_id'] as String? ?? '',
         nama_wisata_en: json['nama_wisata_en'] as String?,
-        harga: json['harga'] as int,
+        harga: _asInt(json['harga']),
         deskripsi_id: json['deskripsi_id'] as String,
         deskripsi_en: json['deskripsi_en'] as String?,
         lokasi_id: json['lokasi_id'] as String,

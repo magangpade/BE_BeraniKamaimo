@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/kamaimo_image.dart';
 import '../paket_data.dart';
 
 /// Kartu paket besar utk carousel: foto + overlay (durasi, rating, tag, judul),
@@ -40,7 +41,7 @@ class FeaturedPaketCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.asset(item.foto, fit: BoxFit.cover),
+                  KamaimoImage(path: item.foto, fit: BoxFit.cover),
                   const DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: AppColors.cardImageOverlay,

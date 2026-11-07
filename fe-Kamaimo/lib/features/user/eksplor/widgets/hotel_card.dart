@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/kamaimo_image.dart';
 import '../eksplor_data.dart';
 import 'kontak_row.dart';
 
@@ -94,11 +95,13 @@ class HotelCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _media(isEn),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 Text(
                   item.nama,
                   style: const TextStyle(
@@ -213,9 +216,10 @@ class HotelCard extends StatelessWidget {
               ],
             ),
           ),
-        ],
-      ),
-    );
+        ),
+      ],
+    ),
+  );
   }
 
   Widget _media(bool isEn) {
@@ -226,16 +230,10 @@ class HotelCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(
-              item.foto,
+            KamaimoImage(
+              path: item.foto,
               fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => const ColoredBox(
-                color: AppColors.mapBackground,
-                child: Center(
-                  child: Icon(Icons.hotel_rounded,
-                      size: 44, color: AppColors.pine500),
-                ),
-              ),
+              fallbackAsset: 'assets/images/eksplor/hotel1.jpg',
             ),
             const DecoratedBox(
               decoration: BoxDecoration(gradient: AppColors.cardImageOverlay),

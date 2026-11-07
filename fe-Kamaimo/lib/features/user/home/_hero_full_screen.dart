@@ -3,8 +3,8 @@ import '../../../core/theme/app_colors.dart';
 
 /// Hero Section Full Screen per Figma design (node 4273:55)
 /// Gambar full-screen + judul animasi per-huruf "Sulawesi Tengah" + tagline
-class _HeroFullScreenSection extends StatelessWidget {
-  const _HeroFullScreenSection();
+class HeroFullScreenSection extends StatelessWidget {
+  const HeroFullScreenSection({super.key});
 
   @override
   Widget build(BuildContext context) {

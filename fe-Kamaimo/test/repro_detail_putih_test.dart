@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:berani_kamaimo/core/providers/language_provider.dart';
 import 'package:berani_kamaimo/features/user/detail_wisata/detail_wisata_screen.dart';
 
 // Diagnosa 2: DetailWisataScreen dengan argumen produksi persis
@@ -11,12 +13,15 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaterialApp(
-      home: DetailWisataScreen(
-        desaId: 1,
-        namaDesa: 'Luk Panenteng & Danau Paisu Pok',
-        lokasi: 'Banggai Kepulauan',
-        foto: 'assets/images/destinasi/feat_luk_panenteng.png',
+    await tester.pumpWidget(ChangeNotifierProvider<LanguageProvider>(
+      create: (_) => LanguageProvider(),
+      child: const MaterialApp(
+        home: DetailWisataScreen(
+          desaId: 1,
+          namaDesa: 'Luk Panenteng & Danau Paisu Pok',
+          lokasi: 'Banggai Kepulauan',
+          foto: 'assets/images/destinasi/feat_luk_panenteng.png',
+        ),
       ),
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));

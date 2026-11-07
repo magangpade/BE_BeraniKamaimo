@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:berani_kamaimo/core/providers/language_provider.dart';
 import 'package:berani_kamaimo/features/user/eksplor/eksplor_screen.dart';
 
-/// Smoke test Tab Eksplor (Katalog Wisata & Kuliner) — desain dari PNG export
-/// user (Tempat Menginap / Kuliner Khas), dikerjakan 2026-10-29.
+Widget _wrap(Widget child) => ChangeNotifierProvider<LanguageProvider>(
+      create: (_) => LanguageProvider(),
+      child: MaterialApp(home: child),
+    );
+
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('tab Eksplor: segmented mengganti katalog Menginap <-> Kuliner',
       (tester) async {
     tester.view.physicalSize = const Size(430, 4000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaterialApp(home: EksplorScreen()));
+    await tester.pumpWidget(_wrap(const EksplorScreen()));
     await tester.pumpAndSettle();
 
     // Header + segmented selalu tampil
@@ -21,7 +31,7 @@ void main() {
     expect(find.byKey(const Key('eksplorTabKuliner')), findsOneWidget);
 
     // Default tab Tempat Menginap: kartu hotel + trust card
-    expect(find.text('Swiss–Belhotel Silae Palu'), findsOneWidget);
+    expect(find.text('Hotel Santika Palu'), findsOneWidget);
     expect(find.text('Jaminan Harga Resmi Dinas Pariwisata'), findsOneWidget);
     expect(find.text('Mulai dari'), findsWidgets);
     // Kartu berikutnya ikut ter-render (peek) → tombol aksi bisa lebih dari 1
@@ -33,16 +43,16 @@ void main() {
     await tester.tap(find.byKey(const Key('eksplorTabKuliner')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Cita Rasa Otentik Bumi Tadulako'), findsOneWidget);
-    expect(find.text('EKSPLORASI GASTRONOMI'), findsOneWidget);
-    expect(find.text('Onyop (Kuah Asam Ikan Segar)'), findsOneWidget);
+    expect(find.text('Kuliner Otentik Kaili & Pesisir'), findsOneWidget);
+    expect(find.text('WARISAN GASTRONOMI SULTENG'), findsOneWidget);
+    expect(find.text('Ayam Panggang Biromaru'), findsOneWidget);
     // Trust card hanya ada di tab hotel
     expect(find.text('Jaminan Harga Resmi Dinas Pariwisata'), findsNothing);
 
     // Balik ke tab hotel
     await tester.tap(find.byKey(const Key('eksplorTabMenginap')));
     await tester.pumpAndSettle();
-    expect(find.text('Swiss–Belhotel Silae Palu'), findsOneWidget);
+    expect(find.text('Hotel Santika Palu'), findsOneWidget);
   });
 
   testWidgets('search memfilter kartu per tab aktif', (tester) async {
@@ -50,7 +60,7 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaterialApp(home: EksplorScreen()));
+    await tester.pumpWidget(_wrap(const EksplorScreen()));
     await tester.pumpAndSettle();
 
     // Tab kuliner: cari "kaledo"
@@ -59,23 +69,22 @@ void main() {
     await tester.enterText(find.byType(TextField), 'kaledo');
     await tester.pumpAndSettle();
 
-    expect(find.text('Kaledo (Kaki Lemboe Asli)'), findsOneWidget);
-    expect(find.text('Onyop (Kuah Asam Ikan Segar)'), findsNothing);
-    expect(find.text('Lalampa (Ketan Bakar Isi Tuna)'), findsNothing);
+    expect(find.text('Kaledo (Kaki Lembu Donggala)'), findsOneWidget);
+    expect(find.text('Ayam Panggang Biromaru'), findsNothing);
 
     // Query ngawur → pesan kosong
     await tester.enterText(find.byType(TextField), 'rendang padang');
     await tester.pumpAndSettle();
     expect(find.text('Belum ada katalog untuk pencarian ini'), findsOneWidget);
 
-    // Bersihkan & switch tab hotel: cari "swiss"
+    // Bersihkan & switch tab hotel: cari "santika"
     await tester.enterText(find.byType(TextField), '');
     await tester.tap(find.byKey(const Key('eksplorTabMenginap')));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField), 'swiss');
+    await tester.enterText(find.byType(TextField), 'santika');
     await tester.pumpAndSettle();
 
-    expect(find.text('Swiss–Belhotel Silae Palu'), findsOneWidget);
-    expect(find.text('Bukabuka Island Resort'), findsNothing);
+    expect(find.text('Hotel Santika Palu'), findsOneWidget);
+    expect(find.text('Rama Garden Hotel'), findsNothing);
   });
 }

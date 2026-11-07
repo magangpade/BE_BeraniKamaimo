@@ -20,14 +20,24 @@ class Hotel {
     this.linkVideo,
   });
 
+  static int _asInt(dynamic v) {
+    if (v == null) return 0;
+    if (v is num) return v.toInt();
+    if (v is String) {
+      final cleaned = v.replaceAll(RegExp(r'\D'), '');
+      return int.tryParse(cleaned) ?? 0;
+    }
+    return 0;
+  }
+
   factory Hotel.fromJson(Map<String, dynamic> json) => Hotel(
         id: json['id'] as int,
         nama_hotel: json['nama_hotel'] as String? ?? '',
         telepon: json['telepon'] as String? ?? '',
-        jumlah_kamar: (json['jumlah_kamar'] as num?)?.toInt() ?? 0,
-        jumlah_tempatTidur: (json['jumlah_tempatTidur'] as num?)?.toInt() ?? 0,
-        harga_minimum: (json['harga_minimum'] as num?)?.toInt() ?? 0,
-        harga_maximum: (json['harga_maximum'] as num?)?.toInt() ?? 0,
+        jumlah_kamar: _asInt(json['jumlah_kamar']),
+        jumlah_tempatTidur: _asInt(json['jumlah_tempatTidur']),
+        harga_minimum: _asInt(json['harga_minimum']),
+        harga_maximum: _asInt(json['harga_maximum']),
         website: json['website'] as String? ?? '',
         linkGmaps: json['link_gmaps'] as String? ?? '',
         lokasi: json['lokasi'] as String? ?? '',

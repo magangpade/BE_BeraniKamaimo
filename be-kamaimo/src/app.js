@@ -29,6 +29,7 @@ app.use(morgan('dev'));
 
 // static uploads
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+app.use('/uploads_renamed', express.static(path.join(__dirname, '../public/uploads_renamed')));
 
 // rate limit (kecuali static)
 const limiter = rateLimit({

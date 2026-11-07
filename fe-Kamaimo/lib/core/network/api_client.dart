@@ -66,6 +66,38 @@ class ApiClient {
     }
   }
 
+  /// PUT request.
+  Future<Map<String, dynamic>> put(
+    String endpoint, {
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      final uri = Uri.parse('${Env.apiBaseUrl}$endpoint');
+      final headers = await _buildHeaders();
+
+      final response = await _httpClient
+          .put(
+            uri,
+            headers: headers,
+            body: jsonEncode(body),
+          )
+          .timeout(_timeout, onTimeout: () {
+        throw ApiException.timeout();
+      });
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return decoded is Map<String, dynamic> ? decoded : {'data': decoded};
+      }
+      final message = decoded is Map<String, dynamic>
+          ? (decoded['message'] as String? ?? 'Error')
+          : 'Error';
+      throw ApiException.clientError(message, response.statusCode);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   /// PATCH request.
   Future<Map<String, dynamic>> patch(
     String endpoint, {

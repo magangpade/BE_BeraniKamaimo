@@ -15,8 +15,11 @@ void main() {
     await tester.pumpWidget(
       ChangeNotifierProvider<LanguageProvider>(
         create: (_) => LanguageProvider(),
-        child: const MaterialApp(
-          home: UserShell(),
+        child: MaterialApp(
+          home: const UserShell(),
+          routes: {
+            '/admin-login': (_) => const Scaffold(body: Text('Portal Admin')),
+          },
         ),
       ),
     );
@@ -30,14 +33,13 @@ void main() {
     expect(find.text('Cari destinasi atau kabupaten...'), findsOneWidget);
     expect(find.textContaining('Luk Panenteng'), findsWidgets);
 
-    // Kode rahasia admin masih tertanam di search bar (backdoor)
-    await tester.enterText(find.byType(TextField).first, 'adminBK2025');
-    await tester.testTextInput.receiveAction(TextInputAction.done);
-    await tester.pump();
-    expect(find.textContaining('Mode admin'), findsOneWidget);
-
     // Tab nav
     expect(find.text('Eksplor'), findsOneWidget);
     expect(find.text('Kuliner'), findsNothing); // label lama sudah kedaluwarsa
+
+    // Kode rahasia admin langsung membuka form login admin
+    await tester.enterText(find.byType(TextField).first, 'adminBK2025');
+    await tester.pumpAndSettle();
+    expect(find.text('Portal Admin'), findsOneWidget);
   });
 }

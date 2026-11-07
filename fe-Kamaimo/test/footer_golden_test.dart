@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:berani_kamaimo/core/providers/language_provider.dart';
 import 'package:berani_kamaimo/features/user/destinasi/destinasi_screen.dart';
 import 'package:berani_kamaimo/features/user/home/user_shell.dart';
 
 const _copyright = '© 2026 Dinas Pariwisata Sulawesi Tengah. Hak Cipta Dilindungi.';
+
+Widget _wrap(Widget child) => ChangeNotifierProvider<LanguageProvider>(
+      create: (_) => LanguageProvider(),
+      child: MaterialApp(home: child),
+    );
 
 Future<void> _loadFonts() async {
   const weights = ['Regular', 'Medium', 'SemiBold', 'Bold', 'ExtraBold'];
@@ -22,7 +29,7 @@ void main() {
     tester.view.physicalSize = const Size(1080, 2340);
     tester.view.devicePixelRatio = 2.625;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(const MaterialApp(home: UserShell()));
+    await tester.pumpWidget(_wrap(const UserShell()));
     await tester.pumpAndSettle();
   }
 
@@ -56,7 +63,7 @@ void main() {
     tester.view.physicalSize = const Size(1080, 2340);
     tester.view.devicePixelRatio = 2.625;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(const MaterialApp(home: DestinasiScreen()));
+    await tester.pumpWidget(_wrap(const DestinasiScreen()));
     await tester.pumpAndSettle();
     for (var i = 0; i < 30; i++) {
       await tester.drag(find.byKey(const Key('destinasiScroll')), const Offset(0, -4000));

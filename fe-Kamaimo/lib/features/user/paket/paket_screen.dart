@@ -4,7 +4,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/providers/language_provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/kamaimo_image.dart';
 import '../../../data/repositories/paket_rating_repository.dart';
+import '../../../data/repositories/tour_package_repository.dart';
 import '../home/user_shell.dart';
 import 'paket_data.dart';
 import 'widgets/featured_paket_card.dart';
@@ -26,6 +28,25 @@ class _PaketScreenState extends State<PaketScreen> {
   final PaketRatingRepository _ratingRepository = PaketRatingRepository();
   int _kategori = 0;
   String _query = '';
+  List<PaketItem> _pakets = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchPaket());
+  }
+
+  Future<void> _fetchPaket() async {
+    try {
+      final repo = context.read<TourPackageRepository>();
+      final list = await repo.getAll();
+      if (list.isNotEmpty && mounted) {
+        setState(() {
+          _pakets = list.map((p) => PaketItem.fromModel(p)).toList();
+        });
+      }
+    } catch (_) {}
+  }
 
   @override
   void dispose() {
@@ -37,7 +58,8 @@ class _PaketScreenState extends State<PaketScreen> {
   Widget build(BuildContext context) {
     final isEnglish = context.watch<LanguageProvider>().isEnglish;
     final q = _query.trim().toLowerCase();
-    final shown = PaketSeed.items.where((p) {
+    final sourceList = _pakets.isNotEmpty ? _pakets : PaketSeed.items;
+    final shown = sourceList.where((p) {
       final cocokKategori =
           _kategori == 0 ||
           p.kategori == PaketSeed.kategori[_kategori].toUpperCase();
@@ -256,11 +278,13 @@ class _PaketWhatsAppSheet extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      item.foto,
+                    child: SizedBox(
                       width: 64,
                       height: 64,
-                      fit: BoxFit.cover,
+                      child: KamaimoImage(
+                        path: item.foto,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),

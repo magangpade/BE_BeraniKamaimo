@@ -33,10 +33,18 @@ class GisMarker {
       kategori: json['kategori'] as String? ?? '',
       nama: json['nama'] as String? ?? '',
       lokasi: json['lokasi'] as String? ?? '',
-      lat: (json['lat'] as num?)?.toDouble() ?? -1.43,
-      lng: (json['lng'] as num?)?.toDouble() ?? 121.445,
-      rating: (json['rating'] as num?)?.toDouble() ?? 4.5,
-      totalUlasan: json['total_ulasan'] as int? ?? 0,
+      lat: (json['lat'] is num)
+          ? (json['lat'] as num).toDouble()
+          : (double.tryParse(json['lat']?.toString() ?? '') ?? -1.43),
+      lng: (json['lng'] is num)
+          ? (json['lng'] as num).toDouble()
+          : (double.tryParse(json['lng']?.toString() ?? '') ?? 121.445),
+      rating: (json['rating'] is num)
+          ? (json['rating'] as num).toDouble()
+          : (double.tryParse(json['rating']?.toString() ?? '') ?? 4.5),
+      totalUlasan: (json['total_ulasan'] is num)
+          ? (json['total_ulasan'] as num).toInt()
+          : (int.tryParse(json['total_ulasan']?.toString() ?? '') ?? 0),
       foto: json['foto'] as String?,
     );
   }

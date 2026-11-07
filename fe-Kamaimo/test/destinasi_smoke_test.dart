@@ -28,16 +28,16 @@ void main() {
 
     expect(find.text('Destinasi Wisata'), findsOneWidget);
     expect(find.widgetWithText(GestureDetector, 'Semua'), findsWidgets);
-    expect(find.text('Kepulauan Togean'), findsOneWidget);
-    expect(find.text('Pulo Dua Balantak'), findsOneWidget);
+    expect(find.text('Desa Wisata Bone Baru'), findsOneWidget);
+    expect(find.text('Kawasan Kepulauan Togean'), findsOneWidget);
 
-    // Filter UMKM → kosong; kembali Semua → kartu tampil lagi
-    await tester.tap(find.text('UMKM'));
+    // Filter Budaya → menampilkan Desa Wisata Pokekea; kembali Semua → kartu tampil lagi
+    await tester.tap(find.text('Budaya'));
     await tester.pumpAndSettle();
-    expect(find.text('Kepulauan Togean'), findsNothing);
+    expect(find.text('Desa Wisata Pokekea'), findsOneWidget);
     await tester.tap(find.text('Semua'));
     await tester.pumpAndSettle();
-    expect(find.text('Kepulauan Togean'), findsOneWidget);
+    expect(find.text('Desa Wisata Bone Baru'), findsOneWidget);
   });
 
   // UserShell: nav tab Destinasi menampilkan layar destinasi

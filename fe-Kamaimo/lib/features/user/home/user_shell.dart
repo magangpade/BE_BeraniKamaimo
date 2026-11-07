@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/providers/language_provider.dart';
 import '../../../core/utils/constants.dart';
+import '../../../data/repositories/atraksi_repository.dart';
 import '../../../data/repositories/desa_wisata_repository.dart';
 import '../../../data/repositories/gis_repository.dart';
 import '../../../data/repositories/weather_repository.dart';
@@ -15,6 +16,8 @@ import '../event/event_data.dart';
 
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/kamaimo_image.dart';
+import '../../../core/widgets/kamaimo_logo.dart';
 import '../destinasi/destinasi_screen.dart';
 import '../detail_wisata/detail_wisata_screen.dart';
 import '../detail_wisata/widgets/destinasi_share_sheet.dart';
@@ -72,7 +75,6 @@ class _FloatingBottomNav extends StatelessWidget {
 
   const _FloatingBottomNav({required this.currentIndex, required this.onTap});
 
-  static const _items = _itemsId;
   static const _itemsId = [
     (icon: Icons.home_rounded, label: 'Beranda'),
     (icon: Icons.map_rounded, label: 'Destinasi'),
@@ -263,23 +265,16 @@ class _KamaimoLogoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return const Row(
       children: [
-        Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            color: AppColors.pine600,
-            borderRadius: BorderRadius.circular(8.4),
-          ),
-          child: const Icon(
-            Icons.landscape_rounded,
-            color: Colors.white,
-            size: 23,
-          ),
+        KamaimoLogoIcon(
+          size: 38,
+          padding: 6.5,
+          borderRadius: 8.5,
+          backgroundColor: Color(0xFF35644A),
         ),
-        const SizedBox(width: 10),
-        const Column(
+        SizedBox(width: 10),
+        Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -597,9 +592,8 @@ class _SearchBarState extends State<_SearchBar> {
     final text = value.trim();
     if (text == _secretCode) {
       _ctrl.clear();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Mode admin: akan aktif di M3')),
-      );
+      setState(() {});
+      Navigator.of(context).pushNamed('/admin-login');
       return;
     }
     if (text.isNotEmpty) {
@@ -660,7 +654,15 @@ class _SearchBarState extends State<_SearchBar> {
               Expanded(
                 child: TextField(
                   controller: _ctrl,
-                  onChanged: (_) => setState(() {}),
+                  onChanged: (v) {
+                    if (v.trim() == _secretCode) {
+                      _ctrl.clear();
+                      setState(() {});
+                      Navigator.of(context).pushNamed('/admin-login');
+                      return;
+                    }
+                    setState(() {});
+                  },
                   onSubmitted: _onSubmit,
                   style: const TextStyle(
                     fontSize: 12,
@@ -729,9 +731,11 @@ class _SearchBarState extends State<_SearchBar> {
                         child: SizedBox(
                           width: 36,
                           height: 36,
-                          child: foto.startsWith('assets/')
-                              ? Image.asset(foto, fit: BoxFit.cover)
-                              : Image.network(foto, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.image, size: 18)),
+                          child: KamaimoImage(
+                            path: foto,
+                            fit: BoxFit.cover,
+                            fallbackAsset: 'assets/images/destinasi/card_togean.png',
+                          ),
                         ),
                       ),
                       title: Text(
@@ -772,7 +776,7 @@ class _SearchBarState extends State<_SearchBar> {
                       },
                     );
                   }),
-                  Divider(height: 1, color: AppColors.borderLight),
+                  const Divider(height: 1, color: AppColors.borderLight),
                   InkWell(
                     onTap: () => _onSubmit(_ctrl.text),
                     child: Padding(
@@ -898,10 +902,91 @@ class _PetaSection extends StatefulWidget {
 
 class _PetaSectionState extends State<_PetaSection> {
   final MapController _mapController = MapController();
+  static const _defaultMarkers = [
+    GisMarker(
+      id: 'desa-23',
+      refId: 23,
+      type: 'desa_wisata',
+      kategori: 'DESA_UNGGULAN',
+      nama: 'Desa Wisata Luk Panenteng',
+      lokasi: 'Desa Luk Panenteng, Kec. Bulagi Utara, Kab. Banggai Kepulauan',
+      lat: -1.25,
+      lng: 123.12,
+      rating: 4.9,
+      totalUlasan: 1400,
+      foto: '/uploads/1775528789816.jpeg',
+    ),
+    GisMarker(
+      id: 'desa-9',
+      refId: 9,
+      type: 'desa_wisata',
+      kategori: 'DESA_WISATA',
+      nama: 'Desa Wisata Bone Baru',
+      lokasi: 'Desa Bone Baru, Kab. Banggai Laut',
+      lat: -1.62,
+      lng: 123.48,
+      rating: 4.5,
+      totalUlasan: 310,
+      foto: '/uploads/1774944086313.webp',
+    ),
+    GisMarker(
+      id: 'desa-13',
+      refId: 13,
+      type: 'desa_wisata',
+      kategori: 'DESA_WISATA',
+      nama: 'Desa Wisata Labuan Belanda',
+      lokasi: 'Desa Labuan, Kec. Ratolindo, Kab. Tojo Una-Una',
+      lat: -0.88,
+      lng: 121.61,
+      rating: 4.7,
+      totalUlasan: 520,
+      foto: '/uploads/1774943231628.jpg',
+    ),
+    GisMarker(
+      id: 'desa-15',
+      refId: 15,
+      type: 'desa_wisata',
+      kategori: 'DESA_WISATA',
+      nama: 'Desa Wisata Pokekea',
+      lokasi: 'Desa Hanggira, Kec. Lore Tengah, Kab. Poso',
+      lat: -1.45,
+      lng: 120.35,
+      rating: 4.8,
+      totalUlasan: 450,
+      foto: '/uploads/1774988597218.jpg',
+    ),
+    GisMarker(
+      id: 'desa-16',
+      refId: 16,
+      type: 'desa_wisata',
+      kategori: 'DESA_WISATA',
+      nama: 'Desa Wisata Towale',
+      lokasi: 'Desa Towale, Kec. Banawa Tengah, Kab. Donggala',
+      lat: -0.95,
+      lng: 119.8,
+      rating: 4.7,
+      totalUlasan: 380,
+      foto: '/uploads/1774988935341.jpg',
+    ),
+    GisMarker(
+      id: 'desa-32',
+      refId: 32,
+      type: 'desa_wisata',
+      kategori: 'DESA_UNGGULAN',
+      nama: 'Kawasan Kepulauan Togean',
+      lokasi: 'Kabupaten Tojo Una Una',
+      lat: -0.398157,
+      lng: 121.924556,
+      rating: 4.9,
+      totalUlasan: 2100,
+      foto: '/uploads/1777347000472.jpg',
+    ),
+  ];
+
   int _selectedChip = 0;
-  List<GisMarker> _markers = [];
-  GisMarker? _selectedMarker;
-  bool _loading = true;
+  List<GisMarker> _markers = _defaultMarkers;
+  GisMarker? _selectedMarker = _defaultMarkers.first;
+  bool _loading = false;
 
   static const LatLng _sultengCenter = LatLng(-1.15, 121.45);
   static const double _defaultZoom = 6.5;
@@ -1311,22 +1396,11 @@ class _DesaCard extends StatelessWidget {
             child: SizedBox(
               width: 56,
               height: 56,
-              child: marker.foto != null && marker.foto!.isNotEmpty
-                  ? (marker.foto!.startsWith('http')
-                      ? Image.network(
-                          marker.foto!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => _placeholderThumb(),
-                        )
-                      : Image.asset(
-                          marker.foto!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => Image.asset(
-                            'assets/images/beranda/thumb_luk_panenteng.png',
-                            fit: BoxFit.cover,
-                          ),
-                        ))
-                  : _placeholderThumb(),
+              child: KamaimoImage(
+                path: marker.foto,
+                fit: BoxFit.cover,
+                fallbackAsset: 'assets/images/beranda/thumb_luk_panenteng.png',
+              ),
             ),
           ),
           const SizedBox(width: 10),
@@ -1484,9 +1558,6 @@ class _WisataData {
   final String nama;
   final String deskripsi;
   final String? deskripsiEn;
-  final String labelHarga;
-  final String harga;
-  final String satuan;
   final String rating;
   final String ulasan;
 
@@ -1499,9 +1570,6 @@ class _WisataData {
     required this.nama,
     required this.deskripsi,
     this.deskripsiEn,
-    required this.labelHarga,
-    required this.harga,
-    required this.satuan,
     required this.rating,
     required this.ulasan,
   });
@@ -1521,46 +1589,71 @@ class _UnggulanState extends State<_UnggulanSection> {
 
   static const _defaultItems = [
     _WisataData(
-      id: 1,
-      foto: 'assets/images/beranda/kartu_kolam_kaca.png',
-      badge: 'KOLAM KACA',
+      id: 23,
+      foto: '/uploads/1775528789816.jpeg',
+      badge: 'UNGGULAN',
       kabupaten: 'BANGGAI KEPULAUAN',
-      nama: 'Luk Panenteng & Danau Paisu Pok',
-      deskripsi: 'Air danau sejernih kaca dengan vegetasi hutan…',
-      deskripsiEn: 'Crystal-clear lake water with pristine forest vegetation…',
-      labelHarga: 'MULAI DARI',
-      harga: 'Rp 15.000',
-      satuan: '/orang',
+      nama: 'Desa Wisata Luk Panenteng',
+      deskripsi: 'Air danau sebening kaca dengan vegetasi hutan alami di Banggai Kepulauan.',
+      deskripsiEn: 'Crystal-clear lake waters with natural forest vegetation in Banggai Islands.',
       rating: '4.9',
       ulasan: '(1.4k ulasan)',
     ),
     _WisataData(
-      id: 2,
-      foto: 'assets/images/beranda/kartu_sombori.png',
-      badge: 'THE SECRET PARADISE',
+      id: 9,
+      foto: '/uploads/1774944086313.webp',
+      badge: 'BAHARI',
       badgeColor: AppColors.orangeBadge,
-      kabupaten: 'MOROWALI',
-      nama: 'Kepulauan Sombori',
-      deskripsi: 'Karst megah, tebing cadas, & laguna toska.',
-      deskripsiEn: 'Majestic karst, rocky cliffs, & turquoise lagoons.',
-      labelHarga: 'PAKET TUR',
-      harga: 'Rp 350.000',
-      satuan: '/tur',
-      rating: '4.95',
-      ulasan: '',
+      kabupaten: 'BANGGAI LAUT',
+      nama: 'Desa Wisata Bone Baru',
+      deskripsi: 'Wisata bahari pesisir dan kegiatan ekonomi masyarakat Desa Bone Baru.',
+      deskripsiEn: 'Marine tourism and community coastal activities in Bone Baru Village.',
+      rating: '4.5',
+      ulasan: '(310 ulasan)',
     ),
     _WisataData(
-      id: 3,
-      badge: 'PASIR EMAS TENTENA',
-      kabupaten: 'POSO • TENTENA',
-      nama: 'Danau Poso & Pasir Emas',
-      deskripsi: 'Danau purba ketiga terbesar dengan pasir…',
-      deskripsiEn: 'The third largest ancient lake with golden sand…',
-      labelHarga: 'MULAI DARI',
-      harga: 'Rp 10.000',
-      satuan: '/orang',
-      rating: '4.88',
-      ulasan: '',
+      id: 13,
+      foto: '/uploads/1774943231628.jpg',
+      badge: 'BAHARI',
+      kabupaten: 'TOJO UNA-UNA',
+      nama: 'Desa Wisata Labuan Belanda',
+      deskripsi: 'Wisata bahari bersejarah dengan perairan jernih di Tojo Una-Una.',
+      deskripsiEn: 'Historic marine tourism with clear waters in Tojo Una-Una.',
+      rating: '4.7',
+      ulasan: '(520 ulasan)',
+    ),
+    _WisataData(
+      id: 15,
+      foto: '/uploads/1774988597218.jpg',
+      badge: 'BUDAYA',
+      kabupaten: 'POSO',
+      nama: 'Desa Wisata Pokekea',
+      deskripsi: 'Situs megalitikum bersejarah dan peninggalan purbakala Lore Lindu.',
+      deskripsiEn: 'Historic megalithic site and ancient heritage in Lore Lindu.',
+      rating: '4.8',
+      ulasan: '(450 ulasan)',
+    ),
+    _WisataData(
+      id: 16,
+      foto: '/uploads/1774988935341.jpg',
+      badge: 'BAHARI',
+      kabupaten: 'DONGGALA',
+      nama: 'Desa Wisata Towale',
+      deskripsi: 'Pusat tenun tradisional Donggala dan keindahan pantai pesisir Banawa.',
+      deskripsiEn: 'Traditional Donggala weaving center and beautiful coastal beaches.',
+      rating: '4.7',
+      ulasan: '(380 ulasan)',
+    ),
+    _WisataData(
+      id: 32,
+      foto: '/uploads/1777347000472.jpg',
+      badge: 'BAHARI',
+      kabupaten: 'TOJO UNA-UNA',
+      nama: 'Kawasan Kepulauan Togean',
+      deskripsi: 'Taman Nasional Kepulauan Togean dengan keanekaragaman hayati laut dunia.',
+      deskripsiEn: 'Togean Islands National Park with world-class marine biodiversity.',
+      rating: '4.9',
+      ulasan: '(2.1k ulasan)',
     ),
   ];
 
@@ -1579,14 +1672,11 @@ class _UnggulanState extends State<_UnggulanSection> {
           _items = list.map((d) => _WisataData(
             id: d.id,
             foto: d.foto,
-            badge: d.jenisDesa == 'DESA_UNGGULAN' ? 'UNGGULAN' : 'WISATA',
+            badge: d.kategori.isNotEmpty ? d.kategori.toUpperCase() : (d.jenisDesa == 'DESA_UNGGULAN' ? 'UNGGULAN' : 'WISATA'),
             kabupaten: d.lokasi_id.toUpperCase(),
             nama: d.namaDesa_id,
             deskripsi: d.deskripsi_id,
             deskripsiEn: d.deskripsi_en,
-            labelHarga: 'MULAI DARI',
-            harga: 'Rp 15.000',
-            satuan: '/orang',
             rating: d.rating,
             ulasan: '(${d.total_ulasan} ulasan)',
           )).toList();
@@ -1632,17 +1722,21 @@ class _UnggulanState extends State<_UnggulanSection> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              Text(
-                isEn ? 'Featured Destinations' : 'Wisata Unggulan Sulteng',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.pine900,
-                  letterSpacing: -0.45,
-                  fontFamily: 'PlusJakartaSans',
+              Expanded(
+                child: Text(
+                  isEn ? 'Featured Destinations' : 'Wisata Unggulan Sulteng',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.pine900,
+                    letterSpacing: -0.45,
+                    fontFamily: 'PlusJakartaSans',
+                  ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               GestureDetector(
                 onTap: () {
                   UserShell.switchTab(context, 1);
@@ -1747,7 +1841,6 @@ class _CarouselCardState extends State<_CarouselCard> {
   @override
   Widget build(BuildContext context) {
     final item = widget.item;
-    final active = widget.active;
     final isEn = context.watch<LanguageProvider>().isEnglish;
     final descText = (isEn && item.deskripsiEn != null && item.deskripsiEn!.isNotEmpty)
         ? item.deskripsiEn!
@@ -1794,17 +1887,11 @@ class _CarouselCardState extends State<_CarouselCard> {
                   child: Stack(
                   children: [
                     Positioned.fill(
-                      child: item.foto != null
-                          ? Image.asset(item.foto!, fit: BoxFit.cover)
-                          : const DecoratedBox(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [Color(0xFF9ECAA3), Color(0xFF35644A)],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                              ),
-                            ),
+                      child: KamaimoImage(
+                        path: item.foto,
+                        fit: BoxFit.cover,
+                        fallbackAsset: 'assets/images/destinasi/card_togean.png',
+                      ),
                     ),
 
                     // Badge (menutup badge yang ter-bake di foto kartu pertama)
@@ -1881,6 +1968,7 @@ class _CarouselCardState extends State<_CarouselCard> {
                         ),
                       ),
                     ),
+
                     // Rating chip menutup chip ter-bake
                     Positioned(
                       left: 14,
@@ -1989,7 +2077,7 @@ class _CarouselCardState extends State<_CarouselCard> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      _translateLabelHarga(item.labelHarga, isEn),
+                                      isEn ? 'CATEGORY' : 'KATEGORI',
                                       style: const TextStyle(
                                         fontSize: 9,
                                         fontWeight: FontWeight.w700,
@@ -1999,29 +2087,14 @@ class _CarouselCardState extends State<_CarouselCard> {
                                       ),
                                     ),
                                     const SizedBox(height: 2),
-                                    Row(
-                                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                                      textBaseline: TextBaseline.alphabetic,
-                                      children: [
-                                        Text(
-                                          item.harga,
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w900,
-                                            color: AppColors.pine700,
-                                            fontFamily: 'PlusJakartaSans',
-                                          ),
-                                        ),
-                                        Text(
-                                          _translateSatuan(item.satuan, isEn),
-                                          style: const TextStyle(
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.w400,
-                                            color: AppColors.textTertiary,
-                                            fontFamily: 'PlusJakartaSans',
-                                          ),
-                                        ),
-                                      ],
+                                    Text(
+                                      _translateBadge(item.badge, isEn),
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.pine700,
+                                        fontFamily: 'PlusJakartaSans',
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -2144,10 +2217,17 @@ class _EventData {
   });
 }
 
-class _EventSection extends StatelessWidget {
+class _EventSection extends StatefulWidget {
   const _EventSection();
 
-  static const _events = [
+  @override
+  State<_EventSection> createState() => _EventSectionState();
+}
+
+class _EventSectionState extends State<_EventSection> {
+  List<_EventData> _events = [];
+
+  static const _defaultEvents = [
     _EventData(
       foto: 'assets/images/beranda/thumb_event1.png',
       tanggal: '24 OKT',
@@ -2167,8 +2247,38 @@ class _EventSection extends StatelessWidget {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchEvents());
+  }
+
+  Future<void> _fetchEvents() async {
+    try {
+      final repo = context.read<AtraksiRepository>();
+      final list = await repo.getAll();
+      if (list.isNotEmpty && mounted) {
+        final months = ['', 'JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGT', 'SEP', 'OKT', 'NOV', 'DES'];
+        setState(() {
+          _events = list.map((a) {
+            final dt = DateTime.tryParse(a.startdate) ?? DateTime.now();
+            return _EventData(
+              foto: a.foto ?? 'assets/images/beranda/thumb_event1.png',
+              tanggal: '${dt.day} ${months[dt.month]}',
+              countdown: 'Event Resmi',
+              lokasi: a.lokasi_id,
+              nama: a.nameEvent,
+              deskripsi: a.deskripsi_id,
+            );
+          }).toList();
+        });
+      }
+    } catch (_) {}
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isEn = context.watch<LanguageProvider>().isEnglish;
+    final shown = _events.isNotEmpty ? _events : _defaultEvents;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -2194,17 +2304,21 @@ class _EventSection extends StatelessWidget {
           const SizedBox(height: 3),
           Row(
             children: [
-              Text(
-                isEn ? 'Cultural Attractions & Events' : 'Atraksi & Event Budaya',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.pine900,
-                  letterSpacing: -0.45,
-                  fontFamily: 'PlusJakartaSans',
+              Expanded(
+                child: Text(
+                  isEn ? 'Cultural Attractions & Events' : 'Atraksi & Event Budaya',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.pine900,
+                    letterSpacing: -0.45,
+                    fontFamily: 'PlusJakartaSans',
+                  ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               GestureDetector(
                 onTap: () {
                   UserShell.switchTab(context, 2);
@@ -2228,7 +2342,7 @@ class _EventSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          ..._events.map((e) => Padding(
+          ...shown.take(4).map((e) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: _EventCard(event: e),
               )),
@@ -2309,7 +2423,11 @@ class _EventCard extends StatelessWidget {
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: Image.asset(event.foto, fit: BoxFit.cover),
+                    child: KamaimoImage(
+                      path: event.foto,
+                      fit: BoxFit.cover,
+                      fallbackAsset: 'assets/images/beranda/thumb_event1.png',
+                    ),
                   ),
                   Positioned(
                     left: 0,
@@ -2360,13 +2478,17 @@ class _EventCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      event.lokasi,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.pine500,
-                        fontFamily: 'PlusJakartaSans',
+                    Expanded(
+                      child: Text(
+                        event.lokasi,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.pine500,
+                          fontFamily: 'PlusJakartaSans',
+                        ),
                       ),
                     ),
                   ],
@@ -2621,7 +2743,7 @@ class _SocialCircle extends StatelessWidget {
     );
 
     if (tooltip != null) {
-      return Tooltip(message: tooltip!, child: child);
+      return Tooltip(message: tooltip, child: child);
     }
     return child;
   }

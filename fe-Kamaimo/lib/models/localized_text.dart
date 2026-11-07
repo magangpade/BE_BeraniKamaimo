@@ -12,8 +12,8 @@ class LocalizedText {
   /// Jika `locale` == 'en' → pakai `_en`, lain pakai `_id`.
   static String resolve(String id, String? en, String locale) {
     if (locale == 'en' || locale == 'en_US') {
-      return en ?? id;
+      return (en != null && en.isNotEmpty) ? en : id;
     }
-    return id ?? en ?? '';
+    return id.isNotEmpty ? id : (en ?? '');
   }
 }
