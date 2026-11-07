@@ -13,6 +13,7 @@ import 'widgets/destinasi_share_sheet.dart';
 import 'widgets/detail_hero.dart';
 import 'widgets/fasilitas_section.dart';
 import 'widgets/how_to_get_there.dart';
+import 'widgets/review_form.dart';
 import 'widgets/ulasan_section.dart';
 
 /// Halaman Detail Wisata — sesuai Figma frame 4714:452
@@ -50,7 +51,8 @@ class DetailWisataScreen extends StatefulWidget {
 class _DetailWisataScreenState extends State<DetailWisataScreen> {
   /// Pill status buka = placeholder statis sesuai Figma
   /// (backend belum punya field jam buka per desa).
-  static const String _statusBuka = 'Buka Hari Ini \u2022 07:00 \u2013 17:30 WITA';
+  static const String _statusBuka =
+      'Buka Hari Ini \u2022 07:00 \u2013 17:30 WITA';
 
   late final Future<List<JarakDesa>> _jarakFuture;
   late final Future<List<Ulasan>> _ulasanFuture;
@@ -94,23 +96,29 @@ class _DetailWisataScreenState extends State<DetailWisataScreen> {
       id: 0,
       desaId: 0,
       titikKota: 'LUWUK',
-      jalur_darat: 'Perjalanan darat aspal pesisir menyusuri bukit karst '
+      jalur_darat:
+          'Perjalanan darat aspal pesisir menyusuri bukit karst '
           'dengan mobil rental atau ojek lokal Salakan langsung ke gapura danau.',
-      jalur_laut: 'Berangkat dari Pelabuhan Rakyat Luwuk setiap pagi menuju '
+      jalur_laut:
+          'Berangkat dari Pelabuhan Rakyat Luwuk setiap pagi menuju '
           'Pelabuhan Salakan (Banggai Kepulauan) pukul 09:00 WITA.',
-      jalur_udara: 'Penerbangan reguler terjadwal dari Makassar (UPG) atau '
+      jalur_udara:
+          'Penerbangan reguler terjadwal dari Makassar (UPG) atau '
           'Manado (MDC) menuju Bandara Luwuk (Wings Air / Batik Air).',
     ),
     JarakDesa(
       id: 0,
       desaId: 0,
       titikKota: 'PALU',
-      jalur_darat: 'Perjalanan darat trans-Sulawesi dari Palu menuju Luwuk '
+      jalur_darat:
+          'Perjalanan darat trans-Sulawesi dari Palu menuju Luwuk '
           'dengan bus malam ±10–12 jam, dilanjutkan feri ke Salakan dan mobil '
           'ke desa.',
-      jalur_laut: 'Ferreguler KM dari Pelabuhan Pantoloan (Palu) menuju Luwuk '
+      jalur_laut:
+          'Ferreguler KM dari Pelabuhan Pantoloan (Palu) menuju Luwuk '
           'dengan jadwal tidak harian — cek jadwal terbaru sebelum berangkat.',
-      jalur_udara: 'Penerbangan dari Palu (PLW) umumnya transit Makassar '
+      jalur_udara:
+          'Penerbangan dari Palu (PLW) umumnya transit Makassar '
           '(UPG) atau Manado (MDC) menuju Bandara Luwuk (Wings Air / Batik '
           'Air).',
     ),
@@ -122,6 +130,22 @@ class _DetailWisataScreenState extends State<DetailWisataScreen> {
       namaDesa: widget.namaDesa,
       lokasi: widget.lokasi,
       foto: widget.foto,
+    );
+  }
+
+  void _showReviewForm() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 16,
+          right: 16,
+          top: 16,
+        ),
+        child: ReviewForm(),
+      ),
     );
   }
 
@@ -186,17 +210,7 @@ class _DetailWisataScreenState extends State<DetailWisataScreen> {
               if (!snap.hasData) return _sectionSkeleton();
               return UlasanSection(
                 ulasanList: snap.data!,
-                onTulisUlasan: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        isEn
-                            ? 'Review form will be available in M2.'
-                            : 'Form ulasan akan tersedia di tahap M2.',
-                      ),
-                    ),
-                  );
-                },
+                onTulisUlasan: _showReviewForm,
               );
             },
           ),
