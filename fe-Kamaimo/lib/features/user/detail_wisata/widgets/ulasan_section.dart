@@ -29,7 +29,8 @@ class UlasanSection extends StatelessWidget {
         id: -1,
         nama: 'Rian Kusuma',
         rating: 5,
-        komentar: 'Sewa kano transparan sangat recommended, pemandangan danau '
+        komentar:
+            'Sewa kano transparan sangat recommended, pemandangan danau '
             'dari atas air bening banget. Pemandu lokalnya juga jago cerita '
             'mitos Sea-Sea, seru buat road trip keluarga.',
         createdAt: '2024-06-15',
@@ -42,7 +43,8 @@ class UlasanSection extends StatelessWidget {
         id: -2,
         nama: 'Dinda Widyawati',
         rating: 5,
-        komentar: 'Rute feri dari Pelabuhan Luwuk gampang banget diikuti, tapi '
+        komentar:
+            'Rute feri dari Pelabuhan Luwuk gampang banget diikuti, tapi '
             'jangan lupa cek jadwal pasang-surut pas mau snorkeling di area '
             'rumput laut.',
         createdAt: '2024-05-20',
@@ -60,10 +62,7 @@ class UlasanSection extends StatelessWidget {
         : [
             // Ulasan asli: warna avatar selang-seling mint/peach.
             for (final (i, u) in ulasanList.indexed)
-              _DemoTestimoni(
-                ulasan: u,
-                avatarPeach: i.isOdd,
-              ),
+              _DemoTestimoni(ulasan: u, avatarPeach: i.isOdd),
           ];
 
     return Column(
@@ -141,7 +140,7 @@ class _TulisUlasanButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isEn = context.watch<LanguageProvider>().isEnglish;
+    final isEn = context.watch<LanguageProvider?>()?.isEnglish ?? false;
     return Material(
       color: AppColors.pine800,
       borderRadius: BorderRadius.circular(9999),
@@ -163,7 +162,11 @@ class _TulisUlasanButton extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.add_rounded, size: 16, color: AppColors.textOnPrimary),
+              const Icon(
+                Icons.add_rounded,
+                size: 16,
+                color: AppColors.textOnPrimary,
+              ),
               const SizedBox(width: 6),
               Text(
                 isEn ? 'Write Review' : 'Tulis Ulasan',
@@ -209,12 +212,32 @@ class _TestimonialCard extends StatelessWidget {
         : (tipeWisatawan == 'Keluarga' ? 'Family' : tipeWisatawan);
     if (t == null) return ulasan.createdAt;
     const bulanId = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
     ];
     const bulanEn = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     final bulan = isEn ? bulanEn : bulanId;
     final label = '${bulan[t.month - 1]} ${t.year}';
@@ -234,7 +257,7 @@ class _TestimonialCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isEn = context.watch<LanguageProvider>().isEnglish;
+    final isEn = context.watch<LanguageProvider?>()?.isEnglish ?? false;
     final rating = ulasan.rating.clamp(1, 5);
 
     return Container(
