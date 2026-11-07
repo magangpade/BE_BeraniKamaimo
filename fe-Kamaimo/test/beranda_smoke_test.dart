@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:berani_kamaimo/core/providers/language_provider.dart';
 import 'package:berani_kamaimo/features/user/home/user_shell.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   // Self-check UI beranda: semua section sesuai tasarinya ada + tanpa overflow error.
   testWidgets('beranda menampilkan semua section per Figma 4273:55', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: UserShell(),
+      ChangeNotifierProvider<LanguageProvider>(
+        create: (_) => LanguageProvider(),
+        child: const MaterialApp(
+          home: UserShell(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -18,7 +28,7 @@ void main() {
     expect(find.text('Atraksi & Event Budaya'), findsOneWidget);
     expect(find.text('Festival Danau Poso ke-24'), findsOneWidget);
     expect(find.text('Cari destinasi atau kabupaten...'), findsOneWidget);
-    expect(find.text('Desa Luk Panenteng'), findsOneWidget);
+    expect(find.textContaining('Luk Panenteng'), findsWidgets);
 
     // Kode rahasia admin masih tertanam di search bar (backdoor)
     await tester.enterText(find.byType(TextField).first, 'adminBK2025');

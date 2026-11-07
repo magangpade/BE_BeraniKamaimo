@@ -6,6 +6,7 @@ import '../../../core/providers/language_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/repositories/desa_wisata_repository.dart';
 import '../detail_wisata/detail_wisata_screen.dart';
+import '../detail_wisata/widgets/destinasi_share_sheet.dart';
 import '../home/user_shell.dart';
 
 // Tab Destinasi — Figma MAGANG-PADE node 4258:1619
@@ -144,6 +145,16 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
     ));
   }
 
+  void _share(_Item it) {
+    showDestinasiShareSheet(
+      context,
+      namaDesa: it.nama,
+      lokasi: it.kabupaten,
+      foto: it.foto,
+      kategori: it.kategori,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEn = context.watch<LanguageProvider>().isEnglish;
@@ -186,6 +197,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
                     _FeaturedCard(
                       item: _featured,
                       onTap: () => _openDetail(_featured),
+                      onShare: () => _share(_featured),
                     ),
                     const SizedBox(height: 14),
                   ],
@@ -216,7 +228,11 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
                   );
                 }
                 final it = shown[i];
-                return _DestinasiCard(item: it, onTap: () => _openDetail(it));
+                return _DestinasiCard(
+                  item: it,
+                  onTap: () => _openDetail(it),
+                  onShare: () => _share(it),
+                );
               },
             ),
           ),
@@ -521,8 +537,9 @@ class _ResultsHeader extends StatelessWidget {
 class _FeaturedCard extends StatelessWidget {
   final _Item item;
   final VoidCallback onTap;
+  final VoidCallback? onShare;
 
-  const _FeaturedCard({required this.item, required this.onTap});
+  const _FeaturedCard({required this.item, required this.onTap, this.onShare});
 
   @override
   Widget build(BuildContext context) {
@@ -550,30 +567,38 @@ class _FeaturedCard extends StatelessWidget {
                   Positioned(
                     left: 12,
                     top: 12,
-                    child: Container(
-                      height: 23,
-                      padding: const EdgeInsets.symmetric(horizontal: 9),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.93),
-                        borderRadius: BorderRadius.circular(9999),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.auto_awesome_rounded,
-                              size: 10, color: AppColors.warning),
-                          const SizedBox(width: 4),
-                          Text(
-                            isEn ? 'Best choice' : 'Pilihan terbaik',
-                            style: const TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.pine900,
-                              fontFamily: 'PlusJakartaSans',
-                            ),
+                    right: 12,
+                    child: Row(
+                      children: [
+                        Container(
+                          height: 23,
+                          padding: const EdgeInsets.symmetric(horizontal: 9),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.93),
+                            borderRadius: BorderRadius.circular(9999),
                           ),
-                        ],
-                      ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.auto_awesome_rounded,
+                                  size: 10, color: AppColors.warning),
+                              const SizedBox(width: 4),
+                              Text(
+                                isEn ? 'Best choice' : 'Pilihan terbaik',
+                                style: const TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.pine900,
+                                  fontFamily: 'PlusJakartaSans',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Spacer(),
+                        if (onShare != null)
+                          _DestCardShareButton(onTap: onShare!),
+                      ],
                     ),
                   ),
                 ],
@@ -710,13 +735,43 @@ class _FeaturedCard extends StatelessWidget {
   }
 }
 
-// ─── Kartu destinasi baris ────────────────────────────────────────────────────
+class _DestCardShareButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _DestCardShareButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: 30,
+          height: 30,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.92),
+            shape: BoxShape.circle,
+            boxShadow: AppColors.shadowCard,
+          ),
+          child: const Icon(
+            Icons.ios_share_rounded,
+            size: 16,
+            color: AppColors.pine900,
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _DestinasiCard extends StatelessWidget {
   final _Item item;
   final VoidCallback onTap;
+  final VoidCallback? onShare;
 
-  const _DestinasiCard({required this.item, required this.onTap});
+  const _DestinasiCard({required this.item, required this.onTap, this.onShare});
 
   @override
   Widget build(BuildContext context) {
@@ -769,6 +824,12 @@ class _DestinasiCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                      if (onShare != null)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: _DestCardShareButton(onTap: onShare!),
+                        ),
                     ],
                   ),
                 ),

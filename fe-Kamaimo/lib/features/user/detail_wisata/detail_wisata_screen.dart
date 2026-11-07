@@ -9,6 +9,7 @@ import '../../../data/repositories/jarak_repository.dart';
 import '../../../data/repositories/ulasan_repository.dart';
 import '../../../models/jarak_desa.dart';
 import '../../../models/ulasan.dart';
+import 'widgets/destinasi_share_sheet.dart';
 import 'widgets/detail_hero.dart';
 import 'widgets/fasilitas_section.dart';
 import 'widgets/how_to_get_there.dart';
@@ -115,9 +116,18 @@ class _DetailWisataScreenState extends State<DetailWisataScreen> {
     ),
   ];
 
+  void _share() {
+    showDestinasiShareSheet(
+      context,
+      namaDesa: widget.namaDesa,
+      lokasi: widget.lokasi,
+      foto: widget.foto,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isEn = context.watch<LanguageProvider>().isEnglish;
+    final isEn = context.watch<LanguageProvider?>()?.isEnglish ?? false;
     final statusText = isEn
         ? 'Open Today \u2022 07:00 \u2013 17:30 WITA'
         : _statusBuka;
@@ -132,6 +142,8 @@ class _DetailWisataScreenState extends State<DetailWisataScreen> {
               foto: widget.foto,
               statusText: statusText,
               namaDesa: widget.namaDesa,
+              lokasi: widget.lokasi,
+              onShare: _share,
             ),
           ),
 

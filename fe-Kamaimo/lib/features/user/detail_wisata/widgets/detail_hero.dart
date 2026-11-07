@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import 'destinasi_share_sheet.dart';
 
 /// Hero parallax-styled untuk Detail Wisata (frame 4714:452).
 /// Foto destinasi + scrim pine + tombol glass + pill status buka.
@@ -11,6 +11,8 @@ class DetailHero extends StatelessWidget {
   final String foto;
   final String statusText;
   final String? namaDesa;
+  final String? lokasi;
+  final String? kategori;
   final VoidCallback? onShare;
 
   const DetailHero({
@@ -18,6 +20,8 @@ class DetailHero extends StatelessWidget {
     required this.foto,
     required this.statusText,
     this.namaDesa,
+    this.lokasi,
+    this.kategori,
     this.onShare,
   });
 
@@ -35,7 +39,7 @@ class DetailHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isEn = context.watch<LanguageProvider>().isEnglish;
+    final isEn = context.watch<LanguageProvider?>()?.isEnglish ?? false;
 
     return SizedBox(
       height: _height,
@@ -84,12 +88,12 @@ class DetailHero extends StatelessWidget {
                             : (isEn
                                 ? 'Central Sulawesi Tourist Destination'
                                 : 'Destinasi Wisata Sulawesi Tengah');
-                        SharePlus.instance.share(
-                          ShareParams(
-                            text: isEn
-                                ? 'Explore the beauty of $title in Central Sulawesi via the Berani Kamaimo app!'
-                                : 'Jelajahi keindahan $title di Sulawesi Tengah lewat aplikasi Berani Kamaimo!',
-                          ),
+                        showDestinasiShareSheet(
+                          context,
+                          namaDesa: title,
+                          lokasi: lokasi ?? 'Sulawesi Tengah',
+                          foto: foto,
+                          kategori: kategori,
                         );
                       },
                 ),

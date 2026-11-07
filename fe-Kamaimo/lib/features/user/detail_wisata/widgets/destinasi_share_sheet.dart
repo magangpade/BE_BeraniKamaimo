@@ -1,0 +1,563 @@
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../../core/providers/language_provider.dart';
+import '../../../../core/theme/app_colors.dart';
+
+const _assetRoot = 'assets/images/beranda/';
+const _fallbackAsset = 'assets/images/detail_wisata/hero_luk_panenteng.png';
+
+Future<void> showDestinasiShareSheet(
+  BuildContext context, {
+  required String namaDesa,
+  required String lokasi,
+  required String foto,
+  String? kategori,
+  String? publicUrl,
+}) {
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    isDismissible: true,
+    enableDrag: true,
+    useSafeArea: false,
+    barrierColor: Colors.black.withValues(alpha: 0.25),
+    backgroundColor: Colors.transparent,
+    constraints: const BoxConstraints(maxWidth: 430),
+    builder: (context) => _DestinasiShareSheet(
+      namaDesa: namaDesa,
+      lokasi: lokasi,
+      foto: foto,
+      kategori: kategori,
+      publicUrl: publicUrl,
+    ),
+  );
+}
+
+class _DestinasiShareSheet extends StatefulWidget {
+  const _DestinasiShareSheet({
+    required this.namaDesa,
+    required this.lokasi,
+    required this.foto,
+    this.kategori,
+    this.publicUrl,
+  });
+
+  final String namaDesa;
+  final String lokasi;
+  final String foto;
+  final String? kategori;
+  final String? publicUrl;
+
+  @override
+  State<_DestinasiShareSheet> createState() => _DestinasiShareSheetState();
+}
+
+class _DestinasiShareSheetState extends State<_DestinasiShareSheet> {
+  String? _feedback;
+  bool get _isEnglish => context.read<LanguageProvider?>()?.isEnglish ?? false;
+
+  String get _slug {
+    final clean = widget.namaDesa
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        .replaceAll(RegExp(r'^-|-$'), '');
+    return clean.isEmpty ? 'destinasi' : clean;
+  }
+
+  String? get _shareUrl {
+    final value = widget.publicUrl?.trim();
+    if (value != null && value.isNotEmpty) {
+      final uri = Uri.tryParse(value);
+      if (uri != null && uri.hasScheme && uri.host.isNotEmpty) return value;
+    }
+    return null;
+  }
+
+  String get _displayUrl => (_shareUrl ?? 'https://kamaimo.id/destinasi/$_slug')
+      .replaceFirst(RegExp(r'^https?:\/\/'), '');
+
+  String get _shareText => _isEnglish
+      ? 'Explore the beauty of ${widget.namaDesa} in ${widget.lokasi} with me!'
+      : 'Ajak teman menjelajahi keindahan ${widget.namaDesa} di ${widget.lokasi}!';
+
+  void _setFeedback(String message) {
+    if (mounted) setState(() => _feedback = message);
+  }
+
+  Future<void> _copyLink() async {
+    final url = _shareUrl;
+    if (url == null) {
+      _setFeedback(
+        _isEnglish
+            ? 'A public destination link is not available yet.'
+            : 'Tautan publik destinasi belum tersedia.',
+      );
+      return;
+    }
+    await Clipboard.setData(ClipboardData(text: url));
+    _setFeedback(_isEnglish ? 'Link copied.' : 'Tautan berhasil disalin.');
+  }
+
+  Future<void> _shareTo(String destination) async {
+    if (destination == 'Lainnya') {
+      try {
+        await SharePlus.instance.share(
+          ShareParams(text: '$_shareText${_shareUrl == null ? '' : '\n$_shareUrl'}'),
+        );
+      } catch (_) {
+        _setFeedback(
+          _isEnglish
+              ? 'The share menu could not be opened.'
+              : 'Menu berbagi tidak dapat dibuka.',
+        );
+      }
+      return;
+    }
+
+    final url = _shareUrl;
+    if (url == null) {
+      _setFeedback(
+        _isEnglish
+            ? 'A public link is needed to share via $destination.'
+            : 'Tautan publik diperlukan untuk berbagi ke $destination.',
+      );
+      return;
+    }
+    final target = switch (destination) {
+      'WhatsApp' => Uri.https('wa.me', '/', {'text': '$_shareText\n$url'}),
+      'Telegram' => Uri.https('t.me', '/share/url', {
+        'url': url,
+        'text': _shareText,
+      }),
+      'Facebook' => Uri.https('www.facebook.com', '/sharer/sharer.php', {
+        'u': url,
+      }),
+      _ => null,
+    };
+    if (target == null) return;
+
+    try {
+      if (await launchUrl(target, mode: LaunchMode.externalApplication)) return;
+    } catch (_) {}
+    _setFeedback(
+      _isEnglish
+          ? '$destination could not be opened.'
+          : '$destination tidak dapat dibuka.',
+    );
+  }
+
+  Widget _buildThumb() {
+    final f = widget.foto.trim();
+    if (f.startsWith('assets/')) {
+      return Image.asset(
+        f,
+        width: 76,
+        height: 76,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Image.asset(
+          _fallbackAsset,
+          width: 76,
+          height: 76,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _fallbackThumb(),
+        ),
+      );
+    }
+    if (f.startsWith('http://') || f.startsWith('https://')) {
+      return Image.network(
+        f,
+        width: 76,
+        height: 76,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Image.asset(
+          _fallbackAsset,
+          width: 76,
+          height: 76,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _fallbackThumb(),
+        ),
+      );
+    }
+    return Image.asset(
+      _fallbackAsset,
+      width: 76,
+      height: 76,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => _fallbackThumb(),
+    );
+  }
+
+  Widget _fallbackThumb() {
+    return Container(
+      width: 76,
+      height: 76,
+      color: AppColors.mintSoft,
+      child: const Icon(Icons.terrain_rounded, color: AppColors.pine700, size: 32),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEnglish = context.watch<LanguageProvider?>()?.isEnglish ?? false;
+    final availableHeight =
+        MediaQuery.sizeOf(context).height -
+        MediaQuery.paddingOf(context).top -
+        8;
+    final sheetHeight = math.min(606.0, availableHeight);
+
+    return Container(
+      height: sheetHeight,
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+      decoration: const BoxDecoration(
+        color: AppColors.detailBackground,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x330F2C24),
+            blurRadius: 32,
+            offset: Offset(0, -8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 40,
+            height: 5,
+            decoration: BoxDecoration(
+              color: const Color(0xFFCCD3C9),
+              borderRadius: BorderRadius.circular(99),
+            ),
+          ),
+          const SizedBox(height: 28),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(context),
+                  const SizedBox(height: 20),
+                  _buildPreview(),
+                  const SizedBox(height: 20),
+                  _buildShareOptions(),
+                  const SizedBox(height: 20),
+                  _buildLinkSection(),
+                ],
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              isEnglish ? 'Cancel' : 'Batal',
+              style: const TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppColors.pine500,
+              ),
+            ),
+          ),
+          const SizedBox(height: 15),
+          Container(
+            width: 134,
+            height: 5,
+            decoration: BoxDecoration(
+              color: AppColors.pine900,
+              borderRadius: BorderRadius.circular(99),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                _isEnglish ? 'Share Destination' : 'Bagikan Destinasi',
+                style: const TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.pine900,
+                ),
+              ),
+            ),
+            InkWell(
+              onTap: () => Navigator.of(context).pop(),
+              customBorder: const CircleBorder(),
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF7FAF7),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.detailBorder),
+                ),
+                child: Center(
+                  child: Image.asset(
+                    '${_assetRoot}pasar_share_close.png',
+                    width: 16,
+                    height: 16,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          _isEnglish
+              ? 'Invite friends to explore ${widget.namaDesa}.'
+              : 'Ajak teman menjelajahi ${widget.namaDesa}.',
+          style: const TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontSize: 13,
+            height: 20 / 13,
+            color: AppColors.detailBody,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPreview() {
+    final cat = widget.kategori ?? (_isEnglish ? 'Ecotourism' : 'Ekowisata');
+    return Container(
+      height: 100,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.detailBorder),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: _buildThumb(),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _isEnglish ? 'Destination • $cat' : 'Destinasi • $cat',
+                  style: const TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.pine500,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  widget.namaDesa,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 17,
+                    height: 24 / 17,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.pine900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Image.asset(
+                      '${_assetRoot}pasar_share_pin.png',
+                      width: 12,
+                      height: 12,
+                    ),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        widget.lokasi,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontSize: 11,
+                          color: AppColors.detailBody,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShareOptions() {
+    const options = [
+      ('WhatsApp', 'pasar_share_whatsapp.png', 26.0),
+      ('Telegram', 'pasar_share_telegram.png', 25.0),
+      ('Facebook', 'pasar_share_facebook.png', 25.0),
+      ('Lainnya', 'pasar_share_more.png', 25.0),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          _isEnglish ? 'Share via' : 'Bagikan melalui',
+          style: const TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: AppColors.pine900,
+          ),
+        ),
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            for (final (label, asset, size) in options)
+              Expanded(
+                child: InkWell(
+                  onTap: () => _shareTo(label),
+                  borderRadius: BorderRadius.circular(20),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: AppColors.mintSoft,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: Image.asset(
+                            '$_assetRoot$asset',
+                            width: size,
+                            height: size,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _isEnglish && label == 'Lainnya' ? 'More' : label,
+                        style: const TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.pine900,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLinkSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          _isEnglish ? 'Destination link' : 'Tautan destinasi',
+          style: const TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: AppColors.pine900,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          height: 42,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.detailBorder),
+          ),
+          child: Row(
+            children: [
+              Image.asset(
+                '${_assetRoot}pasar_share_link.png',
+                width: 16,
+                height: 16,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  _displayUrl,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 12,
+                    color: AppColors.detailBody,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (_shareUrl == null || _feedback != null) ...[
+          const SizedBox(height: 5),
+          Text(
+            _feedback ??
+                (_isEnglish
+                    ? 'Link preview — not available to the public yet.'
+                    : 'Pratinjau tautan — belum aktif untuk publik.'),
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontSize: 10,
+              fontWeight: _feedback == null ? FontWeight.w400 : FontWeight.w700,
+              color: _feedback == null
+                  ? AppColors.textSecondary
+                  : AppColors.earth,
+            ),
+          ),
+        ],
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 52,
+          width: double.infinity,
+          child: FilledButton(
+            onPressed: _copyLink,
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.pine800,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            child: Text(
+              _isEnglish ? 'COPY LINK' : 'SALIN TAUTAN',
+              style: const TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../destinasi/destinasi_screen.dart';
 import '../detail_wisata/detail_wisata_screen.dart';
+import '../detail_wisata/widgets/destinasi_share_sheet.dart';
 import '../eksplor/eksplor_screen.dart';
 import '../event/event_screen.dart';
 import '../paket/paket_screen.dart';
@@ -1702,11 +1703,17 @@ class _UnggulanState extends State<_UnggulanSection> {
   }
 }
 
-class _CarouselCard extends StatelessWidget {
+class _CarouselCard extends StatefulWidget {
   final _WisataData item;
   final bool active;
 
   const _CarouselCard({required this.item, required this.active});
+
+  @override
+  State<_CarouselCard> createState() => _CarouselCardState();
+}
+
+class _CarouselCardState extends State<_CarouselCard> {
 
   String _translateBadge(String raw, bool isEn) {
     if (!isEn) return raw;
@@ -1733,15 +1740,24 @@ class _CarouselCard extends StatelessWidget {
     return raw.replaceAll('/orang', '/person').replaceAll('/tur', '/tour');
   }
 
+  bool _cardHovered = false;
+  bool _shareHovered = false;
+  bool _sharePressed = false;
+
   @override
   Widget build(BuildContext context) {
+    final item = widget.item;
+    final active = widget.active;
     final isEn = context.watch<LanguageProvider>().isEnglish;
     final descText = (isEn && item.deskripsiEn != null && item.deskripsiEn!.isNotEmpty)
         ? item.deskripsiEn!
         : item.deskripsi;
     final ulasanText = isEn ? item.ulasan.replaceAll('ulasan', 'reviews') : item.ulasan;
 
-    return GestureDetector(
+    return MouseRegion(
+      onEnter: (_) => setState(() => _cardHovered = true),
+      onExit: (_) => setState(() => _cardHovered = false),
+      child: GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
         Navigator.pushNamed(
@@ -1755,7 +1771,11 @@ class _CarouselCard extends StatelessWidget {
           },
         );
       },
-      child: Container(
+      child: AnimatedScale(
+        scale: _cardHovered ? 1.015 : 1.0,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
@@ -1809,6 +1829,54 @@ class _CarouselCard extends StatelessWidget {
                             color: item.badgeColor != null ? Colors.white : AppColors.pine700,
                             letterSpacing: 0.2,
                             fontFamily: 'PlusJakartaSans',
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Share button (hover overlay)
+                    Positioned(
+                      right: 14,
+                      top: 14,
+                      child: AnimatedOpacity(
+                        opacity: (_cardHovered || _shareHovered) ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 180),
+                        child: MouseRegion(
+                          onEnter: (_) => setState(() => _shareHovered = true),
+                          onExit: (_) => setState(() => _shareHovered = false),
+                          child: GestureDetector(
+                            onTapDown: (_) => setState(() => _sharePressed = true),
+                            onTapUp: (_) => setState(() => _sharePressed = false),
+                            onTapCancel: () => setState(() => _sharePressed = false),
+                            onTap: () => showDestinasiShareSheet(
+                              context,
+                              namaDesa: item.nama,
+                              lokasi: item.kabupaten,
+                              foto: item.foto ?? '',
+                            ),
+                            child: AnimatedScale(
+                              scale: _sharePressed ? 0.92 : (_shareHovered ? 1.1 : 1.0),
+                              duration: const Duration(milliseconds: 120),
+                              child: Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.95),
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.12),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.ios_share_rounded,
+                                  size: 18,
+                                  color: AppColors.pine900,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -1971,10 +2039,13 @@ class _CarouselCard extends StatelessWidget {
           ),
         ),
       ),
-    );
+      ),
+    ));
   }
 
   Widget _cardButton(BuildContext context, bool isEn) {
+    final item = widget.item;
+    final active = widget.active;
     if (active) {
       // Tombol kartu aktif: pill gelap "Detail →" (87×28)
       return GestureDetector(
@@ -2350,9 +2421,9 @@ class _EventCard extends StatelessWidget {
           ),
         ],
       ),
-    ),
-  );
-}
+      ),
+);
+  }
 }
 
 // ─── Footer ──────────────────────────────────────────────────────────────────

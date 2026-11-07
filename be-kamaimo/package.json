@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "db:import": "node database/import_backup.js",
+    "db:seed": "node database/seed_full.js"
   },
   "keywords": [],
   "author": "",

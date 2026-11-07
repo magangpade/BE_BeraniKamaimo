@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:berani_kamaimo/core/providers/language_provider.dart';
 import 'package:berani_kamaimo/features/user/detail_wisata/detail_wisata_screen.dart';
 import 'package:berani_kamaimo/models/jarak_desa.dart';
 import 'package:berani_kamaimo/models/ulasan.dart';
@@ -26,6 +28,11 @@ Ulasan _ulasan() => const Ulasan(
       createdAt: '2024-06-15',
     );
 
+Widget _wrap(Widget child) => ChangeNotifierProvider(
+      create: (_) => LanguageProvider(),
+      child: MaterialApp(home: child),
+    );
+
 void main() {
   testWidgets('menampilkan hero + 4 section sesuai frame Figma Detail Wisata',
       (tester) async {
@@ -33,8 +40,7 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(MaterialApp(
-      home: DetailWisataScreen(
+    await tester.pumpWidget(_wrap(DetailWisataScreen(
         desaId: 1,
         namaDesa: 'Luk Panenteng',
         lokasi: 'Banggai Kepulauan, Sulawesi Tengah',
@@ -86,8 +92,7 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(MaterialApp(
-      home: DetailWisataScreen(
+    await tester.pumpWidget(_wrap(DetailWisataScreen(
         desaId: 1,
         namaDesa: 'Luk Panenteng',
         lokasi: 'Banggai Kepulauan, Sulawesi Tengah',
@@ -118,8 +123,7 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(MaterialApp(
-      home: DetailWisataScreen(
+    await tester.pumpWidget(_wrap(DetailWisataScreen(
         desaId: 1,
         namaDesa: 'Luk Panenteng',
         lokasi: 'Banggai Kepulauan, Sulawesi Tengah',
