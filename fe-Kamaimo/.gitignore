@@ -47,6 +47,4 @@ app.*.map.json
 # Widget Preview related
 .widget_preview/
 
-# Uploads cache
-assets/images/uploads/*
-!assets/images/uploads/.gitkeep
+

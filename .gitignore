@@ -4,6 +4,3 @@ node_modules/
 .DS_Store
 .dart_tool/
 build/
-fe-Kamaimo/assets/images/uploads/
-be-kamaimo/public/uploads/
-be-kamaimo/public/uploads_renamed/
