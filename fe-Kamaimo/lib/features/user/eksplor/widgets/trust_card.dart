@@ -24,8 +24,8 @@ class TrustCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 42,
-            height: 42,
+            width: 44,
+            height: 44,
             decoration: const BoxDecoration(
               color: AppColors.emerald100,
               shape: BoxShape.circle,

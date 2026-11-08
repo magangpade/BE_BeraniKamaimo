@@ -238,7 +238,7 @@ class _EventShareSheetState extends State<_EventShareSheet> {
               customBorder: const CircleBorder(),
               child: Container(
                 width: 32,
-                height: 32,
+                height: 44,
                 decoration: BoxDecoration(
                   color: const Color(0xFFF7FAF7),
                   shape: BoxShape.circle,
@@ -383,7 +383,7 @@ class _EventShareSheetState extends State<_EventShareSheet> {
                     children: [
                       Container(
                         width: 56,
-                        height: 56,
+                        height: 44,
                         decoration: BoxDecoration(
                           color: AppColors.mintSoft,
                           borderRadius: BorderRadius.circular(20),
@@ -485,7 +485,7 @@ class _EventShareSheetState extends State<_EventShareSheet> {
         ],
         const SizedBox(height: 10),
         SizedBox(
-          height: 52,
+          height: 44,
           width: double.infinity,
           child: FilledButton(
             onPressed: _copyLink,

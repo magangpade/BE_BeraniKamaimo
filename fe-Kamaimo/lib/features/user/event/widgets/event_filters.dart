@@ -46,18 +46,19 @@ class EventFilters extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 30,
+          height: 44,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: labels.length,
+            itemCount: visibleCategories.length,
             separatorBuilder: (_, _) => const SizedBox(width: 8),
             itemBuilder: (ctx, i) {
               final active = i == kategoriIndex;
               return GestureDetector(
                 onTap: () => onKategori(i),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  height: 44,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     color: active ? AppColors.pine700 : Colors.white,
                     borderRadius: BorderRadius.circular(9999),
@@ -66,9 +67,10 @@ class EventFilters extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Text(
                     visibleCategories[i],
+                    maxLines: 1,
                     style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: active ? FontWeight.w700 : FontWeight.w600,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
                       color: active ? Colors.white : AppColors.pine900,
                       fontFamily: 'PlusJakartaSans',
                     ),
@@ -135,7 +137,7 @@ class _DropdownPill extends StatelessWidget {
         for (final item in items)
           PopupMenuItem(
             value: item,
-            height: 34,
+            height: 44,
             child: Text(
               item,
               style: TextStyle(
@@ -148,8 +150,8 @@ class _DropdownPill extends StatelessWidget {
           ),
       ],
       child: Container(
-        height: 34,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
+        height: 44,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(9999),
@@ -157,14 +159,14 @@ class _DropdownPill extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, size: 12, color: AppColors.pine700),
-            const SizedBox(width: 5),
+            Icon(icon, size: 13, color: AppColors.pine700),
+            const SizedBox(width: 6),
             Expanded(
               child: Text(
                 label,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: AppColors.pine900,
                   fontFamily: 'PlusJakartaSans',
@@ -173,7 +175,7 @@ class _DropdownPill extends StatelessWidget {
             ),
             const Icon(
               Icons.keyboard_arrow_down_rounded,
-              size: 14,
+              size: 16,
               color: AppColors.textTertiary,
             ),
           ],

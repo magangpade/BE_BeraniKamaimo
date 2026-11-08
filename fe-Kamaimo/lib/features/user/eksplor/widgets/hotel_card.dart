@@ -209,6 +209,7 @@ class HotelCard extends StatelessWidget {
                         onTelepon: onTelepon != null ? () => onTelepon!(item) : null,
                         onMaps: onMaps != null ? () => onMaps!(item) : null,
                         onWebsite: onWebsite != null ? () => onWebsite!(item) : null,
+                        itemName: item.nama,
                       ),
                     ],
                   ),

@@ -19,7 +19,7 @@ class PaketHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 30,
+            height: 44,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: AppColors.emerald100,
@@ -34,16 +34,21 @@ class PaketHeader extends StatelessWidget {
                   color: AppColors.emerald600,
                 ),
                 const SizedBox(width: 6),
-                Text(
-                  isEnglish
-                      ? 'OFFICIAL & HPI ACCREDITED'
-                      : 'RESMI DINAS & TERAKREDITASI HPI',
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.emerald600,
-                    letterSpacing: 0.3,
-                    fontFamily: 'PlusJakartaSans',
+                Flexible(
+                  child: Text(
+                    isEnglish
+                        ? 'OFFICIAL & HPI ACCREDITED'
+                        : 'RESMI DINAS & TERAKREDITASI HPI',
+                    key: const Key('paketAkreditasiChip'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.emerald600,
+                      letterSpacing: 0.2,
+                      fontFamily: 'PlusJakartaSans',
+                    ),
                   ),
                 ),
               ],

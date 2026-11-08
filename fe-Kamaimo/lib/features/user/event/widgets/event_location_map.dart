@@ -128,10 +128,13 @@ class EventLocationMap extends StatelessWidget {
                 style: FilledButton.styleFrom(
                   backgroundColor: const Color(0xFFECF4EE),
                   foregroundColor: AppColors.pine700,
-                  minimumSize: const Size(0, 42),
+                  minimumSize: const Size(0, 44),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(9999),
+                  ),
                   textStyle: const TextStyle(
                     fontFamily: 'PlusJakartaSans',
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -143,8 +146,8 @@ class EventLocationMap extends StatelessWidget {
                     Flexible(
                       child: Text(
                         isEnglish
-                            ? 'Open Directions in Google Maps'
-                            : 'Buka Petunjuk di Google Maps',
+                            ? 'Directions to ${detail.mapLabel}'
+                            : 'Petunjuk ke ${detail.mapLabel}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,

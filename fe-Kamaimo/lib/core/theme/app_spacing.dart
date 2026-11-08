@@ -22,6 +22,11 @@ class AppSpacing {
   static const double radius24 = 24.0;
   static const double radiusFull = 9999.0;
 
+  // Standard button sizes
+  static const double buttonHeight = 44.0;
+  static const double buttonHeightSmall = 36.0;
+  static const double buttonHeightLarge = 52.0;
+
   // Common inset
   static const EdgeInsets insetAll8 = EdgeInsets.all(spacing8);
   static const EdgeInsets insetAll12 = EdgeInsets.all(spacing12);
