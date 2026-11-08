@@ -21,7 +21,8 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
   int _filter = 0;
   String _query = '';
 
-  static const _labels = ['Semua', 'Budaya', 'Bahari', 'UMKM', 'EKOWISATA'];
+  static const _defaultCategories = ['Semua', 'Budaya', 'Bahari', 'UMKM', 'EKOWISATA'];
+  List<String> _categories = _defaultCategories;
 
   static const _defaultFeatured = _Item(
     id: 23,
@@ -146,6 +147,21 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
           final feat = featMatch.isNotEmpty ? featMatch.first : items.first;
           _featured = feat;
           _cards = items.where((it) => it.id != feat.id).toList();
+
+          // Kategori dinamis dari data database aktual
+          final dbCats = <String>{};
+          for (final d in list) {
+            if (d.kategori.trim().isNotEmpty) {
+              dbCats.add(d.kategori.trim());
+            }
+          }
+          if (dbCats.isNotEmpty) {
+            final catList = ['Semua', ...dbCats];
+            _categories = catList;
+            if (_filter >= _categories.length) {
+              _filter = 0;
+            }
+          }
         });
       }
     } catch (_) {}
@@ -167,7 +183,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
     final isEn = context.watch<LanguageProvider>().isEnglish;
     final shown = _cards
         .where((it) =>
-            (_filter == 0 || it.kategori == _labels[_filter].toUpperCase()) &&
+            (_filter == 0 || it.kategori == _categories[_filter].toUpperCase()) &&
             (_query.isEmpty ||
                 it.nama.toLowerCase().contains(_query) ||
                 it.kabupaten.toLowerCase().contains(_query) ||
@@ -201,6 +217,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
                   ),
                   const SizedBox(height: 13),
                   _FilterChips(
+                    categories: _categories,
                     selectedIndex: _filter,
                     onTap: (i) => setState(() => _filter = i),
                   ),
@@ -446,28 +463,48 @@ class _Glow extends StatelessWidget {
 }
 
 class _FilterChips extends StatelessWidget {
+  final List<String> categories;
   final int selectedIndex;
   final ValueChanged<int> onTap;
 
-  const _FilterChips({required this.selectedIndex, required this.onTap});
+  const _FilterChips({
+    required this.categories,
+    required this.selectedIndex,
+    required this.onTap,
+  });
 
-  static const _labelsId = ['Semua', 'Budaya', 'Bahari', 'UMKM', 'EKOWISATA'];
-  static const _labelsEn = ['All', 'Culture', 'Marine', 'MSME', 'Ecotourism'];
+  static String _labelEn(String cat) {
+    switch (cat.toUpperCase()) {
+      case 'SEMUA':
+        return 'All';
+      case 'BUDAYA':
+        return 'Culture';
+      case 'BAHARI':
+        return 'Marine';
+      case 'UMKM':
+        return 'MSME';
+      case 'EKOWISATA':
+        return 'Ecotourism';
+      default:
+        return cat;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final isEn = context.watch<LanguageProvider>().isEnglish;
-    final labels = isEn ? _labelsEn : _labelsId;
 
     return SizedBox(
       height: 30,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: labels.length,
+        itemCount: categories.length,
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (ctx, i) {
           final active = i == selectedIndex;
+          final cat = categories[i];
+          final label = isEn ? _labelEn(cat) : cat;
           return GestureDetector(
             onTap: () => onTap(i),
             child: Container(
@@ -479,7 +516,7 @@ class _FilterChips extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Text(
-                labels[i],
+                label,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: active ? FontWeight.w700 : FontWeight.w600,
