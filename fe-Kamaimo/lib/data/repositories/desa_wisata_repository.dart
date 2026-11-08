@@ -33,6 +33,21 @@ class DesaWisataRepository {
         .toList();
   }
 
+  Future<List<String>> getCategories() async {
+    try {
+      final raw = await _apiClient.get('${ApiConfig.desaWisata}/categories');
+      List<dynamic> jsonList = [];
+      if (raw is List) {
+        jsonList = raw;
+      } else if (raw is Map && raw['data'] is List) {
+        jsonList = raw['data'] as List;
+      }
+      return jsonList.map((e) => e.toString()).where((e) => e.trim().isNotEmpty).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
   Future<DesaWisata?> getById(int id) async {
     final raw = await _apiClient.get('${ApiConfig.desaWisata}/$id');
     if (raw == null || (raw is Map && raw.isEmpty)) return null;

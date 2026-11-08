@@ -12,7 +12,7 @@ async function addCol(c, name, def) {
     }
   } catch (err) {
     console.log(`Error adding ${name}:`, err.message);
-  }
+  }uter
 }
 
 async function main() {
