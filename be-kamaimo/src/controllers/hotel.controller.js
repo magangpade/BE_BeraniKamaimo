@@ -27,14 +27,17 @@ exports.detail = asyncHandler(async (req, res) => {
 });
 exports.create = asyncHandler(async (req, res) => {
   const b = req.body;
-  if (!b.nama_hotel) throw ApiError.badRequest('nama_hotel wajib');
+  if (!b.nama_hotel || !b.lokasi || !b.telepon || !b.link_gmaps || !b.foto)
+    throw ApiError.badRequest('Nama, lokasi, telepon, peta, dan foto hotel wajib diisi');
   const [r] = await pool.query(
     `INSERT INTO hotel (nama_hotel, telepon, jumlah_kamar, jumlah_tempatTidur,
-      harga_minimum, harga_maximum, website, link_gmaps, lokasi, foto, link_video)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+      harga_minimum, harga_maximum, website, link_gmaps, lokasi, foto, link_video,
+      wilayah, tag, highlight)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
     [b.nama_hotel, b.telepon||'', b.jumlah_kamar||0, b.jumlah_tempatTidur||0,
      b.harga_minimum||0, b.harga_maximum||0, b.website||'', b.link_gmaps||'',
-     b.lokasi||'', b.foto||null, b.link_video||null]);
+     b.lokasi||'', b.foto||null, b.link_video||null,
+     b.wilayah||null, b.tag||null, b.highlight||null]);
   const [rows] = await pool.query('SELECT * FROM hotel WHERE id = ?', [r.insertId]);
   ApiResponse.created(res, rows[0]);
 });

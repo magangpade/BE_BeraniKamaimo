@@ -24,37 +24,40 @@ class KontakRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isEn = context.watch<LanguageProvider>().isEnglish;
+    final phoneAction = onTelepon ?? onTap;
+    final mapAction = onMaps ?? onTap;
+    final websiteAction = onWebsite ?? onTap;
     return Row(
       children: [
-        _KontakBtn(
-          label: isEn ? 'Chat${_short(itemName, isEn)}' : 'Chat${_short(itemName, isEn)}',
-          icon: Icons.chat_rounded,
-          iconColor: AppColors.emerald600,
-          onTap: onTelepon ?? onTap ?? () {},
-        ),
-        const SizedBox(width: 10),
-        _KontakBtn(
-          label: isEn ? 'Maps${_short(itemName, isEn)}' : 'Maps${_short(itemName, isEn)}',
-          icon: Icons.travel_explore_rounded,
-          iconColor: AppColors.pine900,
-          onTap: onMaps ?? onTap ?? () {},
-        ),
-        const SizedBox(width: 10),
-        _KontakBtn(
-          label: isEn ? 'Web${_short(itemName, isEn)}' : 'Web${_short(itemName, isEn)}',
-          icon: Icons.public_rounded,
-          iconColor: AppColors.emerald600,
-          onTap: onWebsite ?? onTap ?? () {},
-        ),
+        if (phoneAction != null) ...[
+          _KontakBtn(
+            label: isEn ? 'Call' : 'Telepon',
+            icon: Icons.call_rounded,
+            iconColor: AppColors.emerald600,
+            onTap: phoneAction,
+          ),
+        ],
+        if (mapAction != null) ...[
+          if (phoneAction != null) const SizedBox(width: 10),
+          _KontakBtn(
+            label: 'Maps',
+            icon: Icons.travel_explore_rounded,
+            iconColor: AppColors.pine900,
+            onTap: mapAction,
+          ),
+        ],
+        if (websiteAction != null) ...[
+          if (phoneAction != null || mapAction != null)
+            const SizedBox(width: 10),
+          _KontakBtn(
+            label: 'Website',
+            icon: Icons.public_rounded,
+            iconColor: AppColors.emerald600,
+            onTap: websiteAction,
+          ),
+        ],
       ],
     );
-  }
-
-  String _short(String? name, bool isEn) {
-    if (name == null || name.trim().isEmpty) return '';
-    final n = name.trim();
-    final short = n.length > 12 ? '${n.substring(0, 12)}…' : n;
-    return ' $short';
   }
 }
 
@@ -62,7 +65,7 @@ class _KontakBtn extends StatelessWidget {
   final String label;
   final IconData icon;
   final Color iconColor;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _KontakBtn({
     required this.label,

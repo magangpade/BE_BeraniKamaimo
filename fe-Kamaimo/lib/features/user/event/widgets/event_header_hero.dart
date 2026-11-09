@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../../core/widgets/kamaimo_image.dart';
+
 import 'package:provider/provider.dart';
 
 import '../../../../core/providers/language_provider.dart';
@@ -66,15 +69,11 @@ class EventHeaderHero extends StatelessWidget {
   Widget _heroImage(BuildContext context) {
     const fallbackAsset = 'assets/images/detail_wisata/hero_luk_panenteng.png';
     final f = foto.trim();
-    if (f.startsWith('assets/')) {
-      return Image.asset(
-        f,
-        fit: BoxFit.cover,
-        errorBuilder: (_, _, _) =>
-            Image.asset(fallbackAsset, fit: BoxFit.cover),
-      );
-    }
-    return Image.asset(fallbackAsset, fit: BoxFit.cover);
+    return KamaimoImage(
+      path: f,
+      fit: BoxFit.cover,
+      fallbackAsset: fallbackAsset,
+    );
   }
 }
 

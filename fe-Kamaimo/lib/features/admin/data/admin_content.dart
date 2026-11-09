@@ -147,7 +147,7 @@ class AdminContent {
         break;
       case 'rumahMakan':
         put('name', _value(row, 'resto'));
-        put('loc', _value(row, 'link_gmaps'));
+        put('loc', _first(row, ['lokasi', 'link_gmaps']));
         put(
           'tag',
           row['kulinerId'] == null ? null : 'Kuliner #${row['kulinerId']}',

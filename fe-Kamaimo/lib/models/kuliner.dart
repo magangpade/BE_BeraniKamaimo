@@ -11,24 +11,28 @@ class Kuliner {
     this.tag,
     this.bahan,
     this.linkGmaps,
+    this.telepon,
+    this.website,
     this.foto,
     this.linkVideo,
   });
 
   factory Kuliner.fromJson(Map<String, dynamic> json) => Kuliner(
-        id: json['id'] as int,
-        nama_makanan: json['nama_makanan'] as String? ?? '',
-        lokasi: json['lokasi'] as String? ?? '',
-        deskripsi_id: json['deskripsi_id'] as String? ?? '',
-        deskripsi_en: json['deskripsi_en'] as String?,
-        wilayah: json['wilayah'] as String?,
-        warung: json['warung'] as String?,
-        tag: json['tag'] as String?,
-        bahan: json['bahan'] as String?,
-        linkGmaps: json['link_gmaps'] as String?,
-        foto: json['foto'] as String?,
-        linkVideo: json['link_video'] as String?,
-      );
+    id: json['id'] as int,
+    nama_makanan: json['nama_makanan'] as String? ?? '',
+    lokasi: json['lokasi'] as String? ?? '',
+    deskripsi_id: json['deskripsi_id'] as String? ?? '',
+    deskripsi_en: json['deskripsi_en'] as String?,
+    wilayah: json['wilayah'] as String?,
+    warung: json['warung'] as String?,
+    tag: json['tag'] as String?,
+    bahan: json['bahan'] as String?,
+    linkGmaps: json['link_gmaps'] as String?,
+    telepon: json['telepon'] as String?,
+    website: json['website'] as String?,
+    foto: json['foto'] as String?,
+    linkVideo: json['link_video'] as String?,
+  );
 
   final int id;
   final String nama_makanan;
@@ -40,21 +44,23 @@ class Kuliner {
   final String? tag;
   final String? bahan;
   final String? linkGmaps;
+  final String? telepon;
+  final String? website;
   final String? foto;
   final String? linkVideo;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'nama_makanan': nama_makanan,
-        'lokasi': lokasi,
-        'deskripsi_id': deskripsi_id,
-        'deskripsi_en': deskripsi_en,
-        'wilayah': wilayah,
-        'warung': warung,
-        'tag': tag,
-        'bahan': bahan,
-        'link_gmaps': linkGmaps,
-        'foto': foto,
-        'link_video': linkVideo,
-      };
+    'id': id,
+    'nama_makanan': nama_makanan,
+    'lokasi': lokasi,
+    'deskripsi_id': deskripsi_id,
+    'deskripsi_en': deskripsi_en,
+    'wilayah': wilayah,
+    'warung': warung,
+    'tag': tag,
+    'bahan': bahan,
+    'link_gmaps': linkGmaps,
+    'foto': foto,
+    'link_video': linkVideo,
+  };
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../models/hotel.dart';
 import '../../../models/kuliner.dart';
 
@@ -42,29 +43,28 @@ class HotelItem {
   factory HotelItem.fromModel(Hotel h) {
     return HotelItem(
       id: h.id,
-      foto: h.foto != null && h.foto!.isNotEmpty ? h.foto! : 'assets/images/eksplor/hotel1.jpg',
+      foto: h.foto != null && h.foto!.isNotEmpty
+          ? h.foto!
+          : 'assets/images/eksplor/hotel1.jpg',
       nama: h.nama_hotel,
       wilayah: h.wilayah != null && h.wilayah!.isNotEmpty
           ? h.wilayah!
-          : (h.lokasi.contains('Palu')
-              ? 'Palu'
-              : (h.lokasi.contains('Luwuk') ? 'Luwuk' : 'Ampana & Togean')),
+          : (h.lokasi.isNotEmpty ? h.lokasi : 'Sulawesi Tengah'),
       lokasi: h.lokasi,
-      tag: h.tag != null && h.tag!.isNotEmpty ? h.tag! : 'Akomodasi Nyaman',
+      tag: h.tag ?? '',
       rating: h.rating,
       ratingCount: h.rating_count,
-      highlight: h.highlight != null && h.highlight!.isNotEmpty
-          ? h.highlight!
-          : 'Pilihan Terbaik',
-      harga: h.harga_minimum > 0 ? h.harga_minimum : 450000,
+      highlight: h.highlight ?? '',
+      harga: h.harga_minimum,
       hargaCoret: h.harga_maximum > 0 ? h.harga_maximum : null,
       telepon: h.telepon,
       website: h.website,
       linkGmaps: h.linkGmaps,
       chips: [
-        (Icons.apartment_rounded, '${h.jumlah_kamar > 0 ? h.jumlah_kamar : 24} Kamar'),
-        (Icons.king_bed_rounded, '${h.jumlah_tempatTidur > 0 ? h.jumlah_tempatTidur : 2} Tempat Tidur'),
-        (Icons.waves_rounded, 'Panorama Alam'),
+        if (h.jumlah_kamar > 0)
+          (Icons.apartment_rounded, '${h.jumlah_kamar} Kamar'),
+        if (h.jumlah_tempatTidur > 0)
+          (Icons.king_bed_rounded, '${h.jumlah_tempatTidur} Tempat Tidur'),
       ],
     );
   }
@@ -81,6 +81,7 @@ class KulinerItem {
   final List<(String, ChipKind)> bahan;
   final String linkGmaps;
   final String telepon;
+  final String website;
 
   const KulinerItem({
     this.id,
@@ -93,6 +94,7 @@ class KulinerItem {
     this.tag,
     this.linkGmaps = '',
     this.telepon = '',
+    this.website = '',
   });
 
   factory KulinerItem.fromModel(Kuliner k) {
@@ -106,28 +108,24 @@ class KulinerItem {
             : (i % 3 == 1 ? ChipKind.peach : ChipKind.cream);
         bahanList.add((p, kind));
       }
-    } else {
-      bahanList = const [
-        ('🌿 Rempah Tradisional', ChipKind.mint),
-        ('🌶️ Bumbu Khas Sulteng', ChipKind.peach),
-        ('🍲 Resep Warisan', ChipKind.cream),
-      ];
     }
 
     return KulinerItem(
       id: k.id,
-      foto: k.foto != null && k.foto!.isNotEmpty ? k.foto! : 'assets/images/eksplor/kuliner1.jpg',
+      foto: k.foto != null && k.foto!.isNotEmpty
+          ? k.foto!
+          : 'assets/images/eksplor/kuliner1.jpg',
       nama: k.nama_makanan,
-      warung: k.warung != null && k.warung!.isNotEmpty
-          ? k.warung!
-          : (k.lokasi.isNotEmpty ? 'Khas ${k.lokasi}' : 'Khas Sulawesi Tengah'),
+      warung: k.warung != null && k.warung!.isNotEmpty ? k.warung! : k.lokasi,
       wilayah: k.wilayah != null && k.wilayah!.isNotEmpty
           ? k.wilayah!
-          : (k.lokasi.contains('Donggala') ? 'Donggala' : 'Palu'),
+          : (k.lokasi.isNotEmpty ? k.lokasi : 'Sulawesi Tengah'),
       tag: k.tag,
       deskripsi: k.deskripsi_id,
       bahan: bahanList,
       linkGmaps: k.linkGmaps ?? '',
+      telepon: k.telepon ?? '',
+      website: k.website ?? '',
     );
   }
 }

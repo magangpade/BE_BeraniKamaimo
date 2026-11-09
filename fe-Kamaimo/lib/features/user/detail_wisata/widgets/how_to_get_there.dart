@@ -6,7 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../models/jarak_desa.dart';
 
 /// Section "How to Get There" (AKSESIBILITAS & RUTE) sesuai frame 4714:452:
-/// segmented pill Luwuk/Palu (data `titikKota`) + kartu rute Laut/Darat/Udara
+/// pilihan asal dari data `titikKota` + kartu rute Laut/Darat/Udara
 /// dari field `jalur_laut` / `jalur_darat` / `jalur_udara`.
 class HowToGetThere extends StatefulWidget {
   final String namaDesa;
@@ -24,18 +24,20 @@ class HowToGetThere extends StatefulWidget {
 
 class _HowToGetThereState extends State<HowToGetThere> {
   /// Default tab Luwuk = "Rute Tercepat" sesuai Figma.
-  String _selected = 'LUWUK';
+  String? _selected;
 
   JarakDesa? get _active {
     final list = widget.jarakList;
     if (list.isEmpty) return null;
-    return list.any((j) => j.titikKota == _selected)
-        ? list.firstWhere((j) => j.titikKota == _selected)
-        : null;
+    final selected = _selected ?? list.first.titikKota;
+    return list.any((j) => j.titikKota == selected)
+        ? list.firstWhere((j) => j.titikKota == selected)
+        : list.first;
   }
 
-  String _namaTik(String titikKota) =>
-      titikKota == 'PALU' ? 'Palu' : (titikKota == 'LUWUK' ? 'Luwuk' : titikKota);
+  String _namaTik(String titikKota) => titikKota == 'PALU'
+      ? 'Palu'
+      : (titikKota == 'LUWUK' ? 'Luwuk' : titikKota);
 
   @override
   Widget build(BuildContext context) {
@@ -72,45 +74,59 @@ class _HowToGetThereState extends State<HowToGetThere> {
         ),
         const SizedBox(height: 12),
 
-        // Modern Segmented Pill Switcher (selalu 2 tab sesuai Figma;
-        // tab tanpa data → empty state)
+        // Asal rute berasal dari data desa, termasuk wilayah baru dari admin.
         Container(
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
             color: AppColors.detailBorder,
             borderRadius: BorderRadius.circular(9999),
           ),
-          child: Row(
-            children: [
-              _SegmentButton(
-                label: isEn
-                    ? 'From Luwuk (Fastest Route)'
-                    : 'Dari Luwuk (Rute Tercepat)',
-                selected: _selected == 'LUWUK',
-                onTap: () => setState(() => _selected = 'LUWUK'),
-              ),
-              _SegmentButton(
-                label: isEn
-                    ? 'From Palu (Capital City)'
-                    : 'Dari Palu (Ibukota)',
-                selected: _selected == 'PALU',
-                onTap: () => setState(() => _selected = 'PALU'),
-              ),
-            ],
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (final origin
+                    in widget.jarakList.map((j) => j.titikKota).toSet())
+                  _SegmentButton(
+                    label: '${isEn ? 'From' : 'Dari'} ${_namaTik(origin)}',
+                    selected:
+                        (_selected ?? widget.jarakList.first.titikKota) ==
+                        origin,
+                    onTap: () => setState(() => _selected = origin),
+                  ),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 12),
         if (jarak != null) ...[
-          _RouteCard(jalur: Jalur.laut, deskripsi: jarak.jalur_laut),
-          const SizedBox(height: 14),
-          _RouteCard(jalur: Jalur.darat, deskripsi: jarak.jalur_darat),
-          const SizedBox(height: 14),
-          _RouteCard(jalur: Jalur.udara, deskripsi: jarak.jalur_udara),
+          if (jarak.jalur_laut.trim().isNotEmpty) ...[
+            _RouteCard(
+              jalur: Jalur.laut,
+              deskripsi: jarak.jalur_laut,
+              info: jarak.laut,
+            ),
+            const SizedBox(height: 14),
+          ],
+          if (jarak.jalur_darat.trim().isNotEmpty) ...[
+            _RouteCard(
+              jalur: Jalur.darat,
+              deskripsi: jarak.jalur_darat,
+              info: jarak.darat,
+            ),
+            const SizedBox(height: 14),
+          ],
+          if (jarak.jalur_udara.trim().isNotEmpty)
+            _RouteCard(
+              jalur: Jalur.udara,
+              deskripsi: jarak.jalur_udara,
+              info: jarak.udara,
+            ),
         ] else
           Text(
             isEn
-                ? 'Routes from ${_namaTik(jarak?.titikKota ?? _selected)} are not yet available.'
-                : 'Rute dari ${_namaTik(jarak?.titikKota ?? _selected)} belum tersedia.',
+                ? 'Routes from ${_namaTik(jarak?.titikKota ?? _selected ?? '')} are not yet available.'
+                : 'Rute dari ${_namaTik(jarak?.titikKota ?? _selected ?? '')} belum tersedia.',
             style: const TextStyle(
               fontSize: 12,
               height: 19.5 / 12,
@@ -136,45 +152,40 @@ class _SegmentButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          margin: EdgeInsets.only(right: _rightMargin),
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          decoration: BoxDecoration(
-            color: selected ? AppColors.pine800 : Colors.transparent,
-            borderRadius: BorderRadius.circular(9999),
-            boxShadow: selected
-                ? const [
-                    BoxShadow(
-                      color: Color(0x1A000000),
-                      offset: Offset(0, 4),
-                      blurRadius: 6,
-                    ), // 0px 4px 6px -1px rgba(0,0,0,0.1)
-                  ]
-                : null,
-          ),
-          child: Center(
-            child: Text(
-              label,
-              maxLines: 2,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                height: 16 / 12,
-                color:
-                    selected ? AppColors.textOnPrimary : AppColors.detailBody,
-              ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(right: 4),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.pine800 : Colors.transparent,
+          borderRadius: BorderRadius.circular(9999),
+          boxShadow: selected
+              ? const [
+                  BoxShadow(
+                    color: Color(0x1A000000),
+                    offset: Offset(0, 4),
+                    blurRadius: 6,
+                  ), // 0px 4px 6px -1px rgba(0,0,0,0.1)
+                ]
+              : null,
+        ),
+        child: Center(
+          child: Text(
+            label,
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              height: 16 / 12,
+              color: selected ? AppColors.textOnPrimary : AppColors.detailBody,
             ),
           ),
         ),
       ),
     );
   }
-
-  double get _rightMargin => 0;
 }
 
 // ─── Kartu rute per jalur ───────────────────────────────────────────────────
@@ -186,10 +197,7 @@ class _JalurStyle {
   final Color accent;
   final IconData icon;
   final String label;
-  final String title;
-  final String? durasi;
-  final String? footerLabel;
-  final String? footerPrice;
+
   /// Padding vertikal pill durasi (default 12; jalur udara 4 sesuai Figma).
   final double pillVertical;
 
@@ -198,25 +206,15 @@ class _JalurStyle {
     required this.accent,
     required this.icon,
     required this.label,
-    required this.title,
-    this.durasi,
-    this.footerLabel,
-    this.footerPrice,
     this.pillVertical = 12,
   });
 }
 
-/// Judul, durasi, dan footer harga = placeholder demo sesuai Figma.
-/// (backend belum punya field terstruktur: durasi & harga per jalur)
 const _laut = _JalurStyle(
   badgeBg: AppColors.mintSoft,
   accent: AppColors.pine500,
   icon: Icons.directions_boat_rounded,
   label: 'JALUR LAUT',
-  title: 'Kapal Cepat / Feri\nPenyeberangan',
-  durasi: '2 jam',
-  footerLabel: 'Estimasi Tiket:',
-  footerPrice: 'Rp 65K – 120K',
 );
 
 const _darat = _JalurStyle(
@@ -224,10 +222,6 @@ const _darat = _JalurStyle(
   accent: AppColors.earth,
   icon: Icons.directions_car_rounded,
   label: 'JALUR DARAT',
-  title: 'Salakan ke Luk Panenteng\nvia Liang',
-  durasi: '1.5 Jam',
-  footerLabel: 'Rental\nKendaraan:',
-  footerPrice: 'Rp 250K– 400K / Hari',
 );
 
 const _udara = _JalurStyle(
@@ -235,8 +229,6 @@ const _udara = _JalurStyle(
   accent: AppColors.navySky,
   icon: Icons.flight_rounded,
   label: 'JALUR UDARA',
-  title: 'Bandara Syukuran\nAminuddin Amir (LUW)',
-  durasi: '30 Menit',
   pillVertical: 4, // pill kecil 24px sesuai Figma
 );
 
@@ -248,31 +240,9 @@ _JalurStyle _styleOf(Jalur jalur) =>
 class _RouteCard extends StatelessWidget {
   final Jalur jalur;
   final String deskripsi;
+  final JalurInfo? info;
 
-  const _RouteCard({required this.jalur, required this.deskripsi});
-
-  String _translateDeskripsi(String desc, bool isEn) {
-    if (!isEn) return desc;
-    if (desc.startsWith('Perjalanan darat aspal pesisir')) {
-      return 'Coastal paved road trip along karst hills by rental car or local ojek from Salakan directly to the lake gate.';
-    }
-    if (desc.startsWith('Berangkat dari Pelabuhan Rakyat Luwuk')) {
-      return 'Departs every morning from Luwuk Public Port to Salakan Port (Banggai Kepulauan) at 09:00 WITA.';
-    }
-    if (desc.startsWith('Penerbangan reguler terjadwal dari Makassar')) {
-      return 'Scheduled regular flights from Makassar (UPG) or Manado (MDC) to Luwuk Airport (Wings Air / Batik Air).';
-    }
-    if (desc.startsWith('Perjalanan darat trans-Sulawesi')) {
-      return 'Trans-Sulawesi overland trip from Palu to Luwuk by night bus (±10–12 hours), followed by ferry to Salakan and car to the village.';
-    }
-    if (desc.startsWith('Ferreguler KM dari Pelabuhan Pantoloan')) {
-      return 'Regular ferry from Pantoloan Port (Palu) to Luwuk on a non-daily schedule — check the latest schedule before departure.';
-    }
-    if (desc.startsWith('Penerbangan dari Palu (PLW)')) {
-      return 'Flights from Palu (PLW) generally transit via Makassar (UPG) or Manado (MDC) to Luwuk Airport (Wings Air / Batik Air).';
-    }
-    return desc;
-  }
+  const _RouteCard({required this.jalur, required this.deskripsi, this.info});
 
   @override
   Widget build(BuildContext context) {
@@ -281,27 +251,23 @@ class _RouteCard extends StatelessWidget {
     final labelText = !isEn
         ? s.label
         : (jalur == Jalur.laut
-            ? 'SEA ROUTE'
-            : (jalur == Jalur.darat ? 'LAND ROUTE' : 'AIR ROUTE'));
-    final titleText = !isEn
-        ? s.title
-        : (jalur == Jalur.laut
-            ? 'Speedboat / Ferry\nCrossing'
-            : (jalur == Jalur.darat
-                ? 'Salakan to Luk Panenteng\nvia Liang'
-                : 'Syukuran Aminuddin\nAmir Airport (LUW)'));
-    final durasiText = !isEn || s.durasi == null
-        ? s.durasi
-        : s.durasi!
-            .replaceAll('jam', 'hrs')
-            .replaceAll('Jam', 'Hrs')
-            .replaceAll('Menit', 'Mins');
-    final footerLabelText = !isEn || s.footerLabel == null
-        ? s.footerLabel
-        : (jalur == Jalur.laut ? 'Estimated Ticket:' : 'Vehicle\nRental:');
-    final footerPriceText = !isEn || s.footerPrice == null
-        ? s.footerPrice
-        : s.footerPrice!.replaceAll('/ Hari', '/ Day');
+              ? 'SEA ROUTE'
+              : (jalur == Jalur.darat ? 'LAND ROUTE' : 'AIR ROUTE'));
+    final titleText = isEn && (info?.judulEn?.isNotEmpty ?? false)
+        ? info!.judulEn!
+        : (info?.judul?.isNotEmpty ?? false)
+        ? info!.judul!
+        : labelText;
+    final durasiText = info?.durasi == null || info!.durasi!.isEmpty
+        ? null
+        : (!isEn
+              ? info!.durasi
+              : info!.durasi!
+                    .replaceAll('jam', 'hrs')
+                    .replaceAll('Jam', 'Hrs')
+                    .replaceAll('Menit', 'Mins'));
+    final footerLabelText = isEn ? 'Estimated cost:' : 'Estimasi biaya:';
+    final footerPriceText = info?.biaya;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -389,7 +355,9 @@ class _RouteCard extends StatelessWidget {
 
           // Deskripsi rute (dari backend)
           Text(
-            _translateDeskripsi(deskripsi, isEn),
+            isEn && (info?.deskripsiEn?.isNotEmpty ?? false)
+                ? info!.deskripsiEn!
+                : deskripsi,
             style: const TextStyle(
               fontSize: 12,
               height: 19.5 / 12,
@@ -398,7 +366,7 @@ class _RouteCard extends StatelessWidget {
           ),
 
           // Footer harga (laut & darat saja, sesuai Figma)
-          if (footerLabelText != null) ...[
+          if (footerPriceText != null && footerPriceText.isNotEmpty) ...[
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
@@ -425,7 +393,7 @@ class _RouteCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    footerPriceText ?? '',
+                    footerPriceText,
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,

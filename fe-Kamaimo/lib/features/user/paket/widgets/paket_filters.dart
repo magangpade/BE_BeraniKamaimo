@@ -21,7 +21,7 @@ class PaketFilters extends StatelessWidget {
     final isEnglish = context.watch<LanguageProvider>().isEnglish;
     final labels = [
       for (var i = 0; i < PaketSeed.kategori.length; i++)
-        isEnglish ? const ['All', 'Marine', 'Culture', 'Trekking'][i] : PaketSeed.kategori[i],
+        isEnglish ? const ['All', 'Marine', 'Culture', 'Trekking', 'Ecotourism', 'MSME'][i] : PaketSeed.kategori[i],
     ];
     return SizedBox(
       height: 44,

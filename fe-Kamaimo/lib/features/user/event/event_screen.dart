@@ -27,6 +27,7 @@ class _EventScreenState extends State<EventScreen> {
   String? _wilayah;
   String _query = '';
   List<EventItem> _events = [];
+  bool _loadedBackend = false;
 
   DateTime get _now => DateTime.now();
 
@@ -40,9 +41,10 @@ class _EventScreenState extends State<EventScreen> {
     try {
       final repo = context.read<AtraksiRepository>();
       final list = await repo.getAll();
-      if (list.isNotEmpty && mounted) {
+      if (mounted) {
         setState(() {
           _events = list.map((a) => EventItem.fromModel(a)).toList();
+          _loadedBackend = true;
         });
       }
     } catch (_) {}
@@ -65,8 +67,16 @@ class _EventScreenState extends State<EventScreen> {
   Widget build(BuildContext context) {
     final isEnglish = context.watch<LanguageProvider?>()?.isEnglish ?? false;
     final q = _query.trim().toLowerCase();
-    final sourceList = _events.isNotEmpty ? _events : EventSeed.agenda;
-    final featuredItem = _events.isNotEmpty ? _events.first : EventSeed.featured;
+    final sourceList = _loadedBackend ? _events : EventSeed.agenda;
+    final featuredItem = _loadedBackend
+        ? (_events.isNotEmpty ? _events.first : null)
+        : EventSeed.featured;
+    final regions = <String>{
+      ...EventSeed.wilayahList,
+      ...sourceList
+          .map((event) => event.wilayah)
+          .where((value) => value.isNotEmpty),
+    }.toList();
     final shown = sourceList.where((e) {
       final cocokKategori =
           _kategori == 0 ||
@@ -102,7 +112,7 @@ class _EventScreenState extends State<EventScreen> {
                     kategoriIndex: _kategori,
                     tanggalIndex: _tanggal,
                     wilayah: _wilayah,
-                    wilayahList: EventSeed.wilayahList,
+                    wilayahList: regions,
                     onKategori: (i) => setState(() => _kategori = i),
                     onTanggal: (i) => setState(() => _tanggal = i),
                     onWilayah: (v) => setState(() => _wilayah = v),
@@ -114,7 +124,7 @@ class _EventScreenState extends State<EventScreen> {
                         ? 'Featured event this month'
                         : 'Event pilihan bulan ini',
                   ),
-                  if (_kategori == 0 && q.isEmpty) ...[
+                  if (_kategori == 0 && q.isEmpty && featuredItem != null) ...[
                     FeaturedEventCard(
                       item: featuredItem,
                       now: _now,

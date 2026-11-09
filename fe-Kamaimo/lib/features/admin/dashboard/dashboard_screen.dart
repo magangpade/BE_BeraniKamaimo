@@ -430,7 +430,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         side: BorderSide(color: color, width: 2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        minimumSize: const Size.fromHeight(56),
+        minimumSize: const Size(0, 56),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

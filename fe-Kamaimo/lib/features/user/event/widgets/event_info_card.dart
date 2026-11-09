@@ -44,14 +44,16 @@ class EventInfoCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Flexible(
-                child: _BadgeChip(
-                  label: badge,
-                  hasOutline: true,
-                  color: AppColors.goldChipBorder,
+              if (badge.trim().isNotEmpty) ...[
+                Flexible(
+                  child: _BadgeChip(
+                    label: badge,
+                    hasOutline: true,
+                    color: AppColors.goldChipBorder,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
+                const SizedBox(width: 8),
+              ],
               _KategoriChip(EventLocale.category(kategori, isEnglish)),
             ],
           ),

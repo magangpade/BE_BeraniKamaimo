@@ -19,10 +19,13 @@ exports.create = asyncHandler(async (req, res) => {
     throw ApiError.badRequest('nama_wisata_id & harga wajib');
   const [r] = await pool.query(
     `INSERT INTO tour_package (nama_wisata_id, nama_wisata_en, harga, deskripsi_id,
-      deskripsi_en, lokasi_id, lokasi_en, kontak, media, link_video)
-     VALUES (?,?,?,?,?,?,?,?,?,?)`,
+      deskripsi_en, lokasi_id, lokasi_en, kontak, media, link_video,
+      kategori, wilayah, durasi, tipe, tag, satuan, fasilitas, link_gmaps)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
     [b.nama_wisata_id, b.nama_wisata_en, b.harga, b.deskripsi_id||'',
-     b.deskripsi_en, b.lokasi_id||'', b.lokasi_en, b.kontak||'', b.media, b.link_video]);
+     b.deskripsi_en, b.lokasi_id||'', b.lokasi_en, b.kontak||'', b.media, b.link_video,
+     b.kategori||'EKOWISATA', b.wilayah||null, b.durasi||'', b.tipe||'',
+     b.tag||'', b.satuan||'/orang', b.fasilitas||'', b.link_gmaps||'']);
   const [rows] = await pool.query('SELECT * FROM tour_package WHERE id = ?', [r.insertId]);
   ApiResponse.created(res, rows[0]);
 });
@@ -31,7 +34,7 @@ exports.update = asyncHandler(async (req, res) => {
     table: 'tour_package', id: req.params.id, body: req.body,
     fields: ['nama_wisata_id', 'nama_wisata_en', 'harga', 'deskripsi_id',
       'deskripsi_en', 'lokasi_id', 'lokasi_en', 'kontak', 'media', 'link_video',
-      'kategori', 'durasi', 'tipe', 'fasilitas'],
+      'kategori', 'wilayah', 'durasi', 'tipe', 'tag', 'satuan', 'fasilitas', 'link_gmaps'],
     required: ['nama_wisata_id', 'harga'], label: 'Paket wisata',
   });
   ApiResponse.success(res, row, 'Paket wisata diperbarui');

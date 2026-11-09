@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/providers/language_provider.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/kamaimo_image.dart';
 import '../../../data/repositories/event_rating_repository.dart';
 import 'event_data.dart';
 import 'event_detail_data.dart';
@@ -46,7 +47,7 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
   @override
   void initState() {
     super.initState();
-    _detail = EventDetailSeed.of(widget.event.nama);
+    _detail = widget.event.detail ?? EventDetailSeed.of(widget.event.nama);
   }
 
   @override
@@ -73,9 +74,14 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
   @override
   Widget build(BuildContext context) {
     final isEnglish = context.watch<LanguageProvider?>()?.isEnglish ?? false;
-    final d = isEnglish
+    final d = !isEnglish ? _detail : widget.event.detail == null
         ? EventEnglishDetail.of(widget.event.nama, _detail)
-        : _detail;
+        : _detail.withText(
+            lokasi: EventLocale.location(widget.event, true),
+            tentang: EventLocale.description(widget.event, true),
+            program: widget.event.programEn,
+            rundown: widget.event.rundownEn,
+          );
     return Scaffold(
       backgroundColor: AppColors.detailBackground,
       body: CustomScrollView(
@@ -292,7 +298,7 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                               color: AppColors.surfaceElevated,
                               borderRadius: BorderRadius.circular(14),
                             ),
-                            child: foto == null
+                            child: foto == null || foto.isEmpty
                                 ? Icon(
                                     _programIcon(parts.first),
                                     size: 32,
@@ -300,8 +306,8 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                                   )
                                 : ClipRRect(
                                     borderRadius: BorderRadius.circular(14),
-                                    child: Image.asset(
-                                      foto,
+                                    child: KamaimoImage(
+                                      path: foto,
                                       width: 64,
                                       height: 64,
                                       fit: BoxFit.cover,
@@ -352,14 +358,18 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
           ),
 
           // JADWAL & RUNDOWN
-          SliverToBoxAdapter(
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              padding: const EdgeInsets.all(20),
-              decoration: _cardDecoration,
-              child: _RundownSection(rundown: d.rundown, zonaWita: d.zonaWita),
+          if (d.rundown.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                padding: const EdgeInsets.all(20),
+                decoration: _cardDecoration,
+                child: _RundownSection(
+                  rundown: d.rundown,
+                  zonaWita: d.zonaWita,
+                ),
+              ),
             ),
-          ),
 
           // LOKASI & AKSES
           SliverToBoxAdapter(
@@ -443,60 +453,61 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
           ),
 
           // FOOTER ORGANIZER
-          SliverToBoxAdapter(
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEBF0EA),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.pine700,
-                      borderRadius: BorderRadius.circular(14),
+          if (d.organizer.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEBF0EA),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.pine700,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(
+                        Icons.verified_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.verified_rounded,
-                      color: Colors.white,
-                      size: 22,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          d.organizer.first,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.pine900,
-                            fontFamily: 'PlusJakartaSans',
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            d.organizer.first,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.pine900,
+                              fontFamily: 'PlusJakartaSans',
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          '${d.organizer.skip(1).join(' ')} ${widget.event.start.year}',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppColors.textSecondary,
-                            fontFamily: 'PlusJakartaSans',
+                          const SizedBox(height: 3),
+                          Text(
+                            '${d.organizer.skip(1).join(' ')} ${widget.event.start.year}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textSecondary,
+                              fontFamily: 'PlusJakartaSans',
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
 
           const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],

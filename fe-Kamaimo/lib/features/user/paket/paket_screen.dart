@@ -29,6 +29,7 @@ class _PaketScreenState extends State<PaketScreen> {
   int _kategori = 0;
   String _query = '';
   List<PaketItem> _pakets = [];
+  bool _loadedBackend = false;
 
   @override
   void initState() {
@@ -40,9 +41,10 @@ class _PaketScreenState extends State<PaketScreen> {
     try {
       final repo = context.read<TourPackageRepository>();
       final list = await repo.getAll();
-      if (list.isNotEmpty && mounted) {
+      if (mounted) {
         setState(() {
           _pakets = list.map((p) => PaketItem.fromModel(p)).toList();
+          _loadedBackend = true;
         });
       }
     } catch (_) {}
@@ -58,7 +60,7 @@ class _PaketScreenState extends State<PaketScreen> {
   Widget build(BuildContext context) {
     final isEnglish = context.watch<LanguageProvider>().isEnglish;
     final q = _query.trim().toLowerCase();
-    final sourceList = _pakets.isNotEmpty ? _pakets : PaketSeed.items;
+    final sourceList = _loadedBackend ? _pakets : PaketSeed.items;
     final shown = sourceList.where((p) {
       final cocokKategori =
           _kategori == 0 ||
@@ -102,7 +104,7 @@ class _PaketScreenState extends State<PaketScreen> {
               child: shown.isEmpty
                   ? _EmptyPaket(isEnglish: isEnglish)
                   : SizedBox(
-                      height: 500,
+                      height: 550,
                       child: PageView.builder(
                         controller: _page,
                         padEnds: false,
@@ -156,7 +158,11 @@ class _PaketScreenState extends State<PaketScreen> {
     final message = isEnglish
         ? 'Hello, I am interested in the ${item.displayName(true)} package. Could you share more details?'
         : 'Halo, saya tertarik dengan paket ${item.nama}. Boleh minta informasi lebih lanjut?';
-    final uri = Uri.https('wa.me', '/', {'text': message});
+    var phone = item.kontak.replaceAll(RegExp(r'[^0-9]'), '');
+    if (phone.startsWith('0')) phone = '62${phone.substring(1)}';
+    final uri = Uri.https('wa.me', phone.isEmpty ? '/' : '/$phone', {
+      'text': message,
+    });
     final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!opened && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -281,10 +287,7 @@ class _PaketWhatsAppSheet extends StatelessWidget {
                     child: SizedBox(
                       width: 64,
                       height: 64,
-                      child: KamaimoImage(
-                        path: item.foto,
-                        fit: BoxFit.cover,
-                      ),
+                      child: KamaimoImage(path: item.foto, fit: BoxFit.cover),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -325,9 +328,7 @@ class _PaketWhatsAppSheet extends StatelessWidget {
                 onPressed: onContinue,
                 icon: const Icon(Icons.chat_rounded),
                 label: Text(
-                  isEnglish
-                      ? 'Continue to WhatsApp for ${item.displayName(true)}'
-                      : 'Lanjutkan ke WhatsApp untuk ${item.displayName(false)}',
+                  isEnglish ? 'Continue to WhatsApp' : 'Lanjutkan ke WhatsApp',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -344,9 +345,7 @@ class _PaketWhatsAppSheet extends StatelessWidget {
             Center(
               child: TextButton(
                 onPressed: () => Navigator.pop(context),
-                style: TextButton.styleFrom(
-                  minimumSize: const Size(120, 44),
-                ),
+                style: TextButton.styleFrom(minimumSize: const Size(120, 44)),
                 child: Text(isEnglish ? 'Cancel' : 'Batal'),
               ),
             ),

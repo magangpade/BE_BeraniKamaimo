@@ -1,20 +1,29 @@
 import '../../../models/atraksi.dart';
 
+import 'dart:convert';
+
+import 'event_detail_data.dart';
+
 /// Seed data Tab Event — dummy, meniru desain Figma Tab Event.
 /// ponytail: data hardcode + aset dari folder lain; ganti ke /atraksi saat sambung API.
 class EventItem {
   final String foto;
   final String kategori; // BUDAYA | BAHARI | UMKM | EKOWISATA
   final String lokasi;
+  final String? lokasiEn;
   final String wilayah; // opsi dropdown "Semua wilayah"
   final String nama;
   final String deskripsi;
+  final String? deskripsiEn;
   final String rentangTanggal; // tampil di card
   final DateTime start;
   final DateTime? end;
   final int? harga; // null = Gratis
   final double rating;
   final int ratingCount;
+  final EventDetail? detail;
+  final List<String>? programEn;
+  final List<Map<String, dynamic>>? rundownEn;
 
   /// Kunci rating stabil untuk Event seed. Event berbeda tetap terpisah.
   String get ratingKey {
@@ -36,24 +45,40 @@ class EventItem {
     required this.foto,
     required this.kategori,
     required this.lokasi,
+    this.lokasiEn,
     required this.wilayah,
     required this.nama,
     required this.deskripsi,
+    this.deskripsiEn,
     required this.rentangTanggal,
     required this.start,
     this.end,
     this.harga,
     this.rating = 0,
     this.ratingCount = 0,
+    this.detail,
+    this.programEn,
+    this.rundownEn,
   });
 
   factory EventItem.fromModel(Atraksi a) {
     DateTime start = DateTime.tryParse(a.startdate) ?? DateTime.now();
     DateTime end = DateTime.tryParse(a.enddate) ?? start;
-    
+
     final months = [
-      '', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      '',
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
     ];
     String rentang = '${start.day} ${months[start.month]} ${start.year}';
     if (end.isAfter(start)) {
@@ -62,28 +87,114 @@ class EventItem {
 
     String wil = 'Sulteng';
     final lok = (a.lokasi_id + ' ' + a.nameEvent).toLowerCase();
-    if (lok.contains('poso')) wil = 'Poso';
-    else if (lok.contains('sigi') || lok.contains('kulawi') || lok.contains('marawola')) wil = 'Sigi';
-    else if (lok.contains('palu')) wil = 'Palu';
-    else if (lok.contains('banggai')) wil = 'Banggai';
-    else if (lok.contains('togean') || lok.contains('ampana') || lok.contains('tojo')) wil = 'Tojo Una-Una';
-    else if (lok.contains('donggala')) wil = 'Donggala';
-    else if (lok.contains('parigi')) wil = 'Parigi Moutong';
-    else if (lok.contains('morowali')) wil = 'Morowali';
-    else if (lok.contains('lupi')) wil = 'Donggala';
+    if (lok.contains('poso'))
+      wil = 'Poso';
+    else if (lok.contains('sigi') ||
+        lok.contains('kulawi') ||
+        lok.contains('marawola'))
+      wil = 'Sigi';
+    else if (lok.contains('palu'))
+      wil = 'Palu';
+    else if (lok.contains('banggai'))
+      wil = 'Banggai';
+    else if (lok.contains('togean') ||
+        lok.contains('ampana') ||
+        lok.contains('tojo'))
+      wil = 'Tojo Una-Una';
+    else if (lok.contains('donggala'))
+      wil = 'Donggala';
+    else if (lok.contains('parigi'))
+      wil = 'Parigi Moutong';
+    else if (lok.contains('morowali'))
+      wil = 'Morowali';
+    else if (lok.contains('lupi'))
+      wil = 'Donggala';
 
+    List<dynamic> parseList(String? raw) {
+      if (raw == null || raw.isEmpty) return [];
+      try {
+        final value = jsonDecode(raw);
+        return value is List ? value : [];
+      } catch (_) {
+        return [];
+      }
+    }
+
+    final programs = parseList(a.programJson);
+    final rundown = parseList(a.rundownJson);
+    final akses = parseList(a.aksesJson);
+    final organizer = parseList(a.organizerJson);
+    final detail = EventDetail(
+      badge: a.badge ?? '',
+      rating: a.rating,
+      ratingCount: a.ratingCount,
+      lokasi: a.lokasi_id,
+      tentang: a.deskripsi_id,
+      program: programs
+          .map(
+            (p) => p is Map
+                ? '${p['title'] ?? ''}|${p['description'] ?? ''}'
+                : '$p',
+          )
+          .toList(),
+      programImages: programs
+          .map((p) => p is Map ? '${p['image'] ?? ''}' : '')
+          .toList(),
+      rundown: rundown
+          .whereType<Map>()
+          .map((r) => Map<String, dynamic>.from(r))
+          .toList(),
+      zonaWita: 'Zona WITA (UTC+8)',
+      mapsUrl: a.mapsUrl ?? '',
+      mapLabel: a.mapLabel ?? a.lokasi_id,
+      region: a.wilayah ?? '',
+      mapLatitude: a.latitude,
+      mapLongitude: a.longitude,
+      akses: akses
+          .whereType<Map>()
+          .map((r) => Map<String, dynamic>.from(r))
+          .toList(),
+      organizer: organizer.map((e) => '$e').toList(),
+    );
+    final programEn = programs.map((p) {
+      if (p is! Map) return '$p';
+      final title = '${p['title_en'] ?? ''}'.trim();
+      final description = '${p['description_en'] ?? ''}'.trim();
+      return '${title.isNotEmpty ? title : p['title'] ?? ''}|${description.isNotEmpty ? description : p['description'] ?? ''}';
+    }).toList();
+    final rundownEn = rundown.whereType<Map>().map((day) {
+      final items = day['items'] is List ? day['items'] as List : [];
+      return <String, dynamic>{
+        ...Map<String, dynamic>.from(day),
+        'hari': '${day['hari'] ?? ''}'.replaceFirst('Hari', 'Day'),
+        'items': items.whereType<Map>().map((item) {
+          final copy = Map<String, dynamic>.from(item);
+          for (final key in ['judul', 'deskripsi']) {
+            final translated = '${copy['${key}_en'] ?? ''}'.trim();
+            if (translated.isNotEmpty) copy[key] = translated;
+          }
+          return copy;
+        }).toList(),
+      };
+    }).toList();
     return EventItem(
       foto: a.foto ?? 'assets/images/beranda/thumb_event1.png',
-      kategori: 'BUDAYA',
+      kategori: a.kategori,
       lokasi: a.lokasi_id,
-      wilayah: wil,
+      lokasiEn: a.lokasi_en,
+      wilayah: a.wilayah?.isNotEmpty == true ? a.wilayah! : wil,
       nama: a.nameEvent,
       deskripsi: a.deskripsi_id,
+      deskripsiEn: a.deskripsi_en,
       rentangTanggal: rentang,
       start: start,
       end: end,
-      rating: 4.8,
-      ratingCount: 120,
+      harga: a.harga,
+      rating: a.rating,
+      ratingCount: a.ratingCount,
+      detail: detail,
+      programEn: programEn,
+      rundownEn: rundownEn,
     );
   }
 }
