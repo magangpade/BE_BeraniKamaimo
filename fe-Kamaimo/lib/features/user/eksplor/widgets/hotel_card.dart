@@ -92,16 +92,15 @@ class HotelCard extends StatelessWidget {
         boxShadow: AppColors.shadowCard,
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _media(isEn),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text(
                   item.nama,
                   style: const TextStyle(
@@ -216,17 +215,16 @@ class HotelCard extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
   }
 
   Widget _media(bool isEn) {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       child: SizedBox(
-        height: 220,
+        height: 195,
         child: Stack(
           fit: StackFit.expand,
           children: [

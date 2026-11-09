@@ -96,57 +96,57 @@ class KulinerCard extends StatelessWidget {
         boxShadow: AppColors.shadowCard,
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _media(isEn),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _translateDeskripsi(item.deskripsi, isEn),
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w500,
-                      height: 1.55,
-                      color: AppColors.textBody,
-                      fontFamily: 'PlusJakartaSans',
-                    ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _translateDeskripsi(item.deskripsi, isEn),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w500,
+                    height: 1.5,
+                    color: AppColors.textBody,
+                    fontFamily: 'PlusJakartaSans',
                   ),
-                  const SizedBox(height: 12),
-                  // Chips bahan
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      for (final (icon, label, kind) in item.bahan)
-                        _BahanChip(
-                          icon: icon,
-                          label: _translateBahan(label, isEn),
-                          kind: kind,
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Container(
-                    padding: const EdgeInsets.only(top: 14),
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        top: BorderSide(color: AppColors.detailBorder),
+                ),
+                const SizedBox(height: 12),
+                // Chips bahan
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final (icon, label, kind) in item.bahan)
+                      _BahanChip(
+                        icon: icon,
+                        label: _translateBahan(label, isEn),
+                        kind: kind,
                       ),
-                    ),
-                    child: KontakRow(
-                      onTap: onKontak,
-                      onTelepon: onTelepon != null ? () => onTelepon!(item) : null,
-                      onMaps: onMaps != null ? () => onMaps!(item) : null,
-                      onWebsite: onWebsite != null ? () => onWebsite!(item) : null,
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.only(top: 14),
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      top: BorderSide(color: AppColors.detailBorder),
                     ),
                   ),
-                ],
-              ),
+                  child: KontakRow(
+                    onTap: onKontak,
+                    onTelepon: onTelepon != null ? () => onTelepon!(item) : null,
+                    onMaps: onMaps != null ? () => onMaps!(item) : null,
+                    onWebsite: onWebsite != null ? () => onWebsite!(item) : null,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -158,7 +158,7 @@ class KulinerCard extends StatelessWidget {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       child: SizedBox(
-        height: 220,
+        height: 195,
         child: Stack(
           fit: StackFit.expand,
           children: [

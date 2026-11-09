@@ -433,7 +433,7 @@ class _EksplorScreenState extends State<EksplorScreen> {
     }
 
     return SizedBox(
-      height: 640,
+      height: isHotel ? 540 : 495,
       child: PageView.builder(
         controller: _page,
         padEnds: false,
@@ -443,7 +443,10 @@ class _EksplorScreenState extends State<EksplorScreen> {
             left: 16,
             right: i == cards.length - 1 ? 16 : 0,
           ),
-          child: cards[i],
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: cards[i],
+          ),
         ),
       ),
     );
