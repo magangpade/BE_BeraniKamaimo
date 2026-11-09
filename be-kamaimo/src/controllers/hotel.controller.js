@@ -2,6 +2,7 @@ const pool = require('../config/db');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiResponse = require('../utils/ApiResponse');
 const ApiError = require('../utils/ApiError');
+const updateRecord = require('../utils/updateRecord');
 
 exports.list = asyncHandler(async (req, res) => {
   const { q, wilayah } = req.query;
@@ -36,6 +37,16 @@ exports.create = asyncHandler(async (req, res) => {
      b.lokasi||'', b.foto||null, b.link_video||null]);
   const [rows] = await pool.query('SELECT * FROM hotel WHERE id = ?', [r.insertId]);
   ApiResponse.created(res, rows[0]);
+});
+exports.update = asyncHandler(async (req, res) => {
+  const row = await updateRecord({
+    table: 'hotel', id: req.params.id, body: req.body,
+    fields: ['nama_hotel', 'telepon', 'jumlah_kamar', 'jumlah_tempatTidur',
+      'harga_minimum', 'harga_maximum', 'website', 'link_gmaps', 'lokasi',
+      'foto', 'link_video', 'wilayah', 'tag', 'highlight'],
+    required: ['nama_hotel'], label: 'Hotel',
+  });
+  ApiResponse.success(res, row, 'Hotel diperbarui');
 });
 exports.remove = asyncHandler(async (req, res) => {
   const [r] = await pool.query('DELETE FROM hotel WHERE id = ?', [req.params.id]);

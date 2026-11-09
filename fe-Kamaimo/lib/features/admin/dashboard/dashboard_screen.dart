@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:berani_kamaimo/core/network/api_client.dart';
 import 'package:berani_kamaimo/core/theme/app_colors.dart';
+
+import '../data/admin_content.dart';
 
 class DashboardScreen extends StatefulWidget {
   final VoidCallback? onNavigateToTab;
@@ -16,6 +20,56 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  final Map<String, int> _counts = {};
+  final Set<String> _pending = {};
+  final Set<String> _failed = {};
+  int _loadVersion = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _refresh();
+    });
+  }
+
+  void _refresh() {
+    final api = context.read<ApiClient>();
+    final version = ++_loadVersion;
+    const types = [
+      'desaWisata',
+      'jarakDesa',
+      'atraksi',
+      'tourPackage',
+      'kuliner',
+      'hotel',
+    ];
+    setState(() {
+      _counts.clear();
+      _failed.clear();
+      _pending
+        ..clear()
+        ..addAll(types);
+    });
+    for (final type in types) {
+      AdminContent.load(api, type)
+          .then((rows) {
+            if (!mounted || version != _loadVersion) return;
+            setState(() {
+              _counts[type] = rows.length;
+              _pending.remove(type);
+            });
+          })
+          .catchError((Object _) {
+            if (!mounted || version != _loadVersion) return;
+            setState(() {
+              _failed.add(type);
+              _pending.remove(type);
+            });
+          });
+    }
+  }
+
   void _goToTab(int tabIndex) {
     if (widget.onNavigateToTabIndex != null) {
       widget.onNavigateToTabIndex!(tabIndex);
@@ -26,46 +80,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Snapshot statistik konten (jumlah entitas) + index tab di AdminShell
+    // Each count comes from the same endpoint as its destination tab.
     final conteStats = [
       {
         'label': 'Desa Wisata',
-        'count': '43',
+        'type': 'desaWisata',
         'icon': Icons.map_rounded,
         'color': AppColors.pine700,
         'tabIndex': 1,
       },
       {
         'label': 'Jalur Desa',
-        'count': '31',
+        'type': 'jarakDesa',
         'icon': Icons.alt_route_rounded,
         'color': AppColors.pine600,
         'tabIndex': 2,
       },
       {
         'label': 'Event & Festival',
-        'count': '12',
+        'type': 'atraksi',
         'icon': Icons.event_rounded,
         'color': AppColors.emerald500,
         'tabIndex': 3,
       },
       {
         'label': 'Paket Wisata',
-        'count': '8',
+        'type': 'tourPackage',
         'icon': Icons.card_travel_rounded,
         'color': AppColors.pine500,
         'tabIndex': 4,
       },
       {
         'label': 'Kuliner Khas',
-        'count': '16',
+        'type': 'kuliner',
         'icon': Icons.restaurant_rounded,
         'color': AppColors.emerald600,
         'tabIndex': 5,
       },
       {
         'label': 'Hotel & Penginapan',
-        'count': '34',
+        'type': 'hotel',
         'icon': Icons.hotel_rounded,
         'color': AppColors.pine400,
         'tabIndex': 7,
@@ -108,8 +162,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           color: AppColors.pine600,
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: const Icon(Icons.admin_panel_settings_outlined,
-                            color: Colors.white, size: 28),
+                        child: const Icon(
+                          Icons.admin_panel_settings_outlined,
+                          color: Colors.white,
+                          size: 28,
+                        ),
                       ),
                       const SizedBox(width: 16),
                       const Expanded(
@@ -141,20 +198,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 16),
                   // Status badge
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.green.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                      border: Border.all(
+                        color: Colors.green.withValues(alpha: 0.3),
+                      ),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.check_circle, color: Colors.green, size: 14),
-                        SizedBox(width: 6),
+                        Icon(
+                          _failed.isNotEmpty
+                              ? Icons.error_outline
+                              : _pending.isNotEmpty
+                              ? Icons.sync
+                              : Icons.check_circle,
+                          color: _failed.isNotEmpty
+                              ? Colors.orange
+                              : Colors.green,
+                          size: 14,
+                        ),
+                        const SizedBox(width: 6),
                         Text(
-                          'Sistem Aktif • Versi 0.1.0',
-                          style: TextStyle(
+                          _pending.isNotEmpty
+                              ? 'Memuat data backend'
+                              : _failed.isNotEmpty
+                              ? (_failed.length == 6
+                                    ? 'Data backend tidak tersedia'
+                                    : 'Sebagian data gagal dimuat')
+                              : 'Data backend terhubung',
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -170,14 +248,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 32),
 
             // ── Seksi 1: Ringkasan Konten Pariwisata ──
-            const Text(
-              'Ringkasan Konten Pariwisata',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
-                fontFamily: 'PlusJakartaSans',
-              ),
+            Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Ringkasan Konten Pariwisata',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textPrimary,
+                      fontFamily: 'PlusJakartaSans',
+                    ),
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Muat ulang data dashboard',
+                  onPressed: _refresh,
+                  icon: const Icon(Icons.refresh),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             GridView.builder(
@@ -194,7 +283,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 final stat = conteStats[index];
                 return _buildContentStatCard(
                   label: stat['label'] as String,
-                  count: stat['count'] as String,
+                  count: _pending.contains(stat['type'])
+                      ? '…'
+                      : _failed.contains(stat['type'])
+                      ? '—'
+                      : '${_counts[stat['type']] ?? 0}',
                   iconData: stat['icon'] as IconData,
                   gradientColor: stat['color'] as Color,
                   onTap: () => _goToTab(stat['tabIndex'] as int),
