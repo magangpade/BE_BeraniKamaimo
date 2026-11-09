@@ -30,19 +30,13 @@ class AppTheme {
             foregroundColor: WidgetStateProperty.all(AppColors.textOnPrimary),
             padding: WidgetStateProperty.all(
               const EdgeInsets.symmetric(
-                horizontal: 14,
+                horizontal: AppSpacing.spacing16,
                 vertical: AppSpacing.spacing12,
               ),
             ),
-            minimumSize: WidgetStateProperty.all(
-              const Size(double.infinity, AppSpacing.buttonHeight),
-            ),
-            textStyle: WidgetStateProperty.all(
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, fontFamily: 'PlusJakartaSans'),
-            ),
             shape: WidgetStateProperty.all(
               RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                borderRadius: BorderRadius.circular(AppSpacing.radius8),
               ),
             ),
           ),
@@ -54,19 +48,13 @@ class AppTheme {
             foregroundColor: WidgetStateProperty.all(Colors.white),
             padding: WidgetStateProperty.all(
               const EdgeInsets.symmetric(
-                horizontal: 14,
+                horizontal: AppSpacing.spacing16,
                 vertical: AppSpacing.spacing12,
               ),
             ),
-            minimumSize: WidgetStateProperty.all(
-              const Size(double.infinity, AppSpacing.buttonHeight),
-            ),
-            textStyle: WidgetStateProperty.all(
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, fontFamily: 'PlusJakartaSans'),
-            ),
             shape: WidgetStateProperty.all(
               RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                borderRadius: BorderRadius.circular(AppSpacing.radius8),
               ),
             ),
           ),
@@ -80,19 +68,13 @@ class AppTheme {
             foregroundColor: WidgetStateProperty.all(AppColors.pine700),
             padding: WidgetStateProperty.all(
               const EdgeInsets.symmetric(
-                horizontal: 14,
+                horizontal: AppSpacing.spacing16,
                 vertical: AppSpacing.spacing12,
               ),
             ),
-            minimumSize: WidgetStateProperty.all(
-              const Size(double.infinity, AppSpacing.buttonHeight),
-            ),
-            textStyle: WidgetStateProperty.all(
-              const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, fontFamily: 'PlusJakartaSans'),
-            ),
             shape: WidgetStateProperty.all(
               RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                borderRadius: BorderRadius.circular(AppSpacing.radius8),
               ),
             ),
           ),

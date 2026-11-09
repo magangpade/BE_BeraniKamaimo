@@ -344,7 +344,7 @@ class _LanguageToggle extends StatelessWidget {
           borderRadius: BorderRadius.circular(9999),
         ),
         alignment: Alignment.center,
-        height: 44,
+        height: 36,
         child: Text(
           label,
           style: TextStyle(
@@ -486,8 +486,8 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 24,
+            height: 24,
             decoration: BoxDecoration(
               color: const Color(0xFFFEF3C7),
               borderRadius: BorderRadius.circular(8),
@@ -730,7 +730,7 @@ class _SearchBarState extends State<_SearchBar> {
                         borderRadius: BorderRadius.circular(8),
                         child: SizedBox(
                           width: 36,
-                          height: 44,
+                          height: 36,
                           child: KamaimoImage(
                             path: foto,
                             fit: BoxFit.cover,
@@ -833,8 +833,9 @@ class _QuickPillsState extends State<_QuickPills> {
   @override
   Widget build(BuildContext context) {
     final isEn = context.watch<LanguageProvider>().isEnglish;
+
     return SizedBox(
-      height: 44,
+      height: 34,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -842,37 +843,40 @@ class _QuickPillsState extends State<_QuickPills> {
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (ctx, i) {
           final active = i == _selected;
-          final label = isEn ? _pillsEn[i] : _pills[i].label;
           return GestureDetector(
             onTap: () {
               setState(() => _selected = i);
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => SemuaDestinasiScreen(initialFilter: _pills[i].label),
+                  builder: (_) => SemuaDestinasiScreen(
+                    initialFilter: _pills[i].label,
+                  ),
                 ),
               );
             },
             child: Container(
-              height: 44,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              height: 33,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
                 color: active ? AppColors.pine700 : Colors.white,
                 borderRadius: BorderRadius.circular(9999),
                 border: active ? null : Border.all(color: AppColors.border),
               ),
-              alignment: Alignment.center,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(_pills[i].icon, size: 14, color: active ? Colors.white : AppColors.pine700),
-                  const SizedBox(width: 6),
+                  Icon(
+                    _pills[i].icon,
+                    size: 14,
+                    color: active ? Colors.white : AppColors.pine500,
+                  ),
+                  const SizedBox(width: 7),
                   Text(
-                    label,
-                    maxLines: 1,
+                    isEn ? _pillsEn[i] : _pills[i].label,
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: active ? FontWeight.w700 : FontWeight.w600,
                       color: active ? Colors.white : AppColors.pine900,
                       fontFamily: 'PlusJakartaSans',
                     ),
@@ -1094,7 +1098,7 @@ class _PetaSectionState extends State<_PetaSection> {
         ),
         const SizedBox(height: 14),
         SizedBox(
-          height: 44,
+          height: 27,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1106,8 +1110,8 @@ class _PetaSectionState extends State<_PetaSection> {
               return GestureDetector(
                 onTap: () => _onSelectChip(i),
                 child: Container(
-                  height: 44,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  height: 25,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: active ? AppColors.pine700 : Colors.white,
                     borderRadius: BorderRadius.circular(9999),
@@ -1116,9 +1120,8 @@ class _PetaSectionState extends State<_PetaSection> {
                   alignment: Alignment.center,
                   child: Text(
                     chipText,
-                    maxLines: 1,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: active ? Colors.white : AppColors.pine900,
                       fontFamily: 'PlusJakartaSans',
@@ -1471,22 +1474,26 @@ class _DesaCard extends StatelessWidget {
               if (marker.type == 'atraksi') {
                 final allSeed = [EventSeed.featured, ...EventSeed.agenda];
                 final matches = allSeed.where((s) =>
-                    s.nama.toLowerCase().contains(marker.nama.toLowerCase()) ||
-                    marker.nama.toLowerCase().contains(s.nama.toLowerCase()));
-                final targetEvent = matches.isNotEmpty
-                    ? matches.first
-                    : EventItem(
-                        foto: marker.foto ?? 'assets/images/beranda/event_danau_poso.png',
-                        kategori: 'BUDAYA',
-                        lokasi: marker.lokasi,
-                        wilayah: marker.lokasi,
-                        nama: marker.nama,
-                        deskripsi: isEn
-                            ? 'Featured cultural & tourism event in ${marker.lokasi}.'
-                            : 'Event budaya & pariwisata unggulan di ${marker.lokasi}.',
-                        rentangTanggal: isEn ? 'Coming Soon' : 'Segera Hadir',
-                        start: DateTime.now().add(const Duration(days: 30)),
-                      );
+                    s.nama.trim().toLowerCase() == marker.nama.trim().toLowerCase());
+                final photo = (marker.foto != null && marker.foto!.isNotEmpty)
+                    ? marker.foto!
+                    : (matches.isNotEmpty ? matches.first.foto : 'assets/images/beranda/event_danau_poso.png');
+                final targetEvent = EventItem(
+                  foto: photo,
+                  kategori: matches.isNotEmpty ? matches.first.kategori : 'BUDAYA',
+                  lokasi: marker.lokasi,
+                  wilayah: marker.lokasi,
+                  nama: marker.nama,
+                  deskripsi: isEn
+                      ? 'Featured cultural & tourism event in ${marker.lokasi}.'
+                      : 'Event budaya & pariwisata unggulan di ${marker.lokasi}.',
+                  rentangTanggal: isEn ? 'Coming Soon' : 'Segera Hadir',
+                  start: matches.isNotEmpty ? matches.first.start : DateTime.now().add(const Duration(days: 30)),
+                  end: matches.isNotEmpty ? matches.first.end : null,
+                  harga: matches.isNotEmpty ? matches.first.harga : null,
+                  rating: matches.isNotEmpty ? matches.first.rating : 4.8,
+                  ratingCount: matches.isNotEmpty ? matches.first.ratingCount : 120,
+                );
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -1507,8 +1514,8 @@ class _DesaCard extends StatelessWidget {
               }
             },
             child: Container(
-              width: 88,
-              height: 44,
+              width: 62,
+              height: 28,
               decoration: BoxDecoration(
                 color: AppColors.pine700,
                 borderRadius: BorderRadius.circular(12),
@@ -1896,7 +1903,7 @@ class _CarouselCardState extends State<_CarouselCard> {
                       left: 14,
                       top: 14,
                       child: Container(
-                        height: 44,
+                        height: 24,
                         padding: const EdgeInsets.symmetric(horizontal: 13),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
@@ -2116,9 +2123,51 @@ class _CarouselCardState extends State<_CarouselCard> {
   Widget _cardButton(BuildContext context, bool isEn) {
     final item = widget.item;
     final active = widget.active;
-    final detailLabel = isEn ? 'View ${item.nama}' : 'Lihat ${item.nama}';
-    final infoLabel = isEn ? 'Info ${item.nama}' : 'Info ${item.nama}';
-    void open() => Navigator.pushNamed(
+    if (active) {
+      // Tombol kartu aktif: pill gelap "Detail →" (87×28)
+      return GestureDetector(
+        onTap: () {
+          Navigator.pushNamed(
+            context,
+            AppConstants.routeDetailDesa,
+            arguments: {
+              'desaId': item.id ?? 1,
+              'namaDesa': item.nama,
+              'lokasi': item.kabupaten,
+              'foto': item.foto ?? '',
+            },
+          );
+        },
+        child: Container(
+          width: 87,
+          height: 28,
+          decoration: BoxDecoration(
+            color: AppColors.pine700,
+            borderRadius: BorderRadius.circular(9999),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                isEn ? 'Details' : 'Detail',
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  fontFamily: 'PlusJakartaSans',
+                ),
+              ),
+              const SizedBox(width: 2),
+              const Icon(Icons.arrow_forward_rounded, size: 9, color: Colors.white),
+            ],
+          ),
+        ),
+      );
+    }
+    // Kartu tidak aktif: pill abu "Info Detail"
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
           context,
           AppConstants.routeDetailDesa,
           arguments: {
@@ -2128,54 +2177,17 @@ class _CarouselCardState extends State<_CarouselCard> {
             'foto': item.foto ?? '',
           },
         );
-    if (active) {
-      return GestureDetector(
-        onTap: open,
-                      child: Container(
-                        height: 44,
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        decoration: BoxDecoration(
-                          color: AppColors.pine700,
-            borderRadius: BorderRadius.circular(9999),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text(
-                  detailLabel,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    fontFamily: 'PlusJakartaSans',
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
-              const Icon(Icons.arrow_forward_rounded, size: 11, color: Colors.white),
-            ],
-          ),
-        ),
-      );
-    }
-    return GestureDetector(
-      onTap: open,
+      },
       child: Container(
-        height: 44,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        constraints: const BoxConstraints(maxWidth: 160),
+        width: 82,
+        height: 29,
         decoration: BoxDecoration(
           color: AppColors.surfaceVariantSoft,
           borderRadius: BorderRadius.circular(9999),
         ),
         child: Center(
           child: Text(
-            infoLabel,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            isEn ? 'More Info' : 'Info Detail',
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -2352,20 +2364,28 @@ class _EventCard extends StatelessWidget {
   void _openDetail(BuildContext context) {
     final allSeed = [EventSeed.featured, ...EventSeed.agenda];
     final matches = allSeed.where((s) =>
-      s.nama.toLowerCase().contains(event.nama.toLowerCase()) ||
-      event.nama.toLowerCase().contains(s.nama.toLowerCase()));
-    final targetEvent = matches.isNotEmpty
-        ? matches.first
-        : EventItem(
-            foto: event.foto,
-            kategori: 'BUDAYA',
-            lokasi: event.lokasi,
-            wilayah: event.lokasi,
-            nama: event.nama,
-            deskripsi: event.deskripsi,
-            rentangTanggal: event.tanggal,
-            start: DateTime.now().add(const Duration(days: 45)),
-          );
+      s.nama.trim().toLowerCase() == event.nama.trim().toLowerCase());
+    final match = matches.isNotEmpty ? matches.first : null;
+    
+    // Selalu prioritaskan foto asli event dari database/kartu
+    final photo = event.foto.isNotEmpty
+        ? event.foto
+        : (match?.foto ?? 'assets/images/beranda/thumb_event1.png');
+
+    final targetEvent = EventItem(
+      foto: photo,
+      kategori: match?.kategori ?? 'BUDAYA',
+      lokasi: event.lokasi.isNotEmpty ? event.lokasi : (match?.lokasi ?? 'Sulawesi Tengah'),
+      wilayah: match?.wilayah ?? event.lokasi,
+      nama: event.nama,
+      deskripsi: event.deskripsi.isNotEmpty ? event.deskripsi : (match?.deskripsi ?? ''),
+      rentangTanggal: event.tanggal,
+      start: match?.start ?? DateTime.now().add(const Duration(days: 45)),
+      end: match?.end,
+      harga: match?.harga,
+      rating: match?.rating ?? 4.8,
+      ratingCount: match?.ratingCount ?? 120,
+    );
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -2515,8 +2535,8 @@ class _EventCard extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Container(
-            width: 88,
-            height: 44,
+            width: 66,
+            height: 32,
             decoration: BoxDecoration(
               color: AppColors.surfaceVariant,
               borderRadius: BorderRadius.circular(12),

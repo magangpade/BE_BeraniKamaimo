@@ -72,7 +72,7 @@ class _HowToGetThereState extends State<HowToGetThere> {
             color: AppColors.pine900,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
 
         // Asal rute berasal dari data desa, termasuk wilayah baru dari admin.
         Container(
@@ -98,7 +98,10 @@ class _HowToGetThereState extends State<HowToGetThere> {
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
+
+        // Kartu rute / empty state (gap 14)
+        const SizedBox(height: 4),
         if (jarak != null) ...[
           if (jarak.jalur_laut.trim().isNotEmpty) ...[
             _RouteCard(

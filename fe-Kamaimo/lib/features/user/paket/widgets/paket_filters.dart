@@ -21,22 +21,31 @@ class PaketFilters extends StatelessWidget {
     final isEnglish = context.watch<LanguageProvider>().isEnglish;
     final labels = [
       for (var i = 0; i < PaketSeed.kategori.length; i++)
-        isEnglish ? const ['All', 'Marine', 'Culture', 'Trekking', 'Ecotourism', 'MSME'][i] : PaketSeed.kategori[i],
+        isEnglish
+            ? const [
+                'All',
+                'Marine',
+                'Culture',
+                'Trekking',
+                'Ecotourism',
+                'MSME',
+              ][i]
+            : PaketSeed.kategori[i],
     ];
     return SizedBox(
-      height: 44,
+      height: 32,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: labels.length,
+        itemCount: PaketSeed.kategori.length,
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (ctx, i) {
           final active = i == kategoriIndex;
           return GestureDetector(
             onTap: () => onKategori(i),
             child: Container(
-              height: 44,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              height: 32,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
                 color: active ? AppColors.pine700 : Colors.white,
                 borderRadius: BorderRadius.circular(9999),
@@ -45,10 +54,9 @@ class PaketFilters extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 labels[i],
-                maxLines: 1,
                 style: TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: active ? FontWeight.w700 : FontWeight.w600,
                   color: active ? Colors.white : AppColors.pine900,
                   fontFamily: 'PlusJakartaSans',
                 ),

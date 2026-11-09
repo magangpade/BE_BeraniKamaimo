@@ -76,12 +76,12 @@ class EksplorHeader extends StatelessWidget {
               fontFamily: 'PlusJakartaSans',
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 14),
 
           // Chip dinas
           Container(
-            height: 44,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            height: 30,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: AppColors.emerald100,
               borderRadius: BorderRadius.circular(9999),
@@ -92,19 +92,17 @@ class EksplorHeader extends StatelessWidget {
                     ? 'TOURISM DEPARTMENT CURATED CATALOG'
                     : 'KATALOG PILIHAN DINAS PARIWISATA',
                 key: const Key('eksplorChipDinas'),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.2,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.4,
                   color: AppColors.emerald600,
                   fontFamily: 'PlusJakartaSans',
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
 
           // Segmented 2 katalog (kontainer mint berabu, aktif pine gelap)
           Container(
@@ -130,11 +128,11 @@ class EksplorHeader extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
 
           // Search (hint mengikuti tab aktif)
           Container(
-            height: 44,
+            height: 48,
             padding: const EdgeInsets.only(left: 16),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -180,15 +178,35 @@ class EksplorHeader extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                // Tombol bersihkan (tampil saat field tidak kosong)
+                ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: searchController,
+                  builder: (ctx, value, _) {
+                    if (value.text.isEmpty) return const SizedBox.shrink();
+                    return IconButton(
+                      onPressed: () {
+                        searchController.clear();
+                        onQuery('');
+                      },
+                      icon: const Icon(
+                        Icons.close_rounded,
+                        size: 18,
+                        color: AppColors.textTertiary,
+                      ),
+                      tooltip: isEn ? 'Clear search' : 'Bersihkan pencarian',
+                      visualDensity: VisualDensity.compact,
+                    );
+                  },
+                ),
+                const SizedBox(width: 12),
               ],
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
 
           // Chip wilayah (horizontal scroll)
           SizedBox(
-            height: 44,
+            height: 34,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: wilayahList.length,
@@ -238,10 +256,8 @@ class _SegmentTab extends StatelessWidget {
           ),
           child: Text(
             label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.w700,
               color: selected ? AppColors.textOnPrimary : AppColors.textBody,
               fontFamily: 'PlusJakartaSans',
@@ -269,7 +285,6 @@ class _WilayahChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 44,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         alignment: Alignment.center,
         decoration: BoxDecoration(
@@ -281,9 +296,8 @@ class _WilayahChip extends StatelessWidget {
         ),
         child: Text(
           label,
-          maxLines: 1,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 11.5,
             fontWeight: FontWeight.w700,
             color: selected ? AppColors.textOnPrimary : AppColors.textBody,
             fontFamily: 'PlusJakartaSans',

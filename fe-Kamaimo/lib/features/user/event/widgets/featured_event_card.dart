@@ -65,8 +65,8 @@ class FeaturedEventCard extends StatelessWidget {
                     left: 12,
                     top: 12,
                     child: Container(
-                      height: 44,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      height: 24,
+                      padding: const EdgeInsets.symmetric(horizontal: 9),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.94),
                         borderRadius: BorderRadius.circular(9999),
@@ -74,11 +74,9 @@ class FeaturedEventCard extends StatelessWidget {
                       alignment: Alignment.center,
                       child: Text(
                         chipCountdown,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
                           color: AppColors.earth,
                           fontFamily: 'PlusJakartaSans',
                         ),
@@ -143,7 +141,7 @@ class FeaturedEventCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 9,
                           fontWeight: FontWeight.w600,
                           color: AppColors.pine700,
                           fontFamily: 'PlusJakartaSans',
@@ -216,20 +214,15 @@ class FeaturedEventCard extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Flexible(
-                            child: Text(
-                              isEnglish ? 'View Details' : 'Info Detail',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                                fontFamily: 'PlusJakartaSans',
-                              ),
+                          Text(
+                            isEnglish ? 'View Details ' : 'Info Detail ',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              fontFamily: 'PlusJakartaSans',
                             ),
                           ),
-                          const SizedBox(width: 4),
                           const Icon(
                             Icons.arrow_forward_rounded,
                             size: 10,
@@ -259,8 +252,8 @@ class _CategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 44,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      height: 18,
+      padding: const EdgeInsets.symmetric(horizontal: 7),
       decoration: BoxDecoration(
         color: AppColors.emerald50,
         borderRadius: BorderRadius.circular(9999),
@@ -268,11 +261,9 @@ class _CategoryChip extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         EventLocale.category(kategori, isEnglish),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
         style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
+          fontSize: 8,
+          fontWeight: FontWeight.w800,
           color: AppColors.pine700,
           fontFamily: 'PlusJakartaSans',
         ),

@@ -147,7 +147,7 @@ class _EventRatingSheetState extends State<EventRatingSheet> {
                           color: AppColors.pine900,
                           constraints: const BoxConstraints.tightFor(
                             width: 32,
-                            height: 44,
+                            height: 32,
                           ),
                           padding: EdgeInsets.zero,
                           tooltip: isEnglish ? 'Close' : 'Tutup',
@@ -185,11 +185,11 @@ class _EventRatingSheetState extends State<EventRatingSheet> {
                             child: Image.asset(
                               image,
                               width: 58,
-                              height: 44,
+                              height: 58,
                               fit: BoxFit.cover,
                               errorBuilder: (_, _, _) => const SizedBox(
                                 width: 58,
-                                height: 44,
+                                height: 58,
                                 child: Icon(Icons.event_rounded),
                               ),
                             ),
@@ -275,7 +275,7 @@ class _EventRatingSheetState extends State<EventRatingSheet> {
                               button: true,
                               child: Container(
                                 width: 56,
-                                height: 44,
+                                height: 56,
                                 margin: const EdgeInsets.symmetric(
                                   horizontal: 4,
                                 ),
@@ -338,7 +338,7 @@ class _EventRatingSheetState extends State<EventRatingSheet> {
                     const SizedBox(height: 22),
                     SizedBox(
                       width: double.infinity,
-                      height: 44,
+                      height: 52,
                       child: FilledButton(
                         key: const Key('event-rating-submit'),
                         onPressed: _rating == 0 || _sending ? null : _submit,

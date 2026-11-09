@@ -152,7 +152,7 @@ class EventAgendaCard extends StatelessWidget {
                   GestureDetector(
                     onTap: onTap,
                     child: Container(
-                      height: 44,
+                      height: 29,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: AppColors.surfaceVariant,
@@ -162,17 +162,13 @@ class EventAgendaCard extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Flexible(
-                            child: Text(
-                              isEnglish ? 'View Details' : 'Info Detail',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.pine900,
-                                fontFamily: 'PlusJakartaSans',
-                              ),
+                          Text(
+                            isEnglish ? 'View Details ' : 'Info Detail ',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.pine900,
+                              fontFamily: 'PlusJakartaSans',
                             ),
                           ),
                           const Icon(
@@ -215,8 +211,8 @@ class _CategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 44,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      height: 18,
+      padding: const EdgeInsets.symmetric(horizontal: 7),
       decoration: BoxDecoration(
         color: AppColors.emerald50,
         borderRadius: BorderRadius.circular(9999),
@@ -224,11 +220,9 @@ class _CategoryChip extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         EventLocale.category(kategori, isEnglish),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
         style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
+          fontSize: 8,
+          fontWeight: FontWeight.w800,
           color: AppColors.pine700,
           fontFamily: 'PlusJakartaSans',
         ),

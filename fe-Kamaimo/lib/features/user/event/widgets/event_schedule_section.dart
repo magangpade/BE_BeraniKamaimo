@@ -58,7 +58,7 @@ class EventScheduleSection extends StatelessWidget {
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
-            height: 44,
+            height: 48,
             child: ElevatedButton.icon(
               onPressed: onSaveCalendar,
               icon: const Icon(
@@ -78,7 +78,6 @@ class EventScheduleSection extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.pine700,
                 elevation: 0,
-                minimumSize: const Size(0, 44),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(9999),
                 ),

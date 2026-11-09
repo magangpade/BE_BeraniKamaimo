@@ -8,6 +8,7 @@ import '../../../data/repositories/hotel_repository.dart';
 import '../../../data/repositories/kuliner_repository.dart';
 import '../home/user_shell.dart';
 import 'eksplor_data.dart';
+import 'eksplor_service.dart';
 import 'widgets/eksplor_header.dart';
 import 'widgets/hotel_card.dart';
 import 'widgets/kuliner_card.dart';
@@ -16,7 +17,9 @@ import 'widgets/trust_card.dart';
 /// Tab Eksplor — "Katalog Wisata & Kuliner" (Tempat Menginap / Kuliner Khas)
 /// Terhubung langsung dengan REST API Backend & fallback ke data seed lokal.
 class EksplorScreen extends StatefulWidget {
-  const EksplorScreen({super.key});
+  final EksplorService? service;
+
+  const EksplorScreen({super.key, this.service});
 
   @override
   State<EksplorScreen> createState() => _EksplorScreenState();
@@ -49,6 +52,20 @@ class _EksplorScreenState extends State<EksplorScreen> {
 
   Future<void> _fetchData() async {
     setState(() => _loading = true);
+    if (widget.service != null) {
+      try {
+        final hotels = await widget.service!.fetchHotel();
+        final kuliners = await widget.service!.fetchKuliner();
+        if (mounted) {
+          setState(() {
+            _allHotels = hotels;
+            _allKuliners = kuliners;
+            _loading = false;
+          });
+        }
+        return;
+      } catch (_) {}
+    }
     try {
       final hotelRepo = context.read<HotelRepository>();
       final hotels = await hotelRepo.getAll();
@@ -219,9 +236,9 @@ class _EksplorScreenState extends State<EksplorScreen> {
           SliverToBoxAdapter(
             child: Column(
               children: [
-                const SizedBox(height: 12),
+                const SizedBox(height: 20),
                 if (_tab == 0) _trust(),
-                const SizedBox(height: 12),
+                const SizedBox(height: 28),
                 const KamaimoFooter(),
                 const KamaimoNavClearance(),
               ],
@@ -386,6 +403,7 @@ class _EksplorScreenState extends State<EksplorScreen> {
 
     if (kosong) {
       return Padding(
+        key: const Key('eksplorKosong'),
         padding: const EdgeInsets.symmetric(vertical: 60),
         child: Center(
           child: Text(
@@ -427,7 +445,7 @@ class _EksplorScreenState extends State<EksplorScreen> {
     }
 
     return SizedBox(
-      height: 640,
+      height: isHotel ? 540 : 495,
       child: PageView.builder(
         controller: _page,
         padEnds: false,
@@ -437,7 +455,10 @@ class _EksplorScreenState extends State<EksplorScreen> {
             left: 16,
             right: i == cards.length - 1 ? 16 : 0,
           ),
-          child: cards[i],
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: cards[i],
+          ),
         ),
       ),
     );

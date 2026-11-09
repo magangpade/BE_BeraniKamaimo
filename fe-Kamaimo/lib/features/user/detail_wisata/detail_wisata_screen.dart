@@ -156,12 +156,12 @@ class _DetailWisataScreenState extends State<DetailWisataScreen> {
             },
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 32),
 
           // 4. Fasilitas Desa Wisata (placeholder demo)
           const FasilitasSection(),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 32),
 
           // 5. Ulasan Pengunjung (data ulasan global)
           FutureBuilder<List<Ulasan>>(

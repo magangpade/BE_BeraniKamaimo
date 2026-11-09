@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/kamaimo_image.dart';
 import '../event_data.dart';
 import '../event_locale.dart';
 
@@ -238,7 +239,7 @@ class _EventShareSheetState extends State<_EventShareSheet> {
               customBorder: const CircleBorder(),
               child: Container(
                 width: 32,
-                height: 44,
+                height: 32,
                 decoration: BoxDecoration(
                   color: const Color(0xFFF7FAF7),
                   shape: BoxShape.circle,
@@ -286,11 +287,14 @@ class _EventShareSheetState extends State<_EventShareSheet> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
-              widget.event.foto,
+            child: SizedBox(
               width: 76,
               height: 76,
-              fit: BoxFit.cover,
+              child: KamaimoImage(
+                path: widget.event.foto,
+                fit: BoxFit.cover,
+                fallbackAsset: 'assets/images/beranda/thumb_event1.png',
+              ),
             ),
           ),
           const SizedBox(width: 14),
@@ -383,7 +387,7 @@ class _EventShareSheetState extends State<_EventShareSheet> {
                     children: [
                       Container(
                         width: 56,
-                        height: 44,
+                        height: 56,
                         decoration: BoxDecoration(
                           color: AppColors.mintSoft,
                           borderRadius: BorderRadius.circular(20),
@@ -485,7 +489,7 @@ class _EventShareSheetState extends State<_EventShareSheet> {
         ],
         const SizedBox(height: 10),
         SizedBox(
-          height: 44,
+          height: 52,
           width: double.infinity,
           child: FilledButton(
             onPressed: _copyLink,

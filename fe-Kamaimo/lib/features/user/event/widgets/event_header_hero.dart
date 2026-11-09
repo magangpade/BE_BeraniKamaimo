@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/kamaimo_image.dart';
 
 /// Hero Tab Event: foto penuh layar + tombol kembali & bagikan di pojok.
 class EventHeaderHero extends StatelessWidget {
@@ -67,12 +68,13 @@ class EventHeaderHero extends StatelessWidget {
   }
 
   Widget _heroImage(BuildContext context) {
-    const fallbackAsset = 'assets/images/detail_wisata/hero_luk_panenteng.png';
     final f = foto.trim();
     return KamaimoImage(
       path: f,
       fit: BoxFit.cover,
-      fallbackAsset: fallbackAsset,
+      width: double.infinity,
+      height: _height,
+      fallbackAsset: 'assets/images/beranda/pasar_kreatif_hero.png',
     );
   }
 }

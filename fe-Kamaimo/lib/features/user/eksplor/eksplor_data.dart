@@ -78,7 +78,7 @@ class KulinerItem {
   final String wilayah;
   final String? tag; // pill kiri atas foto ("Legendaris")
   final String deskripsi;
-  final List<(String, ChipKind)> bahan;
+  final List<(IconData, String, ChipKind)> bahan;
   final String linkGmaps;
   final String telepon;
   final String website;
@@ -98,7 +98,7 @@ class KulinerItem {
   });
 
   factory KulinerItem.fromModel(Kuliner k) {
-    List<(String, ChipKind)> bahanList = [];
+    List<(IconData, String, ChipKind)> bahanList = [];
     if (k.bahan != null && k.bahan!.isNotEmpty) {
       final parts = k.bahan!.split(',');
       for (int i = 0; i < parts.length; i++) {
@@ -106,8 +106,32 @@ class KulinerItem {
         final kind = i % 3 == 0
             ? ChipKind.mint
             : (i % 3 == 1 ? ChipKind.peach : ChipKind.cream);
-        bahanList.add((p, kind));
+        final cleanText = p.replaceFirst(RegExp(r'^[^\w\s]+\s*'), '');
+        final l = p.toLowerCase();
+        IconData icon = KulinerIcons.asamJawa;
+        if (l.contains('cabai') || l.contains('pedas') || l.contains('rica')) {
+          icon = KulinerIcons.cabai;
+        } else if (l.contains('tuna') || l.contains('ikan')) {
+          icon = KulinerIcons.tuna;
+        } else if (l.contains('pisang')) {
+          icon = KulinerIcons.daunPisang;
+        } else if (l.contains('santan')) {
+          icon = KulinerIcons.santan;
+        } else if (l.contains('daging') || l.contains('ayam') || l.contains('sapi') || l.contains('tulang') || l.contains('rusuk')) {
+          icon = KulinerIcons.daging;
+        } else if (l.contains('ketan') || l.contains('beras') || l.contains('singkong') || l.contains('ubi')) {
+          icon = KulinerIcons.singkong;
+        } else if (l.contains('kunyit') || l.contains('jahe')) {
+          icon = KulinerIcons.kunyit;
+        }
+        bahanList.add((icon, cleanText.isNotEmpty ? cleanText : p, kind));
       }
+    } else {
+      bahanList = const [
+        (KulinerIcons.asamJawa, 'Rempah Tradisional', ChipKind.mint),
+        (KulinerIcons.cabai, 'Bumbu Khas Sulteng', ChipKind.peach),
+        (KulinerIcons.daging, 'Resep Warisan', ChipKind.cream),
+      ];
     }
 
     return KulinerItem(
@@ -133,10 +157,30 @@ class KulinerItem {
 /// Warna chip bahan kuliner (mint | peach/pink | cream) sesuai desain.
 enum ChipKind { mint, peach, cream }
 
+/// Ikon bahan kuliner (pengganti emoji agar konsisten dengan ikon app).
+class KulinerIcons {
+  KulinerIcons._();
+
+  static const asamJawa = Icons.eco_rounded;
+  static const cabai = Icons.local_fire_department_rounded;
+  static const singkong = Icons.grain_rounded;
+  static const tuna = Icons.set_meal_rounded;
+  static const daunPisang = Icons.spa_rounded;
+  static const kunyit = Icons.eco_rounded;
+  static const santan = Icons.water_drop_rounded;
+  static const daging = Icons.dinner_dining_rounded;
+}
+
 class EksplorSeed {
   EksplorSeed._();
 
-  static const wilayah = ['Semua Wilayah', 'Palu', 'Luwuk', 'Ampana & Togean'];
+  static const wilayah = [
+    'Semua Wilayah',
+    'Palu',
+    'Donggala',
+    'Luwuk',
+    'Ampana & Togean',
+  ];
 
   static const hotel = <HotelItem>[
     HotelItem(
@@ -273,9 +317,9 @@ class EksplorSeed {
       tag: 'Legendaris',
       deskripsi: 'Ayam panggang Biromaru adalah kuliner legendaris khas kabupaten Sigi, Sulawesi Tengah (populer di area Palu) yang menggunakan ayam kampung muda dengan bumbu santan kental yang dipanggang berulang kali hingga gurih dan harum.',
       bahan: [
-        ('🍗 Ayam Kampung Muda', ChipKind.mint),
-        ('🥥 Kuah Santan Kental', ChipKind.peach),
-        ('🌶️ Rica-Rica & Jeruk', ChipKind.cream),
+        (KulinerIcons.daging, 'Ayam Kampung Muda', ChipKind.mint),
+        (KulinerIcons.santan, 'Kuah Santan Kental', ChipKind.peach),
+        (KulinerIcons.cabai, 'Rica-Rica & Jeruk', ChipKind.cream),
       ],
     ),
     KulinerItem(
@@ -287,9 +331,9 @@ class EksplorSeed {
       tag: 'Ikonik',
       deskripsi: 'Kaledo adalah ikon kuliner Sulawesi Tengah berupa sup tulang kaki sapi dengan sumsum melimpah, disajikan dalam kuah bening asam pedas segar dari asam jawa muda dan dinikmati dengan sedotan bambu serta ubi rebus.',
       bahan: [
-        ('🍖 Tulang Kaki Sapi', ChipKind.mint),
-        ('🌿 Asam Jawa Segar', ChipKind.peach),
-        ('🍠 Singkong / Ubi Rebus', ChipKind.cream),
+        (KulinerIcons.daging, 'Tulang Kaki Sapi', ChipKind.mint),
+        (KulinerIcons.asamJawa, 'Asam Jawa Segar', ChipKind.peach),
+        (KulinerIcons.singkong, 'Singkong / Ubi Rebus', ChipKind.cream),
       ],
     ),
     KulinerItem(
@@ -301,9 +345,9 @@ class EksplorSeed {
       tag: 'Autentik',
       deskripsi: 'Uvempoi adalah sup rusuk sapi khas suku Kaili dengan kuah asam segar beraroma rempah tradisional, dimasak hingga daging empuk meresap dan sangat nikmat disajikan hangat dengan burasa.',
       bahan: [
-        ('🥩 Rusuk Sapi Segar', ChipKind.mint),
-        ('🌿 Kuah Asam Segar', ChipKind.peach),
-        ('🍚 Burasa Tradisional', ChipKind.cream),
+        (KulinerIcons.daging, 'Rusuk Sapi Segar', ChipKind.mint),
+        (KulinerIcons.asamJawa, 'Kuah Asam Segar', ChipKind.peach),
+        (KulinerIcons.singkong, 'Burasa Tradisional', ChipKind.cream),
       ],
     ),
     KulinerItem(
@@ -315,9 +359,9 @@ class EksplorSeed {
       tag: 'Tradisional',
       deskripsi: 'Utadada adalah masakan khas Kaili berbahan dasar jeroan dan daging sapi yang dimasak dalam kuah santan kental gurih berempah kaya cita rasa yang hangat dan memikat.',
       bahan: [
-        ('🍲 Olahan Sapi Pilihan', ChipKind.mint),
-        ('🥥 Santan Rempah Kental', ChipKind.peach),
-        ('🌶️ Bumbu Khas Kaili', ChipKind.cream),
+        (KulinerIcons.daging, 'Olahan Sapi Pilihan', ChipKind.mint),
+        (KulinerIcons.santan, 'Santan Rempah Kental', ChipKind.peach),
+        (KulinerIcons.cabai, 'Bumbu Khas Kaili', ChipKind.cream),
       ],
     ),
   ];

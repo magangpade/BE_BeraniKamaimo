@@ -29,33 +29,26 @@ class KontakRow extends StatelessWidget {
     final websiteAction = onWebsite ?? onTap;
     return Row(
       children: [
-        if (phoneAction != null) ...[
-          _KontakBtn(
-            label: isEn ? 'Call' : 'Telepon',
-            icon: Icons.call_rounded,
-            iconColor: AppColors.emerald600,
-            onTap: phoneAction,
-          ),
-        ],
-        if (mapAction != null) ...[
-          if (phoneAction != null) const SizedBox(width: 10),
-          _KontakBtn(
-            label: 'Maps',
-            icon: Icons.travel_explore_rounded,
-            iconColor: AppColors.pine900,
-            onTap: mapAction,
-          ),
-        ],
-        if (websiteAction != null) ...[
-          if (phoneAction != null || mapAction != null)
-            const SizedBox(width: 10),
-          _KontakBtn(
-            label: 'Website',
-            icon: Icons.public_rounded,
-            iconColor: AppColors.emerald600,
-            onTap: websiteAction,
-          ),
-        ],
+        _KontakBtn(
+          label: isEn ? 'Phone' : 'Telepon',
+          icon: Icons.chat_rounded,
+          iconColor: AppColors.emerald600,
+          onTap: onTelepon ?? onTap ?? () {},
+        ),
+        const SizedBox(width: 10),
+        _KontakBtn(
+          label: 'Maps',
+          icon: Icons.travel_explore_rounded,
+          iconColor: AppColors.pine900,
+          onTap: onMaps ?? onTap ?? () {},
+        ),
+        const SizedBox(width: 10),
+        _KontakBtn(
+          label: 'Website',
+          icon: Icons.public_rounded,
+          iconColor: AppColors.emerald600,
+          onTap: onWebsite ?? onTap ?? () {},
+        ),
       ],
     );
   }
@@ -84,24 +77,19 @@ class _KontakBtn extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(14),
           child: Container(
-            height: 44,
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: AppColors.detailBorder),
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(icon, size: 20, color: iconColor),
                 const SizedBox(height: 4),
                 Text(
                   label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: AppColors.pine900,
                     fontFamily: 'PlusJakartaSans',

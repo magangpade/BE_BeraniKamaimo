@@ -89,12 +89,12 @@ class _PaketScreenState extends State<PaketScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 PaketHeader(onChanged: (v) => setState(() => _query = v)),
-                const SizedBox(height: 10),
+                const SizedBox(height: 14),
                 PaketFilters(
                   kategoriIndex: _kategori,
                   onKategori: (i) => setState(() => _kategori = i),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 16),
               ],
             ),
           ),
@@ -104,7 +104,7 @@ class _PaketScreenState extends State<PaketScreen> {
               child: shown.isEmpty
                   ? _EmptyPaket(isEnglish: isEnglish)
                   : SizedBox(
-                      height: 550,
+                      height: 578,
                       child: PageView.builder(
                         controller: _page,
                         padEnds: false,
@@ -127,9 +127,9 @@ class _PaketScreenState extends State<PaketScreen> {
           const SliverToBoxAdapter(
             child: Column(
               children: [
-                SizedBox(height: 12),
+                SizedBox(height: 20),
                 TrustPaketCard(),
-                SizedBox(height: 12),
+                SizedBox(height: 28),
                 KamaimoFooter(),
                 KamaimoNavClearance(),
               ],
@@ -335,10 +335,7 @@ class _PaketWhatsAppSheet extends StatelessWidget {
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.pine900,
                   foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 44),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(9999),
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
               ),
             ),

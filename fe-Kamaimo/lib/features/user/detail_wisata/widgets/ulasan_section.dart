@@ -103,11 +103,11 @@ class UlasanSection extends StatelessWidget {
             _TulisUlasanButton(onTap: onTulisUlasan),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
 
-        // Kartu testimoni (gap 10)
+        // Kartu testimoni (gap 14)
         for (var i = 0; i < row.length; i++) ...[
-          if (i > 0) const SizedBox(height: 10),
+          if (i > 0) const SizedBox(height: 14),
           _TestimonialCard(
             ulasan: row[i].ulasan,
             tipeWisatawan: row[i].tipeWisatawan,

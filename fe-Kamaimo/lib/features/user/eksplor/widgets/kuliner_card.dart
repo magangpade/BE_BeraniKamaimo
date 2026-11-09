@@ -96,61 +96,62 @@ class KulinerCard extends StatelessWidget {
         boxShadow: AppColors.shadowCard,
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _media(isEn),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _translateDeskripsi(item.deskripsi, isEn),
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w500,
-                      height: 1.55,
-                      color: AppColors.textBody,
-                      fontFamily: 'PlusJakartaSans',
-                    ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _translateDeskripsi(item.deskripsi, isEn),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w500,
+                    height: 1.5,
+                    color: AppColors.textBody,
+                    fontFamily: 'PlusJakartaSans',
                   ),
-                  const SizedBox(height: 12),
-                  // Chips bahan
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      for (final (label, kind) in item.bahan)
-                        _BahanChip(
-                          label: _translateBahan(label, isEn),
-                          kind: kind,
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Container(
-                    padding: const EdgeInsets.only(top: 14),
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        top: BorderSide(color: AppColors.detailBorder),
+                ),
+                const SizedBox(height: 12),
+                // Chips bahan
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final (icon, label, kind) in item.bahan)
+                      _BahanChip(
+                        icon: icon,
+                        label: _translateBahan(label, isEn),
+                        kind: kind,
                       ),
-                    ),
-                    child: KontakRow(
-                      onTap: onKontak,
-                      onTelepon: onTelepon != null && item.telepon.isNotEmpty
-                          ? () => onTelepon!(item)
-                          : null,
-                      onMaps: onMaps != null ? () => onMaps!(item) : null,
-                      onWebsite: onWebsite != null && item.website.isNotEmpty
-                          ? () => onWebsite!(item)
-                          : null,
-                      itemName: item.nama,
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.only(top: 14),
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      top: BorderSide(color: AppColors.detailBorder),
                     ),
                   ),
-                ],
-              ),
+                  child: KontakRow(
+                    onTap: onKontak,
+                    onTelepon: onTelepon != null && item.telepon.isNotEmpty
+                        ? () => onTelepon!(item)
+                        : null,
+                    onMaps: onMaps != null ? () => onMaps!(item) : null,
+                    onWebsite: onWebsite != null && item.website.isNotEmpty
+                        ? () => onWebsite!(item)
+                        : null,
+                    itemName: item.nama,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -162,7 +163,7 @@ class KulinerCard extends StatelessWidget {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       child: SizedBox(
-        height: 220,
+        height: 195,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -220,14 +221,28 @@ class KulinerCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    '🍲 ${item.warung}',
-                    style: const TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.starGold,
-                      fontFamily: 'PlusJakartaSans',
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.storefront_rounded,
+                        size: 12,
+                        color: AppColors.starGold,
+                      ),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          item.warung,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.starGold,
+                            fontFamily: 'PlusJakartaSans',
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -240,10 +255,15 @@ class KulinerCard extends StatelessWidget {
 }
 
 class _BahanChip extends StatelessWidget {
+  final IconData icon;
   final String label;
   final ChipKind kind;
 
-  const _BahanChip({required this.label, required this.kind});
+  const _BahanChip({
+    required this.icon,
+    required this.label,
+    required this.kind,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -253,8 +273,8 @@ class _BahanChip extends StatelessWidget {
         text: AppColors.emerald600,
       ),
       ChipKind.peach: (
-        backgroundColor: Color(0xFFFDE7E5),
-        text: Color(0xFFB3402F),
+        backgroundColor: AppColors.peachChipBg,
+        text: AppColors.peachChipText,
       ),
       ChipKind.cream: (
         backgroundColor: AppColors.goldChipBg,
@@ -272,14 +292,21 @@ class _BahanChip extends StatelessWidget {
             ? Border.all(color: AppColors.goldChipBorder)
             : null,
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 10.5,
-          fontWeight: FontWeight.w700,
-          color: colors.text,
-          fontFamily: 'PlusJakartaSans',
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: colors.text),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w700,
+              color: colors.text,
+              fontFamily: 'PlusJakartaSans',
+            ),
+          ),
+        ],
       ),
     );
   }

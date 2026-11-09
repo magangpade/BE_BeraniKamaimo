@@ -21,8 +21,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
   int _filter = 0;
   String _query = '';
 
-  static const _defaultCategories = ['Semua', 'Budaya', 'Bahari', 'UMKM', 'EKOWISATA'];
-  List<String> _categories = _defaultCategories;
+  static const _labels = ['Semua', 'Budaya', 'Bahari', 'UMKM', 'EKOWISATA'];
 
   static const _defaultFeatured = _Item(
     id: 23,
@@ -147,21 +146,6 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
           final feat = featMatch.isNotEmpty ? featMatch.first : items.first;
           _featured = feat;
           _cards = items.where((it) => it.id != feat.id).toList();
-
-          // Kategori dinamis dari data database aktual
-          final dbCats = <String>{};
-          for (final d in list) {
-            if (d.kategori.trim().isNotEmpty) {
-              dbCats.add(d.kategori.trim());
-            }
-          }
-          if (dbCats.isNotEmpty) {
-            final catList = ['Semua', ...dbCats];
-            _categories = catList;
-            if (_filter >= _categories.length) {
-              _filter = 0;
-            }
-          }
         });
       }
     } catch (_) {}
@@ -183,7 +167,7 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
     final isEn = context.watch<LanguageProvider>().isEnglish;
     final shown = _cards
         .where((it) =>
-            (_filter == 0 || it.kategori == _categories[_filter].toUpperCase()) &&
+            (_filter == 0 || it.kategori == _labels[_filter].toUpperCase()) &&
             (_query.isEmpty ||
                 it.nama.toLowerCase().contains(_query) ||
                 it.kabupaten.toLowerCase().contains(_query) ||
@@ -217,7 +201,6 @@ class _DestinasiScreenState extends State<DestinasiScreen> {
                   ),
                   const SizedBox(height: 13),
                   _FilterChips(
-                    categories: _categories,
                     selectedIndex: _filter,
                     onTap: (i) => setState(() => _filter = i),
                   ),
@@ -463,51 +446,32 @@ class _Glow extends StatelessWidget {
 }
 
 class _FilterChips extends StatelessWidget {
-  final List<String> categories;
   final int selectedIndex;
   final ValueChanged<int> onTap;
 
-  const _FilterChips({
-    required this.categories,
-    required this.selectedIndex,
-    required this.onTap,
-  });
+  const _FilterChips({required this.selectedIndex, required this.onTap});
 
-  static String _labelEn(String cat) {
-    switch (cat.toUpperCase()) {
-      case 'SEMUA':
-        return 'All';
-      case 'BUDAYA':
-        return 'Culture';
-      case 'BAHARI':
-        return 'Marine';
-      case 'UMKM':
-        return 'MSME';
-      case 'EKOWISATA':
-        return 'Ecotourism';
-      default:
-        return cat;
-    }
-  }
+  static const _labelsId = ['Semua', 'Budaya', 'Bahari', 'UMKM', 'EKOWISATA'];
+  static const _labelsEn = ['All', 'Culture', 'Marine', 'MSME', 'Ecotourism'];
 
   @override
   Widget build(BuildContext context) {
     final isEn = context.watch<LanguageProvider>().isEnglish;
+    final labels = isEn ? _labelsEn : _labelsId;
+
     return SizedBox(
-      height: 44,
+      height: 30,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: categories.length,
+        itemCount: labels.length,
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (ctx, i) {
           final active = i == selectedIndex;
-          final label = isEn ? _labelEn(categories[i]) : categories[i];
           return GestureDetector(
             onTap: () => onTap(i),
             child: Container(
-              height: 44,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
                 color: active ? AppColors.pine700 : Colors.white,
                 borderRadius: BorderRadius.circular(9999),
@@ -515,11 +479,10 @@ class _FilterChips extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Text(
-                label,
-                maxLines: 1,
+                labels[i],
                 style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 11,
+                  fontWeight: active ? FontWeight.w700 : FontWeight.w600,
                   color: active ? Colors.white : AppColors.pine900,
                   fontFamily: 'PlusJakartaSans',
                 ),
@@ -612,25 +575,24 @@ class _FeaturedCard extends StatelessWidget {
                   Positioned(
                     left: 12,
                     top: 12,
-                      child: Container(
-                      height: 44,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: Container(
+                      height: 23,
+                      padding: const EdgeInsets.symmetric(horizontal: 9),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.93),
                         borderRadius: BorderRadius.circular(9999),
                       ),
-                      alignment: Alignment.center,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Icon(Icons.auto_awesome_rounded,
-                              size: 12, color: AppColors.warning),
+                              size: 10, color: AppColors.warning),
                           const SizedBox(width: 4),
                           Text(
                             isEn ? 'Best choice' : 'Pilihan terbaik',
                             style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
                               color: AppColors.pine900,
                               fontFamily: 'PlusJakartaSans',
                             ),
@@ -736,34 +698,33 @@ class _FeaturedCard extends StatelessWidget {
                     GestureDetector(
                       onTap: onTap,
                       child: Container(
-                        height: 44,
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        constraints: const BoxConstraints(maxWidth: 180),
+                        width: 94,
+                        height: 29,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
                         decoration: BoxDecoration(
                           color: AppColors.pine700,
                           borderRadius: BorderRadius.circular(9999),
                         ),
                         alignment: Alignment.center,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Flexible(
-                              child: Text(
-                                isEn ? 'View ${item.nama}' : 'Lihat ${item.nama}',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                isEn ? 'View details' : 'Lihat detail',
                                 style: const TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white,
                                   fontFamily: 'PlusJakartaSans',
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            const Icon(Icons.arrow_forward_rounded,
-                                size: 11, color: Colors.white),
-                          ],
+                              const SizedBox(width: 2),
+                              const Icon(Icons.arrow_forward_rounded,
+                                  size: 9, color: Colors.white),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -816,8 +777,8 @@ class _DestinasiCard extends StatelessWidget {
                         left: 8,
                         top: 8,
                         child: Container(
-                          height: 44,
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          height: 18,
+                          padding: const EdgeInsets.symmetric(horizontal: 6),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.92),
                             borderRadius: BorderRadius.circular(9999),
@@ -825,12 +786,10 @@ class _DestinasiCard extends StatelessWidget {
                           alignment: Alignment.center,
                           child: Text(
                             item.getKategoriLabel(isEn),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.2,
+                              fontSize: 8,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.3,
                               color: AppColors.pine700,
                               fontFamily: 'PlusJakartaSans',
                             ),

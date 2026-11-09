@@ -133,7 +133,7 @@ class _PaketRatingSheetState extends State<PaketRatingSheet> {
                           color: AppColors.pine900,
                           constraints: const BoxConstraints.tightFor(
                             width: 32,
-                            height: 44,
+                            height: 32,
                           ),
                           padding: EdgeInsets.zero,
                           tooltip: widget.isEnglish ? 'Close' : 'Tutup',
@@ -170,7 +170,7 @@ class _PaketRatingSheetState extends State<PaketRatingSheet> {
                             borderRadius: BorderRadius.circular(12),
                             child: SizedBox(
                               width: 58,
-                              height: 44,
+                              height: 58,
                               child: KamaimoImage(
                                 path: widget.item.foto,
                                 fit: BoxFit.cover,
@@ -258,7 +258,7 @@ class _PaketRatingSheetState extends State<PaketRatingSheet> {
                               button: true,
                               child: Container(
                                 width: 56,
-                                height: 44,
+                                height: 56,
                                 margin: const EdgeInsets.symmetric(
                                   horizontal: 4,
                                 ),
@@ -322,7 +322,7 @@ class _PaketRatingSheetState extends State<PaketRatingSheet> {
                     const SizedBox(height: 22),
                     SizedBox(
                       width: double.infinity,
-                      height: 44,
+                      height: 52,
                       child: FilledButton(
                         key: const Key('paket-rating-submit'),
                         onPressed: _rating == 0 || _sending ? null : _submit,

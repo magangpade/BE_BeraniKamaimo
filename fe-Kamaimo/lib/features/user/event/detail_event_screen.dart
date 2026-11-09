@@ -118,7 +118,7 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                           _ratingSummary?.ratingCount ??
                           widget.event.ratingCount,
                       judul: EventLocale.name(widget.event, isEnglish),
-                      lokasi: d.lokasi,
+                      lokasi: widget.event.lokasi.isNotEmpty ? widget.event.lokasi : d.lokasi,
                       onRatingTap: _showRating,
                     ),
                   ),
@@ -188,7 +188,9 @@ class _DetailEventScreenState extends State<DetailEventScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    d.tentang,
+                    (widget.event.deskripsi.isNotEmpty && d.tentang.startsWith('Informasi lengkap'))
+                        ? widget.event.deskripsi
+                        : d.tentang,
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
