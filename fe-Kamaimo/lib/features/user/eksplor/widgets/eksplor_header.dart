@@ -13,6 +13,7 @@ class EksplorHeader extends StatelessWidget {
   final int tabIndex; // 0 = Tempat Menginap | 1 = Kuliner Khas
   final TextEditingController searchController;
   final int wilayahIndex;
+  final List<String> wilayahList;
   final ValueChanged<int> onTab;
   final ValueChanged<String> onQuery;
   final ValueChanged<int> onWilayah;
@@ -22,6 +23,7 @@ class EksplorHeader extends StatelessWidget {
     required this.tabIndex,
     required this.searchController,
     required this.wilayahIndex,
+    this.wilayahList = EksplorSeed.wilayah,
     required this.onTab,
     required this.onQuery,
     required this.onWilayah,
@@ -86,7 +88,9 @@ class EksplorHeader extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                isEn ? 'TOURISM DEPARTMENT CURATED CATALOG' : 'KATALOG PILIHAN DINAS PARIWISATA',
+                isEn
+                    ? 'TOURISM DEPARTMENT CURATED CATALOG'
+                    : 'KATALOG PILIHAN DINAS PARIWISATA',
                 key: const Key('eksplorChipDinas'),
                 style: const TextStyle(
                   fontSize: 10,
@@ -205,10 +209,10 @@ class EksplorHeader extends StatelessWidget {
             height: 34,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: EksplorSeed.wilayah.length,
+              itemCount: wilayahList.length,
               separatorBuilder: (_, _) => const SizedBox(width: 8),
               itemBuilder: (ctx, i) {
-                final raw = EksplorSeed.wilayah[i];
+                final raw = wilayahList[i];
                 final label = (isEn && raw == 'Semua Wilayah')
                     ? 'All Regions'
                     : raw;

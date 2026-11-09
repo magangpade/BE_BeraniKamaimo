@@ -20,6 +20,11 @@ class FeaturedPaketCard extends StatelessWidget {
     required this.onRate,
   });
 
+  String _whatsappLabel(bool isEnglish) {
+    return isEnglish
+        ? 'Contact Agent on WhatsApp'
+        : 'Hubungi Agen via WhatsApp';
+  }
   @override
   Widget build(BuildContext context) {
     final isEnglish = context.watch<LanguageProvider>().isEnglish;
@@ -253,53 +258,38 @@ class FeaturedPaketCard extends StatelessWidget {
                         fontFamily: 'PlusJakartaSans',
                       ),
                     ),
-                    const SizedBox(height: 11),
-                    Text(
-                      isEnglish ? 'INCLUDED:' : 'FASILITAS TERMASUK:',
-                      style: const TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.pine700,
-                        letterSpacing: 0.4,
-                        fontFamily: 'PlusJakartaSans',
+                    if (facilities.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        isEnglish ? 'INCLUDED:' : 'FASILITAS TERMASUK:',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.pine700,
+                          letterSpacing: 0.2,
+                          fontFamily: 'PlusJakartaSans',
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    SizedBox(
-                      height: 96,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: _FasilitasChip(f: facilities[0]),
+                      const SizedBox(height: 6),
+                      SizedBox(
+                        height: facilities.length <= 2 ? 39 : 84,
+                        child: LayoutBuilder(
+                          builder: (context, constraints) => Wrap(
+                            spacing: 8,
+                            runSpacing: 6,
+                            children: [
+                              for (final facility in facilities.take(4))
+                                SizedBox(
+                                  width: (constraints.maxWidth - 8) / 2,
+                                  height: 39,
+                                  child: _FasilitasChip(f: facility),
                                 ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: _FasilitasChip(f: facilities[1]),
-                                ),
-                              ],
-                            ),
+                            ],
                           ),
-                          const SizedBox(height: 8),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: _FasilitasChip(f: facilities[2]),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: _FasilitasChip(f: facilities[3]),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                    const Spacer(),
+                    ],
+                    const SizedBox(height: 10),
                     Semantics(
                       button: true,
                       label: isEnglish

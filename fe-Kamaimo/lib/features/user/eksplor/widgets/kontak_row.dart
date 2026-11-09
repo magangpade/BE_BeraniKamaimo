@@ -22,6 +22,9 @@ class KontakRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isEn = context.watch<LanguageProvider>().isEnglish;
+    final phoneAction = onTelepon ?? onTap;
+    final mapAction = onMaps ?? onTap;
+    final websiteAction = onWebsite ?? onTap;
     return Row(
       children: [
         _KontakBtn(
@@ -53,7 +56,7 @@ class _KontakBtn extends StatelessWidget {
   final String label;
   final IconData icon;
   final Color iconColor;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _KontakBtn({
     required this.label,

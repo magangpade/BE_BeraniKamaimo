@@ -124,7 +124,7 @@ class FeaturedEventCard extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -150,7 +150,7 @@ class FeaturedEventCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Text(
                   EventLocale.name(item, isEnglish),
                   style: const TextStyle(
@@ -173,7 +173,7 @@ class FeaturedEventCard extends StatelessWidget {
                     fontFamily: 'PlusJakartaSans',
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     const Icon(
@@ -197,14 +197,14 @@ class FeaturedEventCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
                 Align(
                   alignment: Alignment.centerRight,
                   child: GestureDetector(
                     key: const Key('featured-event-detail-button'),
                     onTap: onTap,
                     child: Container(
-                      width: isEnglish ? 110 : 88,
+                      width: isEnglish ? 110 : 95,
                       height: 27,
                       decoration: BoxDecoration(
                         color: AppColors.pine700,

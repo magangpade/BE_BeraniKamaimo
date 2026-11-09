@@ -19,6 +19,19 @@ class PaketFilters extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isEnglish = context.watch<LanguageProvider>().isEnglish;
+    final labels = [
+      for (var i = 0; i < PaketSeed.kategori.length; i++)
+        isEnglish
+            ? const [
+                'All',
+                'Marine',
+                'Culture',
+                'Trekking',
+                'Ecotourism',
+                'MSME',
+              ][i]
+            : PaketSeed.kategori[i],
+    ];
     return SizedBox(
       height: 32,
       child: ListView.separated(
@@ -40,9 +53,7 @@ class PaketFilters extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Text(
-                isEnglish
-                    ? const ['All', 'Marine', 'Culture', 'Trekking'][i]
-                    : PaketSeed.kategori[i],
+                labels[i],
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: active ? FontWeight.w700 : FontWeight.w600,

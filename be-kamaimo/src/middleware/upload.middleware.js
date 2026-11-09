@@ -1,22 +1,11 @@
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const { v4: uuid } = require('uuid');
-
-const dir = path.join(__dirname, '../../public/uploads');
-if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, dir),
-  filename: (_req, file, cb) =>
-    cb(null, `${uuid()}${path.extname(file.originalname)}`),
-});
+const ApiError = require('../utils/ApiError');
 
 module.exports = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
-    const ok = /image\/(jpeg|png|jpg|webp)/.test(file.mimetype);
-    cb(ok ? null : new Error('Hanya boleh upload image'), ok);
+    const ok = ['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype);
+    cb(ok ? null : ApiError.badRequest('Foto harus JPG, PNG, atau WebP'), ok);
   },
 });

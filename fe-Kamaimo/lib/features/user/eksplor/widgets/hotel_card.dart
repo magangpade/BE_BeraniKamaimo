@@ -163,7 +163,8 @@ class HotelCard extends StatelessWidget {
                               fit: BoxFit.scaleDown,
                               alignment: Alignment.centerRight,
                               child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.baseline,
                                 textBaseline: TextBaseline.alphabetic,
                                 children: [
                                   Text(
@@ -205,9 +206,16 @@ class HotelCard extends StatelessWidget {
                       const SizedBox(height: 12),
                       KontakRow(
                         onTap: onKontak,
-                        onTelepon: onTelepon != null ? () => onTelepon!(item) : null,
+                        onTelepon:
+                            onTelepon != null && item.telepon.isNotEmpty
+                            ? () => onTelepon!(item)
+                            : null,
                         onMaps: onMaps != null ? () => onMaps!(item) : null,
-                        onWebsite: onWebsite != null ? () => onWebsite!(item) : null,
+                        onWebsite:
+                            onWebsite != null && item.website.isNotEmpty
+                            ? () => onWebsite!(item)
+                            : null,
+                        itemName: item.nama,
                       ),
                     ],
                   ),
@@ -245,8 +253,11 @@ class HotelCard extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.star_rounded,
-                        size: 13, color: AppColors.starGold),
+                    const Icon(
+                      Icons.star_rounded,
+                      size: 13,
+                      color: AppColors.starGold,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       isEn
@@ -294,8 +305,11 @@ class HotelCard extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.location_on_rounded,
-                              size: 12, color: AppColors.textOnPrimary),
+                          const Icon(
+                            Icons.location_on_rounded,
+                            size: 12,
+                            color: AppColors.textOnPrimary,
+                          ),
                           const SizedBox(width: 4),
                           Flexible(
                             child: Text(

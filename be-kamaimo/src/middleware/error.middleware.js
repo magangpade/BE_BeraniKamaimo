@@ -1,4 +1,5 @@
 const ApiError = require('../utils/ApiError');
+const multer = require('multer');
 
 module.exports = (err, req, res, _next) => {
   console.error('💥', err.message);
@@ -7,6 +8,12 @@ module.exports = (err, req, res, _next) => {
       success: false,
       message: err.message,
       details: err.details,
+    });
+  }
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({
+      success: false,
+      message: err.code === 'LIMIT_FILE_SIZE' ? 'Ukuran foto maksimal 5 MB' : 'Unggah foto tidak valid',
     });
   }
   // MySQL duplicate

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../models/tour_package.dart';
 
 /// Seed data Tab Paket — dummy, meniru desain Figma 4965:1243 "Paket Wisata Sulteng (Modern)".
@@ -19,6 +20,7 @@ class PaketItem {
   final String satuan; // "/orang" | "/tur"
   final double rating;
   final int ratingCount;
+  final String kontak;
   final String deskripsi;
   final String? deskripsiEn;
   final List<(IconData, String)> fasilitas;
@@ -45,6 +47,7 @@ class PaketItem {
     this.deskripsiEn,
     this.rating = 4.8,
     this.ratingCount = 80,
+    this.kontak = '',
     this.fasilitas = const [],
     this.fasilitasEn,
   });
@@ -52,51 +55,62 @@ class PaketItem {
   factory PaketItem.fromModel(TourPackage p) {
     String kat = 'BAHARI';
     final n = (p.nama_wisata_id + ' ' + p.lokasi_id).toLowerCase();
-    if (n.contains('bada') || n.contains('desa') || n.contains('tenun') || n.contains('budaya')) {
+    if (n.contains('bada') ||
+        n.contains('desa') ||
+        n.contains('tenun') ||
+        n.contains('budaya')) {
       kat = 'BUDAYA';
-    } else if (n.contains('lindu') || n.contains('paralayang') || n.contains('salena') || n.contains('valley')) {
+    } else if (n.contains('lindu') ||
+        n.contains('paralayang') ||
+        n.contains('salena') ||
+        n.contains('valley')) {
       kat = 'TREKKING';
     }
 
     String wil = 'Sulteng';
-    if (n.contains('poso')) wil = 'Poso';
-    else if (n.contains('togean') || n.contains('ampana') || n.contains('kadidiri')) wil = 'Tojo Una-Una';
-    else if (n.contains('banggai') || n.contains('paisupok')) wil = 'Banggai';
-    else if (n.contains('morowali') || n.contains('sombori') || n.contains('sambori')) wil = 'Morowali';
-    else if (n.contains('donggala') || n.contains('towale') || n.contains('tanjung karang')) wil = 'Donggala';
-    else if (n.contains('palu') || n.contains('salena')) wil = 'Palu';
-    else if (n.contains('sigi') || n.contains('lindu')) wil = 'Sigi';
+    if (n.contains('poso'))
+      wil = 'Poso';
+    else if (n.contains('togean') ||
+        n.contains('ampana') ||
+        n.contains('kadidiri'))
+      wil = 'Tojo Una-Una';
+    else if (n.contains('banggai') || n.contains('paisupok'))
+      wil = 'Banggai';
+    else if (n.contains('morowali') ||
+        n.contains('sombori') ||
+        n.contains('sambori'))
+      wil = 'Morowali';
+    else if (n.contains('donggala') ||
+        n.contains('towale') ||
+        n.contains('tanjung karang'))
+      wil = 'Donggala';
+    else if (n.contains('palu') || n.contains('salena'))
+      wil = 'Palu';
+    else if (n.contains('sigi') || n.contains('lindu'))
+      wil = 'Sigi';
 
     return PaketItem(
       foto: p.media ?? 'assets/images/paket/foto_card1_togean.png',
-      kategori: kat,
-      wilayah: wil,
+      kategori: p.kategori?.isNotEmpty == true ? p.kategori! : kat,
+      wilayah: p.wilayah?.isNotEmpty == true ? p.wilayah! : wil,
       nama: p.nama_wisata_id,
       namaEn: p.nama_wisata_en,
-      tag: 'Paket Populer',
-      tagEn: 'Popular Package',
-      durasi: '3 Hari 2 Malam',
-      durasiEn: '3 Days 2 Nights',
-      tipe: 'Tur Terbimbing',
-      tipeEn: 'Guided Tour',
-      harga: p.harga > 0 ? p.harga : 1500000,
-      satuan: '/orang',
+      tag: p.tag ?? '',
+      durasi: p.durasi ?? '',
+      tipe: p.tipe ?? '',
+      harga: p.harga,
+      satuan: p.satuan?.isNotEmpty == true ? p.satuan! : '/orang',
       deskripsi: p.deskripsi_id,
       deskripsiEn: p.deskripsi_en,
-      rating: 4.9,
-      ratingCount: 95,
-      fasilitas: const [
-        (Icons.directions_boat_rounded, 'Transportasi'),
-        (Icons.hotel_rounded, 'Akomodasi'),
-        (Icons.restaurant_rounded, 'Konsumsi'),
-        (Icons.person_rounded, 'Pemandu Lokal'),
-      ],
-      fasilitasEn: const [
-        (Icons.directions_boat_rounded, 'Transportation'),
-        (Icons.hotel_rounded, 'Accommodation'),
-        (Icons.restaurant_rounded, 'Meals Included'),
-        (Icons.person_rounded, 'Local Guide'),
-      ],
+      rating: p.rating,
+      ratingCount: p.ratingCount,
+      kontak: p.kontak,
+      fasilitas: (p.fasilitas ?? '')
+          .split(',')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .map((s) => (Icons.check_circle_outline, s))
+          .toList(),
     );
   }
 
@@ -113,6 +127,8 @@ class PaketItem {
       'BAHARI' => 'Marine',
       'BUDAYA' => 'Culture',
       'TREKKING' => 'Trekking',
+      'EKOWISATA' => 'Ecotourism',
+      'UMKM' => 'MSME',
       _ => kategori,
     };
   }
@@ -124,7 +140,7 @@ class PaketItem {
 class PaketSeed {
   PaketSeed._();
 
-  static const kategori = ['Semua', 'Bahari', 'Budaya', 'Trekking'];
+  static const kategori = ['Semua', 'Bahari', 'Budaya', 'Trekking', 'Ekowisata', 'UMKM'];
 
   static const items = [
     PaketItem(

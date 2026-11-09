@@ -67,16 +67,11 @@ class _DetailWisataScreenState extends State<DetailWisataScreen> {
   Future<List<JarakDesa>> _defaultJarakLoader() async {
     final api = ApiClient(tokenStore: InMemoryTokenStore());
     final repo = JarakRepository(api);
-    List<JarakDesa> list;
     try {
-      list = await repo.getByDesaId(widget.desaId);
+      return await repo.getByDesaId(widget.desaId);
     } catch (_) {
-      list = []; // offline/API error → fallback demo
+      return [];
     }
-    // Data sudah/sukses kosong → konten demo sesuai Figma (Luk Panenteng),
-    // supaya section AKSESIBILITAS & RUTE selalu tampil seperti desain.
-    if (list.isEmpty) return _demoJarak;
-    return list;
   }
 
   Future<List<Ulasan>> _defaultUlasanLoader() async {
@@ -88,41 +83,6 @@ class _DetailWisataScreenState extends State<DetailWisataScreen> {
       return []; // offline/API error → empty state
     }
   }
-
-  /// Konten demo rute sesuai Figma (backend belum berisi data jarak desa).
-  /// Tab "Dari Palu" tidak ada kontennya di frame Figma → data demo realistis.
-  static const List<JarakDesa> _demoJarak = [
-    JarakDesa(
-      id: 0,
-      desaId: 0,
-      titikKota: 'LUWUK',
-      jalur_darat:
-          'Perjalanan darat aspal pesisir menyusuri bukit karst '
-          'dengan mobil rental atau ojek lokal Salakan langsung ke gapura danau.',
-      jalur_laut:
-          'Berangkat dari Pelabuhan Rakyat Luwuk setiap pagi menuju '
-          'Pelabuhan Salakan (Banggai Kepulauan) pukul 09:00 WITA.',
-      jalur_udara:
-          'Penerbangan reguler terjadwal dari Makassar (UPG) atau '
-          'Manado (MDC) menuju Bandara Luwuk (Wings Air / Batik Air).',
-    ),
-    JarakDesa(
-      id: 0,
-      desaId: 0,
-      titikKota: 'PALU',
-      jalur_darat:
-          'Perjalanan darat trans-Sulawesi dari Palu menuju Luwuk '
-          'dengan bus malam ±10–12 jam, dilanjutkan feri ke Salakan dan mobil '
-          'ke desa.',
-      jalur_laut:
-          'Ferreguler KM dari Pelabuhan Pantoloan (Palu) menuju Luwuk '
-          'dengan jadwal tidak harian — cek jadwal terbaru sebelum berangkat.',
-      jalur_udara:
-          'Penerbangan dari Palu (PLW) umumnya transit Makassar '
-          '(UPG) atau Manado (MDC) menuju Bandara Luwuk (Wings Air / Batik '
-          'Air).',
-    ),
-  ];
 
   void _share() {
     showDestinasiShareSheet(

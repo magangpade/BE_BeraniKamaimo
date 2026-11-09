@@ -40,6 +40,17 @@ class EventDetail {
     required this.akses,
     required this.organizer,
   });
+
+  EventDetail withText({String? lokasi, String? tentang,
+    List<String>? program, List<Map<String, dynamic>>? rundown}) => EventDetail(
+    badge: badge, rating: rating, ratingCount: ratingCount,
+    lokasi: lokasi ?? this.lokasi, tentang: tentang ?? this.tentang,
+    program: program ?? this.program, programImages: programImages,
+    rundown: rundown ?? this.rundown,
+    zonaWita: zonaWita, mapsUrl: mapsUrl, mapLabel: mapLabel,
+    mapAsset: mapAsset, region: region, mapLatitude: mapLatitude,
+    mapLongitude: mapLongitude, akses: akses, organizer: organizer,
+  );
 }
 
 // Data detail untuk setiap event — data ini bisa diisi dari API nanti.

@@ -141,9 +141,14 @@ class KulinerCard extends StatelessWidget {
                   ),
                   child: KontakRow(
                     onTap: onKontak,
-                    onTelepon: onTelepon != null ? () => onTelepon!(item) : null,
+                    onTelepon: onTelepon != null && item.telepon.isNotEmpty
+                        ? () => onTelepon!(item)
+                        : null,
                     onMaps: onMaps != null ? () => onMaps!(item) : null,
-                    onWebsite: onWebsite != null ? () => onWebsite!(item) : null,
+                    onWebsite: onWebsite != null && item.website.isNotEmpty
+                        ? () => onWebsite!(item)
+                        : null,
+                    itemName: item.nama,
                   ),
                 ),
               ],
@@ -176,8 +181,10 @@ class KulinerCard extends StatelessWidget {
                 top: 12,
                 left: 12,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.goldChipBg,
                     borderRadius: BorderRadius.circular(9999),

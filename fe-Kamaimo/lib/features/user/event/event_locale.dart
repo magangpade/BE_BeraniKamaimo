@@ -69,10 +69,10 @@ class EventLocale {
       isEnglish ? (_names[item.nama] ?? item.nama) : item.nama;
 
   static String description(EventItem item, bool isEnglish) =>
-      isEnglish ? (_descriptions[item.nama] ?? item.deskripsi) : item.deskripsi;
+      isEnglish ? (item.deskripsiEn?.isNotEmpty == true ? item.deskripsiEn! : (_descriptions[item.nama] ?? item.deskripsi)) : item.deskripsi;
 
   static String location(EventItem item, bool isEnglish) =>
-      isEnglish ? (_locations[item.lokasi] ?? item.lokasi) : item.lokasi;
+      isEnglish ? (item.lokasiEn?.isNotEmpty == true ? item.lokasiEn! : (_locations[item.lokasi] ?? item.lokasi)) : item.lokasi;
 
   static String cardLocation(EventItem item, bool isEnglish) =>
       item.nama == 'Festival Danau Poso ke-24'

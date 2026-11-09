@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../../core/widgets/kamaimo_image.dart';
+
 import 'package:provider/provider.dart';
 
 import '../../../../core/providers/language_provider.dart';
@@ -65,8 +68,9 @@ class EventHeaderHero extends StatelessWidget {
   }
 
   Widget _heroImage(BuildContext context) {
+    final f = foto.trim();
     return KamaimoImage(
-      path: foto,
+      path: f,
       fit: BoxFit.cover,
       width: double.infinity,
       height: _height,

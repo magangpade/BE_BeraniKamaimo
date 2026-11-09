@@ -4,6 +4,7 @@ import 'package:berani_kamaimo/core/network/api_client.dart';
 import 'package:berani_kamaimo/core/network/token_store.dart';
 import 'package:berani_kamaimo/features/admin/crud/crud_screen.dart';
 import 'package:berani_kamaimo/features/admin/dashboard/dashboard_screen.dart';
+import 'package:berani_kamaimo/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -12,14 +13,14 @@ import 'package:provider/provider.dart';
 
 Widget withApi(ApiClient api, Widget screen) => Provider<ApiClient>.value(
   value: api,
-  child: MaterialApp(home: screen),
+  child: MaterialApp(theme: AppTheme.light, home: screen),
 );
 
 void main() {
   testWidgets('ringkasan dashboard memakai jumlah dari enam endpoint', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(1200, 900);
+    tester.view.physicalSize = const Size(512, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -42,6 +43,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
     expect(find.text('Data backend terhubung'), findsOneWidget);
     expect(find.text('2'), findsOneWidget);
     expect(find.text('0'), findsNWidgets(5));
@@ -59,7 +61,7 @@ void main() {
   testWidgets('tab admin menampilkan baris API, bukan data contoh', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(900, 850);
+    tester.view.physicalSize = const Size(512, 736);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -89,6 +91,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
     expect(find.text('Festival dari API'), findsOneWidget);
     expect(find.text('1 Konten Terdaftar'), findsOneWidget);
     expect(find.text('Festival Danau Poso ke-24'), findsNothing);
@@ -123,7 +126,10 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Gagal memuat data dari backend.'), findsOneWidget);
+    expect(
+      find.text('Server sedang bermasalah. Coba lagi nanti.'),
+      findsOneWidget,
+    );
     expect(find.text('Festival Danau Poso ke-24'), findsNothing);
     client.close();
   });

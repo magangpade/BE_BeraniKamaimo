@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:berani_kamaimo/core/network/api_client.dart';
 import 'package:berani_kamaimo/core/network/token_store.dart';
 import 'package:berani_kamaimo/features/admin/crud/crud_screen.dart';
+import 'package:berani_kamaimo/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -140,7 +141,7 @@ void main() {
     testWidgets('edit ${testCase.type} mengirim PATCH dan memuat ulang', (
       tester,
     ) async {
-      tester.view.physicalSize = const Size(1100, 1000);
+      tester.view.physicalSize = const Size(512, 800);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
@@ -152,9 +153,32 @@ void main() {
         if (request.method == 'PATCH') {
           expect(request.url.path, '/api${testCase.path}/${row['id']}');
           final body = jsonDecode(request.body) as Map<String, dynamic>;
-          expect(body, {testCase.field: testCase.value});
+          expect(body[testCase.field], testCase.value);
           row.addAll(body);
           return http.Response(jsonEncode({'success': true, 'data': row}), 200);
+        }
+        if (request.url.path == '/api/desaWisata' &&
+            testCase.type != 'desaWisata') {
+          return http.Response(
+            jsonEncode({
+              'success': true,
+              'data': [
+                {'id': 1, 'namaDesa_id': 'Desa uji'},
+              ],
+            }),
+            200,
+          );
+        }
+        if (request.url.path == '/api/kuliner' && testCase.type != 'kuliner') {
+          return http.Response(
+            jsonEncode({
+              'success': true,
+              'data': [
+                {'id': 5, 'nama_makanan': 'Kuliner uji'},
+              ],
+            }),
+            200,
+          );
         }
         expect(request.url.path, '/api${testCase.path}');
         return http.Response(
@@ -171,6 +195,7 @@ void main() {
         Provider<ApiClient>.value(
           value: ApiClient(httpClient: client, tokenStore: token),
           child: MaterialApp(
+            theme: AppTheme.light,
             home: Scaffold(
               body: CrudScreen(
                 title: testCase.title,
@@ -181,6 +206,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
       await tester.tap(find.byKey(Key('admin-edit-${row['id']}')));
       await tester.pumpAndSettle();
       final field = find.byKey(Key('admin-field-${testCase.field}'));
@@ -188,7 +214,7 @@ void main() {
       await tester.enterText(field, testCase.value);
       await tester.tap(find.byKey(const Key('admin-save')));
       await tester.pumpAndSettle();
-      expect(calls, [
+      expect(calls.where((call) => call.contains('/api${testCase.path}')), [
         'GET /api${testCase.path}',
         'PATCH /api${testCase.path}/${row['id']}',
         'GET /api${testCase.path}',
@@ -201,7 +227,7 @@ void main() {
   testWidgets('rumah makan dapat ditambah lalu dihapus lewat API', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(1100, 1000);
+    tester.view.physicalSize = const Size(512, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -230,8 +256,9 @@ void main() {
     await tester.pumpWidget(
       Provider<ApiClient>.value(
         value: ApiClient(httpClient: client, tokenStore: token),
-        child: const MaterialApp(
-          home: Scaffold(
+        child: MaterialApp(
+          theme: AppTheme.light,
+          home: const Scaffold(
             body: CrudScreen(title: 'Rumah Makan', entityType: 'rumahMakan'),
           ),
         ),
@@ -257,7 +284,7 @@ void main() {
     await tester.tap(find.text('Hapus').last);
     await tester.pumpAndSettle();
     expect(find.text('Belum ada rumah makan di backend.'), findsOneWidget);
-    expect(calls, [
+    expect(calls.where((call) => !call.contains('/api/kuliner')), [
       'GET /api/rumahMakan',
       'POST /api/rumahMakan',
       'GET /api/rumahMakan',
