@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/kamaimo_image.dart';
 
 const _assetRoot = 'assets/images/beranda/';
 const _fallbackAsset = 'assets/images/detail_wisata/hero_luk_panenteng.png';
@@ -153,43 +154,12 @@ class _DestinasiShareSheetState extends State<_DestinasiShareSheet> {
   }
 
   Widget _buildThumb() {
-    final f = widget.foto.trim();
-    if (f.startsWith('assets/')) {
-      return Image.asset(
-        f,
-        width: 76,
-        height: 76,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Image.asset(
-          _fallbackAsset,
-          width: 76,
-          height: 76,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _fallbackThumb(),
-        ),
-      );
-    }
-    if (f.startsWith('http://') || f.startsWith('https://')) {
-      return Image.network(
-        f,
-        width: 76,
-        height: 76,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Image.asset(
-          _fallbackAsset,
-          width: 76,
-          height: 76,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _fallbackThumb(),
-        ),
-      );
-    }
-    return Image.asset(
-      _fallbackAsset,
+    return KamaimoImage(
+      path: widget.foto,
       width: 76,
       height: 76,
       fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => _fallbackThumb(),
+      fallbackAsset: _fallbackAsset,
     );
   }
 
