@@ -96,9 +96,9 @@ class FasilitasSection extends StatelessWidget {
             color: AppColors.pine900,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
 
-        // Grid 2 kolom (gap 14)
+        // Grid 2 kolom (gap 10)
         ..._gridRows(items),
       ],
     );
@@ -112,14 +112,14 @@ class FasilitasSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(child: _FasilitasCard(item: items[i])),
-          const SizedBox(width: 14),
+          const SizedBox(width: 10),
           if (second != null)
             Expanded(child: _FasilitasCard(item: second))
           else
             const Expanded(child: SizedBox()),
         ],
       ));
-      if (i + 2 < items.length) rows.add(const SizedBox(height: 14));
+      if (i + 2 < items.length) rows.add(const SizedBox(height: 10));
     }
     return rows;
   }

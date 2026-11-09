@@ -74,12 +74,12 @@ class EksplorHeader extends StatelessWidget {
               fontFamily: 'PlusJakartaSans',
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
 
           // Chip dinas
           Container(
-            height: 30,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
               color: AppColors.emerald100,
               borderRadius: BorderRadius.circular(9999),
@@ -88,17 +88,19 @@ class EksplorHeader extends StatelessWidget {
               child: Text(
                 isEn ? 'TOURISM DEPARTMENT CURATED CATALOG' : 'KATALOG PILIHAN DINAS PARIWISATA',
                 key: const Key('eksplorChipDinas'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.4,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
                   color: AppColors.emerald600,
                   fontFamily: 'PlusJakartaSans',
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
 
           // Segmented 2 katalog (kontainer mint berabu, aktif pine gelap)
           Container(
@@ -124,11 +126,11 @@ class EksplorHeader extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
 
           // Search (hint mengikuti tab aktif)
           Container(
-            height: 48,
+            height: 44,
             padding: const EdgeInsets.only(left: 16),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -178,20 +180,18 @@ class EksplorHeader extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
 
           // Chip wilayah (horizontal scroll)
           SizedBox(
-            height: 34,
+            height: 44,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: EksplorSeed.wilayah.length,
               separatorBuilder: (_, _) => const SizedBox(width: 8),
               itemBuilder: (ctx, i) {
                 final raw = EksplorSeed.wilayah[i];
-                final label = (isEn && raw == 'Semua Wilayah')
-                    ? 'All Regions'
-                    : raw;
+                final label = (isEn && raw == 'Semua Wilayah') ? 'All Regions' : raw;
                 return _WilayahChip(
                   label: label,
                   selected: i == wilayahIndex,
@@ -232,8 +232,10 @@ class _SegmentTab extends StatelessWidget {
           ),
           child: Text(
             label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: FontWeight.w700,
               color: selected ? AppColors.textOnPrimary : AppColors.textBody,
               fontFamily: 'PlusJakartaSans',
@@ -261,6 +263,7 @@ class _WilayahChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        height: 44,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         alignment: Alignment.center,
         decoration: BoxDecoration(
@@ -272,8 +275,9 @@ class _WilayahChip extends StatelessWidget {
         ),
         child: Text(
           label,
+          maxLines: 1,
           style: TextStyle(
-            fontSize: 11.5,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
             color: selected ? AppColors.textOnPrimary : AppColors.textBody,
             fontFamily: 'PlusJakartaSans',
