@@ -2,6 +2,7 @@ const pool = require('../config/db');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiResponse = require('../utils/ApiResponse');
 const ApiError = require('../utils/ApiError');
+const updateRecord = require('../utils/updateRecord');
 
 exports.list = asyncHandler(async (_req, res) => {
   const [rows] = await pool.query('SELECT * FROM tour_package');
@@ -24,6 +25,16 @@ exports.create = asyncHandler(async (req, res) => {
      b.deskripsi_en, b.lokasi_id||'', b.lokasi_en, b.kontak||'', b.media, b.link_video]);
   const [rows] = await pool.query('SELECT * FROM tour_package WHERE id = ?', [r.insertId]);
   ApiResponse.created(res, rows[0]);
+});
+exports.update = asyncHandler(async (req, res) => {
+  const row = await updateRecord({
+    table: 'tour_package', id: req.params.id, body: req.body,
+    fields: ['nama_wisata_id', 'nama_wisata_en', 'harga', 'deskripsi_id',
+      'deskripsi_en', 'lokasi_id', 'lokasi_en', 'kontak', 'media', 'link_video',
+      'kategori', 'durasi', 'tipe', 'fasilitas'],
+    required: ['nama_wisata_id', 'harga'], label: 'Paket wisata',
+  });
+  ApiResponse.success(res, row, 'Paket wisata diperbarui');
 });
 exports.remove = asyncHandler(async (req, res) => {
   const [r] = await pool.query('DELETE FROM tour_package WHERE id = ?', [req.params.id]);

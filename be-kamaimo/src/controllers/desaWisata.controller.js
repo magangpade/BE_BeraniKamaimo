@@ -30,17 +30,17 @@ exports.detail = asyncHandler(async (req, res) => {
 exports.create = asyncHandler(async (req, res) => {
   const {
     namaDesa_id, namaDesa_en, lokasi_id, lokasi_en, deskripsi_id, deskripsi_en,
-    latitude, longitude, jenisDesa, foto, link_video,
+    latitude, longitude, jenisDesa, kategori, foto, link_video,
   } = req.body;
   if (!namaDesa_id || latitude == null || longitude == null)
     throw ApiError.badRequest('namaDesa_id, latitude, longitude wajib');
   const [r] = await pool.query(
     `INSERT INTO desa_wisata
      (namaDesa_id, namaDesa_en, lokasi_id, lokasi_en, deskripsi_id, deskripsi_en,
-      latitude, longitude, jenisDesa, foto, link_video)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+      latitude, longitude, jenisDesa, kategori, foto, link_video)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
     [namaDesa_id, namaDesa_en, lokasi_id, lokasi_en, deskripsi_id, deskripsi_en,
-     latitude, longitude, jenisDesa || 'DESA_WISATA', foto, link_video]
+     latitude, longitude, jenisDesa || 'DESA_WISATA', kategori || 'EKOWISATA', foto, link_video]
   );
   const [rows] = await pool.query('SELECT * FROM desa_wisata WHERE id = ?', [r.insertId]);
   ApiResponse.created(res, rows[0]);
@@ -50,7 +50,7 @@ exports.update = asyncHandler(async (req, res) => {
   const [exists] = await pool.query('SELECT id FROM desa_wisata WHERE id = ?', [req.params.id]);
   if (!exists.length) throw ApiError.notFound('Desa wisata tidak ditemukan');
   const fields = ['namaDesa_id','namaDesa_en','lokasi_id','lokasi_en','deskripsi_id',
-    'deskripsi_en','latitude','longitude','jenisDesa','foto','link_video'];
+    'deskripsi_en','latitude','longitude','jenisDesa','kategori','foto','link_video'];
   const sets = []; const vals = [];
   for (const f of fields) {
     if (req.body[f] !== undefined) { sets.push(`${f} = ?`); vals.push(req.body[f]); }
