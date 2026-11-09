@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/config/env.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/kamaimo_image.dart';
 import 'destinasi_share_sheet.dart';
 
 /// Hero parallax-styled untuk Detail Wisata (frame 4714:452).
@@ -157,50 +158,18 @@ class DetailHero extends StatelessWidget {
     );
   }
 
-  /// Resolusi foto: path asset (`assets/...`) → Image.asset,
-  /// URL http(s) → Image.network dengan errorBuilder fallback,
-  /// kosong/gagal → foto hero demo Figma (Luk Panenteng).
+  /// Resolusi foto dengan KamaimoImage:
+  /// Cek bundle lokal `assets/images/uploads/` terlebih dahulu secara instan & offline,
+  /// fallback streaming dari Railway backend, dan cadangan terakhir ke `fallbackAsset`.
   Widget _heroImage(BuildContext context) {
-    const fallbackAsset = 'assets/images/detail_wisata/hero_luk_panenteng.png';
-    final f = foto.trim();
-    if (f.startsWith('assets/')) {
-      return Image.asset(
-        f,
-        fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => Image.asset(
-          fallbackAsset,
-          fit: BoxFit.cover,
-          errorBuilder: (_, _, _) => _fallbackImage(),
-        ),
-      );
-    }
-    if (f.startsWith('http://') || f.startsWith('https://')) {
-      return Image.network(
-        f,
-        fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => Image.asset(fallbackAsset, fit: BoxFit.cover),
-      );
-    }
-    if (f.startsWith('/uploads/')) {
-      return Image.network(
-        '${Env.serverBaseUrl}$f',
-        fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => Image.asset(fallbackAsset, fit: BoxFit.cover),
-      );
-    }
-    return Image.asset(fallbackAsset, fit: BoxFit.cover);
+    return KamaimoImage(
+      path: foto,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: _height,
+      fallbackAsset: 'assets/images/detail_wisata/hero_luk_panenteng.png',
+    );
   }
-
-  Widget _fallbackImage() => Container(
-        color: AppColors.surfaceElevated,
-        child: const Center(
-          child: Icon(
-            Icons.landscape_rounded,
-            size: 64,
-            color: AppColors.pine500,
-          ),
-        ),
-      );
 }
 
 /// Tombol glass pill 44x44 (white 80%, border white 40%, blur shadow).
