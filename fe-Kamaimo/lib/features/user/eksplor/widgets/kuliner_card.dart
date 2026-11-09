@@ -176,7 +176,7 @@ class KulinerCard extends StatelessWidget {
               decoration: BoxDecoration(gradient: AppColors.cardImageOverlay),
             ),
             // Tag (kiri atas)
-            if (item.tag != null)
+            if (item.tag != null && item.tag!.trim().isNotEmpty)
               Positioned(
                 top: 12,
                 left: 12,

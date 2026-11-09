@@ -52,35 +52,37 @@ class FeaturedPaketCard extends StatelessWidget {
                       gradient: AppColors.cardImageOverlay,
                     ),
                   ),
-                  Positioned(
-                    left: 14,
-                    top: 14,
-                    child: _GlassPill(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.schedule_rounded,
-                            size: 12,
-                            color: AppColors.pine700,
-                          ),
-                          const SizedBox(width: 5),
-                          Text(
-                            item.displayDuration(isEnglish),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.pine900,
-                              fontFamily: 'PlusJakartaSans',
+                  if (item.displayDuration(isEnglish).trim().isNotEmpty)
+                    Positioned(
+                      left: 14,
+                      top: 14,
+                      child: _GlassPill(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.schedule_rounded,
+                              size: 12,
+                              color: AppColors.pine700,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 5),
+                            Text(
+                              item.displayDuration(isEnglish),
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.pine900,
+                                fontFamily: 'PlusJakartaSans',
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    right: 14,
-                    top: 14,
+                  if (item.rating > 0)
+                    Positioned(
+                      right: 14,
+                      top: 14,
                     child: Semantics(
                       key: Key('paket-rating-trigger-${item.ratingKey}'),
                       button: true,
@@ -136,28 +138,30 @@ class FeaturedPaketCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          height: 22,
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: AppColors.emerald100,
-                            borderRadius: BorderRadius.circular(9999),
-                          ),
-                          child: Text(
-                            item.displayTag(isEnglish),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w900,
-                              color: AppColors.emerald600,
-                              letterSpacing: 0.3,
-                              fontFamily: 'PlusJakartaSans',
+                        if (item.displayTag(isEnglish).trim().isNotEmpty) ...[
+                          Container(
+                            height: 22,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: AppColors.emerald100,
+                              borderRadius: BorderRadius.circular(9999),
+                            ),
+                            child: Text(
+                              item.displayTag(isEnglish),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.emerald600,
+                                letterSpacing: 0.3,
+                                fontFamily: 'PlusJakartaSans',
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 7),
+                          const SizedBox(height: 7),
+                        ],
                         Text(
                           item.displayName(isEnglish),
                           maxLines: 2,
@@ -197,24 +201,25 @@ class FeaturedPaketCard extends StatelessWidget {
                           ),
                         ),
                         const Spacer(),
-                        Container(
-                          height: 30,
-                          padding: const EdgeInsets.symmetric(horizontal: 13),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: AppColors.emerald100,
-                            borderRadius: BorderRadius.circular(9999),
-                          ),
-                          child: Text(
-                            item.displayType(isEnglish),
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.emerald600,
-                              fontFamily: 'PlusJakartaSans',
+                        if (item.displayType(isEnglish).trim().isNotEmpty)
+                          Container(
+                            height: 30,
+                            padding: const EdgeInsets.symmetric(horizontal: 13),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: AppColors.emerald100,
+                              borderRadius: BorderRadius.circular(9999),
+                            ),
+                            child: Text(
+                              item.displayType(isEnglish),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.emerald600,
+                                fontFamily: 'PlusJakartaSans',
+                              ),
                             ),
                           ),
-                        ),
                       ],
                     ),
                     const SizedBox(height: 3),
@@ -289,7 +294,7 @@ class FeaturedPaketCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                    const SizedBox(height: 10),
+                    const Spacer(),
                     Semantics(
                       button: true,
                       label: isEnglish

@@ -445,7 +445,7 @@ class _EksplorScreenState extends State<EksplorScreen> {
     }
 
     return SizedBox(
-      height: isHotel ? 540 : 495,
+      height: isHotel ? 538 : 495,
       child: PageView.builder(
         controller: _page,
         padEnds: false,

@@ -104,7 +104,7 @@ class _PaketScreenState extends State<PaketScreen> {
               child: shown.isEmpty
                   ? _EmptyPaket(isEnglish: isEnglish)
                   : SizedBox(
-                      height: 578,
+                      height: 550,
                       child: PageView.builder(
                         controller: _page,
                         padEnds: false,

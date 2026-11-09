@@ -327,19 +327,21 @@ class HotelCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const Spacer(),
-                  _Pill(
-                    bg: const Color(0xCC1D3A30),
-                    child: Text(
-                      _translateHighlight(item.highlight, isEn),
-                      style: const TextStyle(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textOnPrimary,
-                        fontFamily: 'PlusJakartaSans',
+                  if (item.highlight.trim().isNotEmpty) ...[
+                    const Spacer(),
+                    _Pill(
+                      bg: const Color(0xCC1D3A30),
+                      child: Text(
+                        _translateHighlight(item.highlight, isEn),
+                        style: const TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textOnPrimary,
+                          fontFamily: 'PlusJakartaSans',
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
