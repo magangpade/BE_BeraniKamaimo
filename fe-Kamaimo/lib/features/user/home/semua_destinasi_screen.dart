@@ -256,7 +256,7 @@ class _SemuaDestinasiScreenState extends State<SemuaDestinasiScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: items.isEmpty
                       ? Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          padding: const EdgeInsets.symmetric(vertical: 40),
                           child: Center(
                             child: Text(
                               isEn
@@ -276,9 +276,9 @@ class _SemuaDestinasiScreenState extends State<SemuaDestinasiScreen> {
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            mainAxisSpacing: 12,
-                            crossAxisSpacing: 12,
-                            childAspectRatio: 0.78,
+                            mainAxisSpacing: 16,
+                            crossAxisSpacing: 16,
+                            childAspectRatio: 0.72,
                           ),
                           itemCount: items.length,
                           itemBuilder: (ctx, i) {
@@ -361,7 +361,7 @@ class _SearchHeaderDelegate extends SliverPersistentHeaderDelegate {
               const SizedBox(height: 8),
               // Search Bar
               Container(
-                height: 44,
+                height: 48,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(14),
@@ -420,7 +420,7 @@ class _SearchHeaderDelegate extends SliverPersistentHeaderDelegate {
 
               // Filter Pills
               SizedBox(
-                          height: 44,
+                height: 36,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: filters.length,
@@ -581,87 +581,97 @@ class _DestinationGridCard extends StatelessWidget {
             // Details
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      item['kabupaten'] as String,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.emerald600,
-                        letterSpacing: 0.3,
-                        fontFamily: 'PlusJakartaSans',
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      item['nama'] as String,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.pine900,
-                        height: 1.2,
-                        fontFamily: 'PlusJakartaSans',
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.star_rounded, size: 13, color: AppColors.warning),
-                        const SizedBox(width: 2),
                         Text(
-                          item['rating'] as String,
+                          item['kabupaten'] as String,
                           style: const TextStyle(
-                            fontSize: 11,
+                            fontSize: 10,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.pine900,
+                            color: AppColors.emerald600,
+                            letterSpacing: 0.5,
                             fontFamily: 'PlusJakartaSans',
                           ),
                         ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            isEn
-                                ? (item['ulasan'] as String).replaceAll('ulasan', 'reviews')
-                                : item['ulasan'] as String,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: AppColors.textTertiary,
-                              fontFamily: 'PlusJakartaSans',
-                            ),
+                        const SizedBox(height: 4),
+                        Text(
+                          item['nama'] as String,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.pine900,
+                            height: 1.2,
+                            fontFamily: 'PlusJakartaSans',
                           ),
                         ),
                       ],
                     ),
-                    const Spacer(),
-                    Container(
-                      height: 44,
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: AppColors.pine700,
-                        borderRadius: BorderRadius.circular(9999),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        isEn ? 'View ${item['nama']}' : 'Lihat ${item['nama']}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                          fontFamily: 'PlusJakartaSans',
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.star_rounded, size: 14, color: AppColors.warning),
+                            const SizedBox(width: 3),
+                            Text(
+                              item['rating'] as String,
+                              style: const TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.pine900,
+                                fontFamily: 'PlusJakartaSans',
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              isEn
+                                  ? (item['ulasan'] as String).replaceAll('ulasan', 'reviews')
+                                  : item['ulasan'] as String,
+                              style: const TextStyle(
+                                fontSize: 9.5,
+                                color: AppColors.textTertiary,
+                                fontFamily: 'PlusJakartaSans',
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: AppColors.pine700,
+                            borderRadius: BorderRadius.circular(9999),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                isEn ? 'Detail' : 'Detail',
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  fontFamily: 'PlusJakartaSans',
+                                ),
+                              ),
+                              const SizedBox(width: 3),
+                              const Icon(
+                                Icons.arrow_forward_rounded,
+                                size: 11,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

@@ -19,24 +19,20 @@ class PaketFilters extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isEnglish = context.watch<LanguageProvider>().isEnglish;
-    final labels = [
-      for (var i = 0; i < PaketSeed.kategori.length; i++)
-        isEnglish ? const ['All', 'Marine', 'Culture', 'Trekking'][i] : PaketSeed.kategori[i],
-    ];
     return SizedBox(
       height: 44,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: labels.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemCount: PaketSeed.kategori.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (ctx, i) {
           final active = i == kategoriIndex;
           return GestureDetector(
             onTap: () => onKategori(i),
             child: Container(
               height: 44,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
                 color: active ? AppColors.pine700 : Colors.white,
                 borderRadius: BorderRadius.circular(9999),
@@ -44,10 +40,11 @@ class PaketFilters extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Text(
-                labels[i],
-                maxLines: 1,
+                isEnglish
+                    ? const ['All', 'Marine', 'Culture', 'Trekking'][i]
+                    : PaketSeed.kategori[i],
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: active ? Colors.white : AppColors.pine900,
                   fontFamily: 'PlusJakartaSans',

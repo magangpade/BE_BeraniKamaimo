@@ -344,7 +344,7 @@ class _LanguageToggle extends StatelessWidget {
           borderRadius: BorderRadius.circular(9999),
         ),
         alignment: Alignment.center,
-        height: 44,
+        height: 36,
         child: Text(
           label,
           style: TextStyle(
@@ -486,8 +486,8 @@ class _WeatherWidgetState extends State<_WeatherWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 24,
+            height: 24,
             decoration: BoxDecoration(
               color: const Color(0xFFFEF3C7),
               borderRadius: BorderRadius.circular(8),
@@ -730,7 +730,7 @@ class _SearchBarState extends State<_SearchBar> {
                         borderRadius: BorderRadius.circular(8),
                         child: SizedBox(
                           width: 36,
-                          height: 44,
+                          height: 36,
                           child: KamaimoImage(
                             path: foto,
                             fit: BoxFit.cover,
@@ -833,8 +833,9 @@ class _QuickPillsState extends State<_QuickPills> {
   @override
   Widget build(BuildContext context) {
     final isEn = context.watch<LanguageProvider>().isEnglish;
+
     return SizedBox(
-      height: 44,
+      height: 34,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -842,37 +843,40 @@ class _QuickPillsState extends State<_QuickPills> {
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (ctx, i) {
           final active = i == _selected;
-          final label = isEn ? _pillsEn[i] : _pills[i].label;
           return GestureDetector(
             onTap: () {
               setState(() => _selected = i);
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => SemuaDestinasiScreen(initialFilter: _pills[i].label),
+                  builder: (_) => SemuaDestinasiScreen(
+                    initialFilter: _pills[i].label,
+                  ),
                 ),
               );
             },
             child: Container(
-              height: 44,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              height: 33,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
                 color: active ? AppColors.pine700 : Colors.white,
                 borderRadius: BorderRadius.circular(9999),
                 border: active ? null : Border.all(color: AppColors.border),
               ),
-              alignment: Alignment.center,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(_pills[i].icon, size: 14, color: active ? Colors.white : AppColors.pine700),
-                  const SizedBox(width: 6),
+                  Icon(
+                    _pills[i].icon,
+                    size: 14,
+                    color: active ? Colors.white : AppColors.pine500,
+                  ),
+                  const SizedBox(width: 7),
                   Text(
-                    label,
-                    maxLines: 1,
+                    isEn ? _pillsEn[i] : _pills[i].label,
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: active ? FontWeight.w700 : FontWeight.w600,
                       color: active ? Colors.white : AppColors.pine900,
                       fontFamily: 'PlusJakartaSans',
                     ),
@@ -1094,7 +1098,7 @@ class _PetaSectionState extends State<_PetaSection> {
         ),
         const SizedBox(height: 14),
         SizedBox(
-          height: 44,
+          height: 27,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1106,8 +1110,8 @@ class _PetaSectionState extends State<_PetaSection> {
               return GestureDetector(
                 onTap: () => _onSelectChip(i),
                 child: Container(
-                  height: 44,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  height: 25,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: active ? AppColors.pine700 : Colors.white,
                     borderRadius: BorderRadius.circular(9999),
@@ -1116,9 +1120,8 @@ class _PetaSectionState extends State<_PetaSection> {
                   alignment: Alignment.center,
                   child: Text(
                     chipText,
-                    maxLines: 1,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: active ? Colors.white : AppColors.pine900,
                       fontFamily: 'PlusJakartaSans',
@@ -1507,8 +1510,8 @@ class _DesaCard extends StatelessWidget {
               }
             },
             child: Container(
-              width: 88,
-              height: 44,
+              width: 62,
+              height: 28,
               decoration: BoxDecoration(
                 color: AppColors.pine700,
                 borderRadius: BorderRadius.circular(12),
@@ -1896,7 +1899,7 @@ class _CarouselCardState extends State<_CarouselCard> {
                       left: 14,
                       top: 14,
                       child: Container(
-                        height: 44,
+                        height: 24,
                         padding: const EdgeInsets.symmetric(horizontal: 13),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
@@ -2116,9 +2119,51 @@ class _CarouselCardState extends State<_CarouselCard> {
   Widget _cardButton(BuildContext context, bool isEn) {
     final item = widget.item;
     final active = widget.active;
-    final detailLabel = isEn ? 'View ${item.nama}' : 'Lihat ${item.nama}';
-    final infoLabel = isEn ? 'Info ${item.nama}' : 'Info ${item.nama}';
-    void open() => Navigator.pushNamed(
+    if (active) {
+      // Tombol kartu aktif: pill gelap "Detail →" (87×28)
+      return GestureDetector(
+        onTap: () {
+          Navigator.pushNamed(
+            context,
+            AppConstants.routeDetailDesa,
+            arguments: {
+              'desaId': item.id ?? 1,
+              'namaDesa': item.nama,
+              'lokasi': item.kabupaten,
+              'foto': item.foto ?? '',
+            },
+          );
+        },
+        child: Container(
+          width: 87,
+          height: 28,
+          decoration: BoxDecoration(
+            color: AppColors.pine700,
+            borderRadius: BorderRadius.circular(9999),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                isEn ? 'Details' : 'Detail',
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  fontFamily: 'PlusJakartaSans',
+                ),
+              ),
+              const SizedBox(width: 2),
+              const Icon(Icons.arrow_forward_rounded, size: 9, color: Colors.white),
+            ],
+          ),
+        ),
+      );
+    }
+    // Kartu tidak aktif: pill abu "Info Detail"
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
           context,
           AppConstants.routeDetailDesa,
           arguments: {
@@ -2128,54 +2173,17 @@ class _CarouselCardState extends State<_CarouselCard> {
             'foto': item.foto ?? '',
           },
         );
-    if (active) {
-      return GestureDetector(
-        onTap: open,
-                      child: Container(
-                        height: 44,
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        decoration: BoxDecoration(
-                          color: AppColors.pine700,
-            borderRadius: BorderRadius.circular(9999),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text(
-                  detailLabel,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    fontFamily: 'PlusJakartaSans',
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
-              const Icon(Icons.arrow_forward_rounded, size: 11, color: Colors.white),
-            ],
-          ),
-        ),
-      );
-    }
-    return GestureDetector(
-      onTap: open,
+      },
       child: Container(
-        height: 44,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        constraints: const BoxConstraints(maxWidth: 160),
+        width: 82,
+        height: 29,
         decoration: BoxDecoration(
           color: AppColors.surfaceVariantSoft,
           borderRadius: BorderRadius.circular(9999),
         ),
         child: Center(
           child: Text(
-            infoLabel,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            isEn ? 'More Info' : 'Info Detail',
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -2515,8 +2523,8 @@ class _EventCard extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Container(
-            width: 88,
-            height: 44,
+            width: 66,
+            height: 32,
             decoration: BoxDecoration(
               color: AppColors.surfaceVariant,
               borderRadius: BorderRadius.circular(12),

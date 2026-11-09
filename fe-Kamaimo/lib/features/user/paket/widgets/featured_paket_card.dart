@@ -20,13 +20,6 @@ class FeaturedPaketCard extends StatelessWidget {
     required this.onRate,
   });
 
-  String _whatsappLabel(bool isEnglish) {
-    final nama = item.displayName(isEnglish);
-    return isEnglish
-        ? 'Contact Agent for $nama on WhatsApp'
-        : 'Hubungi Agen $nama via WhatsApp';
-  }
-
   @override
   Widget build(BuildContext context) {
     final isEnglish = context.watch<LanguageProvider>().isEnglish;
@@ -70,8 +63,8 @@ class FeaturedPaketCard extends StatelessWidget {
                           Text(
                             item.displayDuration(isEnglish),
                             style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
                               color: AppColors.pine900,
                               fontFamily: 'PlusJakartaSans',
                             ),
@@ -107,8 +100,8 @@ class FeaturedPaketCard extends StatelessWidget {
                                 Text(
                                   '${item.rating}',
                                   style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
                                     color: AppColors.pine900,
                                     fontFamily: 'PlusJakartaSans',
                                   ),
@@ -116,8 +109,8 @@ class FeaturedPaketCard extends StatelessWidget {
                                 Text(
                                   ' (${item.ratingCount})',
                                   style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
                                     color: AppColors.pine900.withValues(
                                       alpha: 0.6,
                                     ),
@@ -133,15 +126,15 @@ class FeaturedPaketCard extends StatelessWidget {
                   ),
                   Positioned(
                     left: 16,
-                    right: 16,
+                    right: 60,
                     bottom: 14,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          height: 44,
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
-                          alignment: Alignment.centerLeft,
+                          height: 22,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color: AppColors.emerald100,
                             borderRadius: BorderRadius.circular(9999),
@@ -151,10 +144,10 @@ class FeaturedPaketCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w900,
                               color: AppColors.emerald600,
-                              letterSpacing: 0.2,
+                              letterSpacing: 0.3,
                               fontFamily: 'PlusJakartaSans',
                             ),
                           ),
@@ -191,8 +184,8 @@ class FeaturedPaketCard extends StatelessWidget {
                         Text(
                           isEnglish ? 'STARTING AT' : 'MULAI DARI',
                           style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
                             color: AppColors.textTertiary,
                             letterSpacing: 0.4,
                             fontFamily: 'PlusJakartaSans',
@@ -200,8 +193,8 @@ class FeaturedPaketCard extends StatelessWidget {
                         ),
                         const Spacer(),
                         Container(
-                          height: 44,
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          height: 30,
+                          padding: const EdgeInsets.symmetric(horizontal: 13),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color: AppColors.emerald100,
@@ -209,10 +202,8 @@ class FeaturedPaketCard extends StatelessWidget {
                           ),
                           child: Text(
                             item.displayType(isEnglish),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: AppColors.emerald600,
                               fontFamily: 'PlusJakartaSans',
@@ -221,7 +212,7 @@ class FeaturedPaketCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 3),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
@@ -247,7 +238,9 @@ class FeaturedPaketCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
+                    const Divider(height: 1, color: AppColors.divider),
+                    const SizedBox(height: 12),
                     Text(
                       item.displayDescription(isEnglish),
                       maxLines: 2,
@@ -256,52 +249,62 @@ class FeaturedPaketCard extends StatelessWidget {
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         color: AppColors.textBody,
-                        height: 1.35,
+                        height: 1.45,
                         fontFamily: 'PlusJakartaSans',
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 11),
                     Text(
                       isEnglish ? 'INCLUDED:' : 'FASILITAS TERMASUK:',
                       style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w900,
                         color: AppColors.pine700,
-                        letterSpacing: 0.2,
+                        letterSpacing: 0.4,
                         fontFamily: 'PlusJakartaSans',
                       ),
                     ),
                     const SizedBox(height: 6),
                     SizedBox(
-                      height: 84,
+                      height: 96,
                       child: Column(
                         children: [
                           Expanded(
                             child: Row(
                               children: [
-                                Expanded(child: _FasilitasChip(f: facilities[0])),
-                                const SizedBox(width: 8),
-                                Expanded(child: _FasilitasChip(f: facilities[1])),
+                                Expanded(
+                                  child: _FasilitasChip(f: facilities[0]),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: _FasilitasChip(f: facilities[1]),
+                                ),
                               ],
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 8),
                           Expanded(
                             child: Row(
                               children: [
-                                Expanded(child: _FasilitasChip(f: facilities[2])),
-                                const SizedBox(width: 8),
-                                Expanded(child: _FasilitasChip(f: facilities[3])),
+                                Expanded(
+                                  child: _FasilitasChip(f: facilities[2]),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: _FasilitasChip(f: facilities[3]),
+                                ),
                               ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const Spacer(),
                     Semantics(
                       button: true,
-                      label: _whatsappLabel(isEnglish),
+                      label: isEnglish
+                          ? 'Contact agent via WhatsApp'
+                          : 'Hubungi agen via WhatsApp',
                       child: InkWell(
                         onTap: onWhatsApp,
                         borderRadius: BorderRadius.circular(9999),
@@ -320,17 +323,15 @@ class FeaturedPaketCard extends StatelessWidget {
                                 color: Colors.white,
                               ),
                               const SizedBox(width: 9),
-                              Flexible(
-                                child: Text(
-                                  _whatsappLabel(isEnglish),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                    fontFamily: 'PlusJakartaSans',
-                                  ),
+                              Text(
+                                isEnglish
+                                    ? 'Contact Agent on WhatsApp'
+                                    : 'Hubungi Agen via WhatsApp',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  fontFamily: 'PlusJakartaSans',
                                 ),
                               ),
                             ],
@@ -358,7 +359,7 @@ class _GlassPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 44,
+      height: 24,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       alignment: Alignment.center,
       decoration: const BoxDecoration(

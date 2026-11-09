@@ -215,9 +215,9 @@ class _EksplorScreenState extends State<EksplorScreen> {
           SliverToBoxAdapter(
             child: Column(
               children: [
-                const SizedBox(height: 12),
+                const SizedBox(height: 20),
                 if (_tab == 0) _trust(),
-                const SizedBox(height: 12),
+                const SizedBox(height: 28),
                 const KamaimoFooter(),
                 const KamaimoNavClearance(),
               ],

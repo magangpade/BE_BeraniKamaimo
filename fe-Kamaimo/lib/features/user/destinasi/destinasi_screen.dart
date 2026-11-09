@@ -493,8 +493,9 @@ class _FilterChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isEn = context.watch<LanguageProvider>().isEnglish;
+
     return SizedBox(
-      height: 44,
+      height: 30,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -502,12 +503,12 @@ class _FilterChips extends StatelessWidget {
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (ctx, i) {
           final active = i == selectedIndex;
-          final label = isEn ? _labelEn(categories[i]) : categories[i];
+          final cat = categories[i];
+          final label = isEn ? _labelEn(cat) : cat;
           return GestureDetector(
             onTap: () => onTap(i),
             child: Container(
-              height: 44,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
                 color: active ? AppColors.pine700 : Colors.white,
                 borderRadius: BorderRadius.circular(9999),
@@ -516,10 +517,9 @@ class _FilterChips extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 label,
-                maxLines: 1,
                 style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 11,
+                  fontWeight: active ? FontWeight.w700 : FontWeight.w600,
                   color: active ? Colors.white : AppColors.pine900,
                   fontFamily: 'PlusJakartaSans',
                 ),
@@ -612,25 +612,24 @@ class _FeaturedCard extends StatelessWidget {
                   Positioned(
                     left: 12,
                     top: 12,
-                      child: Container(
-                      height: 44,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: Container(
+                      height: 23,
+                      padding: const EdgeInsets.symmetric(horizontal: 9),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.93),
                         borderRadius: BorderRadius.circular(9999),
                       ),
-                      alignment: Alignment.center,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Icon(Icons.auto_awesome_rounded,
-                              size: 12, color: AppColors.warning),
+                              size: 10, color: AppColors.warning),
                           const SizedBox(width: 4),
                           Text(
                             isEn ? 'Best choice' : 'Pilihan terbaik',
                             style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
                               color: AppColors.pine900,
                               fontFamily: 'PlusJakartaSans',
                             ),
@@ -736,34 +735,33 @@ class _FeaturedCard extends StatelessWidget {
                     GestureDetector(
                       onTap: onTap,
                       child: Container(
-                        height: 44,
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        constraints: const BoxConstraints(maxWidth: 180),
+                        width: 94,
+                        height: 29,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
                         decoration: BoxDecoration(
                           color: AppColors.pine700,
                           borderRadius: BorderRadius.circular(9999),
                         ),
                         alignment: Alignment.center,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Flexible(
-                              child: Text(
-                                isEn ? 'View ${item.nama}' : 'Lihat ${item.nama}',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                isEn ? 'View details' : 'Lihat detail',
                                 style: const TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white,
                                   fontFamily: 'PlusJakartaSans',
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            const Icon(Icons.arrow_forward_rounded,
-                                size: 11, color: Colors.white),
-                          ],
+                              const SizedBox(width: 2),
+                              const Icon(Icons.arrow_forward_rounded,
+                                  size: 9, color: Colors.white),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -816,8 +814,8 @@ class _DestinasiCard extends StatelessWidget {
                         left: 8,
                         top: 8,
                         child: Container(
-                          height: 44,
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          height: 18,
+                          padding: const EdgeInsets.symmetric(horizontal: 6),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.92),
                             borderRadius: BorderRadius.circular(9999),
@@ -825,12 +823,10 @@ class _DestinasiCard extends StatelessWidget {
                           alignment: Alignment.center,
                           child: Text(
                             item.getKategoriLabel(isEn),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.2,
+                              fontSize: 8,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.3,
                               color: AppColors.pine700,
                               fontFamily: 'PlusJakartaSans',
                             ),

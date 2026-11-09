@@ -70,7 +70,7 @@ class _HowToGetThereState extends State<HowToGetThere> {
             color: AppColors.pine900,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
 
         // Modern Segmented Pill Switcher (selalu 2 tab sesuai Figma;
         // tab tanpa data → empty state)
@@ -99,7 +99,10 @@ class _HowToGetThereState extends State<HowToGetThere> {
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
+
+        // Kartu rute / empty state (gap 14)
+        const SizedBox(height: 4),
         if (jarak != null) ...[
           _RouteCard(jalur: Jalur.laut, deskripsi: jarak.jalur_laut),
           const SizedBox(height: 14),

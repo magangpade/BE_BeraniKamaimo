@@ -270,7 +270,7 @@ class _DestinasiShareSheetState extends State<_DestinasiShareSheet> {
               customBorder: const CircleBorder(),
               child: Container(
                 width: 32,
-                height: 44,
+                height: 32,
                 decoration: BoxDecoration(
                   color: const Color(0xFFF7FAF7),
                   shape: BoxShape.circle,
@@ -409,7 +409,7 @@ class _DestinasiShareSheetState extends State<_DestinasiShareSheet> {
                     children: [
                       Container(
                         width: 56,
-                        height: 44,
+                        height: 56,
                         decoration: BoxDecoration(
                           color: AppColors.mintSoft,
                           borderRadius: BorderRadius.circular(20),
@@ -457,7 +457,7 @@ class _DestinasiShareSheetState extends State<_DestinasiShareSheet> {
         ),
         const SizedBox(height: 10),
         Container(
-          height: 44,
+          height: 42,
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             color: Colors.white,
@@ -506,7 +506,7 @@ class _DestinasiShareSheetState extends State<_DestinasiShareSheet> {
         ],
         const SizedBox(height: 10),
         SizedBox(
-          height: 44,
+          height: 52,
           width: double.infinity,
           child: FilledButton(
             onPressed: _copyLink,
