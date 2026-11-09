@@ -89,28 +89,60 @@ class PaketItem {
     else if (n.contains('sigi') || n.contains('lindu'))
       wil = 'Sigi';
 
+    final rawFasilitas = (p.fasilitas ?? '')
+        .split(',')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .map((s) => (Icons.check_circle_outline, s))
+        .toList();
+
     return PaketItem(
-      foto: p.media ?? 'assets/images/paket/foto_card1_togean.png',
+      foto: (p.media != null && p.media!.isNotEmpty)
+          ? p.media!
+          : 'assets/images/paket/foto_card1_togean.png',
       kategori: p.kategori?.isNotEmpty == true ? p.kategori! : kat,
       wilayah: p.wilayah?.isNotEmpty == true ? p.wilayah! : wil,
       nama: p.nama_wisata_id,
       namaEn: p.nama_wisata_en,
-      tag: p.tag ?? '',
-      durasi: p.durasi ?? '',
-      tipe: p.tipe ?? '',
-      harga: p.harga,
+      tag: (p.tag != null && p.tag!.trim().isNotEmpty)
+          ? p.tag!
+          : 'Paket Populer',
+      tagEn: (p.tag != null && p.tag!.trim().isNotEmpty)
+          ? p.tag!
+          : 'Popular Package',
+      durasi: (p.durasi != null && p.durasi!.trim().isNotEmpty)
+          ? p.durasi!
+          : '3 Hari 2 Malam',
+      durasiEn: (p.durasi != null && p.durasi!.trim().isNotEmpty)
+          ? p.durasi!
+          : '3 Days 2 Nights',
+      tipe: (p.tipe != null && p.tipe!.trim().isNotEmpty)
+          ? p.tipe!
+          : 'Tur Terbimbing',
+      tipeEn: (p.tipe != null && p.tipe!.trim().isNotEmpty)
+          ? p.tipe!
+          : 'Guided Tour',
+      harga: p.harga > 0 ? p.harga : 1500000,
       satuan: p.satuan?.isNotEmpty == true ? p.satuan! : '/orang',
       deskripsi: p.deskripsi_id,
       deskripsiEn: p.deskripsi_en,
       rating: p.rating,
       ratingCount: p.ratingCount,
       kontak: p.kontak,
-      fasilitas: (p.fasilitas ?? '')
-          .split(',')
-          .map((s) => s.trim())
-          .where((s) => s.isNotEmpty)
-          .map((s) => (Icons.check_circle_outline, s))
-          .toList(),
+      fasilitas: rawFasilitas.isNotEmpty
+          ? rawFasilitas
+          : const [
+              (Icons.directions_boat_rounded, 'Transportasi'),
+              (Icons.hotel_rounded, 'Akomodasi'),
+              (Icons.restaurant_rounded, 'Konsumsi'),
+              (Icons.person_rounded, 'Pemandu Lokal'),
+            ],
+      fasilitasEn: const [
+        (Icons.directions_boat_rounded, 'Transportation'),
+        (Icons.hotel_rounded, 'Accommodation'),
+        (Icons.restaurant_rounded, 'Meals Included'),
+        (Icons.person_rounded, 'Local Guide'),
+      ],
     );
   }
 
