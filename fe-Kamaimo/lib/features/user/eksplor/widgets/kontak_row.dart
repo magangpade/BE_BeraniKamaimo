@@ -10,6 +10,7 @@ class KontakRow extends StatelessWidget {
   final VoidCallback? onTelepon;
   final VoidCallback? onMaps;
   final VoidCallback? onWebsite;
+  final String? itemName;
 
   const KontakRow({
     super.key,
@@ -17,6 +18,7 @@ class KontakRow extends StatelessWidget {
     this.onTelepon,
     this.onMaps,
     this.onWebsite,
+    this.itemName,
   });
 
   @override
