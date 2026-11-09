@@ -7,6 +7,8 @@ import 'package:berani_kamaimo/core/theme/app_colors.dart';
 
 import '../data/admin_content.dart';
 import 'admin_entity_form_dialog.dart';
+import 'desa_wisata_form_dialog.dart';
+import 'jarak_desa_form_dialog.dart';
 
 /// Admin content list backed by be-kamaimo.
 class CrudScreen extends StatefulWidget {
@@ -71,10 +73,12 @@ class _CrudScreenState extends State<CrudScreen> {
         _data = rows.map((row) => AdminContent.display(type, row)).toList();
         _loading = false;
       });
-    } catch (_) {
+    } catch (error) {
       if (!mounted || version != _loadVersion) return;
       setState(() {
-        _loadError = 'Gagal memuat data dari backend.';
+        _loadError = error is ApiException
+            ? error.userMessage
+            : 'Gagal memuat data dari backend. Periksa koneksi API.';
         _loading = false;
       });
     }
@@ -128,14 +132,23 @@ class _CrudScreenState extends State<CrudScreen> {
     final api = context.read<ApiClient>();
     final saved = await showDialog<bool>(
       context: context,
-      builder: (_) => AdminEntityFormDialog(
-        title: widget.title,
-        entityType: type,
-        row: item?['raw'] as Map<String, dynamic>?,
-        onSave: (body) => item == null
+      builder: (_) {
+        Future<void> save(Map<String, dynamic> body) => item == null
             ? AdminContent.create(api, type, body)
-            : AdminContent.update(api, type, item['id'], body),
-      ),
+            : AdminContent.update(api, type, item['id'], body);
+        final row = item?['raw'] as Map<String, dynamic>?;
+        return type == 'desaWisata'
+            ? DesaWisataFormDialog(api: api, row: row, onSave: save)
+            : type == 'jarakDesa'
+            ? JarakDesaFormDialog(api: api, row: row, onSave: save)
+            : AdminEntityFormDialog(
+                title: widget.title,
+                entityType: type,
+                api: api,
+                row: row,
+                onSave: save,
+              );
+      },
     );
     if (saved == true && mounted) {
       await _syncFromBackend();
@@ -203,6 +216,10 @@ class _CrudScreenState extends State<CrudScreen> {
                         }
                       }
                     },
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(0, 40),
+                backgroundColor: AppColors.error,
+              ),
               child: saving
                   ? const SizedBox(
                       width: 18,
@@ -422,6 +439,7 @@ class _CrudScreenState extends State<CrudScreen> {
                 ),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.pine700,
+                  minimumSize: const Size(0, 44),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 12,
@@ -688,6 +706,7 @@ class _CrudScreenState extends State<CrudScreen> {
                     OutlinedButton(
                       onPressed: () => _showDetail(item),
                       style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(0, 36),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,
                           vertical: 8,
@@ -711,13 +730,32 @@ class _CrudScreenState extends State<CrudScreen> {
                       onPressed: widget.entityType == 'adminUser'
                           ? null
                           : () => _showForm(item),
-                      child: const Text('Edit'),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(0, 36),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
+                        side: const BorderSide(color: AppColors.border),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Edit',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
                     ),
                     FilledButton(
                       onPressed: widget.entityType == 'adminUser'
                           ? null
                           : () => _confirmDelete(item),
                       style: FilledButton.styleFrom(
+                        minimumSize: const Size(0, 36),
                         backgroundColor: AppColors.error.withValues(alpha: 0.1),
                         foregroundColor: AppColors.error,
                         padding: const EdgeInsets.symmetric(

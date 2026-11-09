@@ -52,7 +52,7 @@ class _EksplorScreenState extends State<EksplorScreen> {
     try {
       final hotelRepo = context.read<HotelRepository>();
       final hotels = await hotelRepo.getAll();
-      if (hotels.isNotEmpty && mounted) {
+      if (mounted) {
         setState(() {
           _allHotels = hotels.map((h) => HotelItem.fromModel(h)).toList();
         });
@@ -62,7 +62,7 @@ class _EksplorScreenState extends State<EksplorScreen> {
     try {
       final kulinerRepo = context.read<KulinerRepository>();
       final kuliners = await kulinerRepo.getAll();
-      if (kuliners.isNotEmpty && mounted) {
+      if (mounted) {
         setState(() {
           _allKuliners = kuliners.map((k) => KulinerItem.fromModel(k)).toList();
         });
@@ -72,17 +72,25 @@ class _EksplorScreenState extends State<EksplorScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
+  List<String> get _regions => <String>{
+    ...EksplorSeed.wilayah,
+    ..._allHotels.map((h) => h.wilayah).where((r) => r.isNotEmpty),
+    ..._allKuliners.map((k) => k.wilayah).where((r) => r.isNotEmpty),
+  }.toList();
+
   List<HotelItem> get _hotels {
     final q = _query.trim().toLowerCase();
-    final targetWilayah = EksplorSeed.wilayah[_wilayah].toLowerCase();
+    final targetWilayah = _regions[_wilayah].toLowerCase();
 
     return _allHotels.where((h) {
-      final cocokWilayah = _wilayah == 0 ||
+      final cocokWilayah =
+          _wilayah == 0 ||
           h.wilayah.toLowerCase().contains(targetWilayah) ||
           targetWilayah.contains(h.wilayah.toLowerCase()) ||
           h.lokasi.toLowerCase().contains(targetWilayah);
 
-      final cocokQuery = q.isEmpty ||
+      final cocokQuery =
+          q.isEmpty ||
           h.nama.toLowerCase().contains(q) ||
           h.wilayah.toLowerCase().contains(q) ||
           h.lokasi.toLowerCase().contains(q) ||
@@ -93,15 +101,17 @@ class _EksplorScreenState extends State<EksplorScreen> {
 
   List<KulinerItem> get _kuliners {
     final q = _query.trim().toLowerCase();
-    final targetWilayah = EksplorSeed.wilayah[_wilayah].toLowerCase();
+    final targetWilayah = _regions[_wilayah].toLowerCase();
 
     return _allKuliners.where((k) {
-      final cocokWilayah = _wilayah == 0 ||
+      final cocokWilayah =
+          _wilayah == 0 ||
           k.wilayah.toLowerCase().contains(targetWilayah) ||
           targetWilayah.contains(k.wilayah.toLowerCase()) ||
           k.warung.toLowerCase().contains(targetWilayah);
 
-      final cocokQuery = q.isEmpty ||
+      final cocokQuery =
+          q.isEmpty ||
           k.nama.toLowerCase().contains(q) ||
           k.warung.toLowerCase().contains(q) ||
           k.wilayah.toLowerCase().contains(q) ||
@@ -125,7 +135,9 @@ class _EksplorScreenState extends State<EksplorScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              isEn ? 'Could not open link: $url' : 'Tidak dapat membuka tautan: $url',
+              isEn
+                  ? 'Could not open link: $url'
+                  : 'Tidak dapat membuka tautan: $url',
             ),
           ),
         );
@@ -134,56 +146,47 @@ class _EksplorScreenState extends State<EksplorScreen> {
   }
 
   void _onTeleponHotel(HotelItem item) {
-    String phone = item.telepon.replaceAll(RegExp(r'[^0-9]'), '');
-    if (phone.startsWith('0')) {
-      phone = '62${phone.substring(1)}';
-    }
-    if (phone.isNotEmpty) {
-      final waUrl = 'https://wa.me/$phone?text=${Uri.encodeComponent('Halo ${item.nama}, saya ingin menanyakan reservasi kamar.')}';
-      _launchUrlStr(waUrl);
-    } else {
-      _launchUrlStr('https://maps.google.com/?q=${Uri.encodeComponent('${item.nama} ${item.lokasi}')}');
-    }
+    final phone = item.telepon.replaceAll(RegExp(r'[^0-9+]'), '');
+    if (phone.isNotEmpty) _launchUrlStr('tel:$phone');
   }
 
   void _onMapsHotel(HotelItem item) {
     if (item.linkGmaps.isNotEmpty && item.linkGmaps.startsWith('http')) {
       _launchUrlStr(item.linkGmaps);
     } else {
-      _launchUrlStr('https://maps.google.com/?q=${Uri.encodeComponent('${item.nama} ${item.lokasi}')}');
+      _launchUrlStr(
+        'https://maps.google.com/?q=${Uri.encodeComponent('${item.nama} ${item.lokasi}')}',
+      );
     }
   }
 
   void _onWebsiteHotel(HotelItem item) {
-    if (item.website.isNotEmpty && item.website.startsWith('http')) {
-      _launchUrlStr(item.website);
-    } else {
-      _launchUrlStr('https://www.google.com/search?q=${Uri.encodeComponent('${item.nama} Sulawesi Tengah')}');
+    if (item.website.trim().isNotEmpty) {
+      final website = item.website.trim();
+      _launchUrlStr(website.startsWith('http') ? website : 'https://$website');
     }
   }
 
   void _onTeleponKuliner(KulinerItem item) {
-    if (item.telepon.isNotEmpty) {
-      String phone = item.telepon.replaceAll(RegExp(r'[^0-9]'), '');
-      if (phone.startsWith('0')) phone = '62${phone.substring(1)}';
-      _launchUrlStr('https://wa.me/$phone');
-    } else if (item.linkGmaps.isNotEmpty && item.linkGmaps.startsWith('http')) {
-      _launchUrlStr(item.linkGmaps);
-    } else {
-      _launchUrlStr('https://maps.google.com/?q=${Uri.encodeComponent('${item.warung} ${item.nama}')}');
-    }
+    final phone = item.telepon.replaceAll(RegExp(r'[^0-9+]'), '');
+    if (phone.isNotEmpty) _launchUrlStr('tel:$phone');
   }
 
   void _onMapsKuliner(KulinerItem item) {
     if (item.linkGmaps.isNotEmpty && item.linkGmaps.startsWith('http')) {
       _launchUrlStr(item.linkGmaps);
     } else {
-      _launchUrlStr('https://maps.google.com/?q=${Uri.encodeComponent('${item.warung} ${item.nama}')}');
+      _launchUrlStr(
+        'https://maps.google.com/?q=${Uri.encodeComponent('${item.warung} ${item.nama}')}',
+      );
     }
   }
 
   void _onWebsiteKuliner(KulinerItem item) {
-    _launchUrlStr('https://www.google.com/search?q=${Uri.encodeComponent('Resep dan Rekomendasi ${item.nama} ${item.warung}')}');
+    final website = item.website.trim();
+    if (website.isNotEmpty) {
+      _launchUrlStr(website.startsWith('http') ? website : 'https://$website');
+    }
   }
 
   @override
@@ -202,6 +205,7 @@ class _EksplorScreenState extends State<EksplorScreen> {
               tabIndex: _tab,
               searchController: _search,
               wilayahIndex: _wilayah,
+              wilayahList: _regions,
               onTab: (i) => setState(() => _tab = i),
               onQuery: (v) => setState(() => _query = v),
               onWilayah: (i) => setState(() => _wilayah = i),
@@ -255,11 +259,11 @@ class _EksplorScreenState extends State<EksplorScreen> {
               Text(
                 isHotel
                     ? (isEn
-                        ? 'VERIFIED ACCOMMODATIONS ($jumlah)'
-                        : 'AKOMODASI TERVERIFIKASI ($jumlah)')
+                          ? 'VERIFIED ACCOMMODATIONS ($jumlah)'
+                          : 'AKOMODASI TERVERIFIKASI ($jumlah)')
                     : (isEn
-                        ? 'VERIFIED LOCAL CULINARY ($jumlah)'
-                        : 'KULINER KHAS TERVERIFIKASI ($jumlah)'),
+                          ? 'VERIFIED LOCAL CULINARY ($jumlah)'
+                          : 'KULINER KHAS TERVERIFIKASI ($jumlah)'),
                 style: const TextStyle(
                   fontSize: 10.5,
                   fontWeight: FontWeight.w800,
@@ -273,7 +277,10 @@ class _EksplorScreenState extends State<EksplorScreen> {
                 const SizedBox(
                   width: 10,
                   height: 10,
-                  child: CircularProgressIndicator(strokeWidth: 1.5, color: AppColors.pine700),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 1.5,
+                    color: AppColors.pine700,
+                  ),
                 ),
               ],
             ],
@@ -282,7 +289,9 @@ class _EksplorScreenState extends State<EksplorScreen> {
           Text(
             isHotel
                 ? (isEn ? 'Best Places to Stay' : 'Pilihan Penginapan Terbaik')
-                : (isEn ? 'Authentic Stalls & Flavors' : 'Warung & Rasa Otentik'),
+                : (isEn
+                      ? 'Authentic Stalls & Flavors'
+                      : 'Warung & Rasa Otentik'),
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -295,11 +304,11 @@ class _EksplorScreenState extends State<EksplorScreen> {
           Text(
             isHotel
                 ? (isEn
-                    ? 'Beach resorts, star-rated hotels, and guesthouses near tourist spots'
-                    : 'Resor pantai, hotel bintang, hingga guesthouse dekat spot wisata')
+                      ? 'Beach resorts, star-rated hotels, and guesthouses near tourist spots'
+                      : 'Resor pantai, hotel bintang, hingga guesthouse dekat spot wisata')
                 : (isEn
-                    ? 'Signature Central Sulawesi flavors crafted with authentic spices and fresh local ingredients'
-                    : 'Cita rasa khas Sulawesi Tengah dengan rempah asli dan bahan segar lokal'),
+                      ? 'Signature Central Sulawesi flavors crafted with authentic spices and fresh local ingredients'
+                      : 'Cita rasa khas Sulawesi Tengah dengan rempah asli dan bahan segar lokal'),
             style: const TextStyle(
               fontSize: 11.5,
               fontWeight: FontWeight.w500,
@@ -318,8 +327,11 @@ class _EksplorScreenState extends State<EksplorScreen> {
     return [
       Row(
         children: [
-          const Icon(Icons.restaurant_menu_rounded,
-              size: 13, color: AppColors.pine500),
+          const Icon(
+            Icons.restaurant_menu_rounded,
+            size: 13,
+            color: AppColors.pine500,
+          ),
           const SizedBox(width: 6),
           Text(
             isEn

@@ -21,7 +21,15 @@ async function main() {
   // 1. Import dberanikamaimobackup_mysql.sql
   const backupPath = path.join(__dirname, '../../dberanikamaimobackup_mysql.sql');
   console.log(`Importing backup file: ${backupPath}...`);
-  const backupSql = fs.readFileSync(backupPath, 'utf8');
+  const rawBackupSql = fs.readFileSync(backupPath, 'utf8');
+  // The converted PostgreSQL backup still contains timestamptz literals such
+  // as `2026-03-11 07:33:50.256203+00`. MySQL/MariaDB DATETIME(3) does not
+  // accept the timezone suffix and only stores millisecond precision.
+  const backupSql = rawBackupSql.replace(
+    /(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\.(\d{1,6})\+00(?=')/g,
+    (_, dateTime, fraction) =>
+      `${dateTime}.${fraction.padEnd(3, '0').slice(0, 3)}`
+  );
 
   await conn.query('SET FOREIGN_KEY_CHECKS = 0;');
   await conn.query(backupSql);
@@ -84,6 +92,15 @@ async function main() {
       rating_count INT NOT NULL DEFAULT 0,
       foto VARCHAR(255),
       link_video VARCHAR(500),
+      badge VARCHAR(180),
+      program_json LONGTEXT,
+      rundown_json LONGTEXT,
+      akses_json LONGTEXT,
+      organizer_json LONGTEXT,
+      maps_url TEXT,
+      map_label VARCHAR(180),
+      latitude DECIMAL(10,7),
+      longitude DECIMAL(10,7),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       INDEX idx_tanggal (startdate, enddate),
@@ -93,10 +110,25 @@ async function main() {
     CREATE TABLE IF NOT EXISTS jarak_desa (
       id INT AUTO_INCREMENT PRIMARY KEY,
       desaId INT NOT NULL,
-      titikKota ENUM('PALU','LUWUK') NOT NULL,
+      titikKota VARCHAR(100) NOT NULL,
       jalur_darat TEXT NOT NULL,
       jalur_laut TEXT NOT NULL,
       jalur_udara TEXT NOT NULL,
+      jalur_laut_en TEXT,
+      jalur_laut_judul VARCHAR(180),
+      jalur_laut_judul_en VARCHAR(180),
+      jalur_laut_durasi VARCHAR(80),
+      jalur_laut_biaya VARCHAR(100),
+      jalur_darat_en TEXT,
+      jalur_darat_judul VARCHAR(180),
+      jalur_darat_judul_en VARCHAR(180),
+      jalur_darat_durasi VARCHAR(80),
+      jalur_darat_biaya VARCHAR(100),
+      jalur_udara_en TEXT,
+      jalur_udara_judul VARCHAR(180),
+      jalur_udara_judul_en VARCHAR(180),
+      jalur_udara_durasi VARCHAR(80),
+      jalur_udara_biaya VARCHAR(100),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       INDEX idx_desa (desaId)
     ) ENGINE=InnoDB;
@@ -274,9 +306,10 @@ async function main() {
   const hotelCols = [
     "ALTER TABLE hotel ADD COLUMN IF NOT EXISTS wilayah VARCHAR(100) DEFAULT NULL",
     "ALTER TABLE hotel ADD COLUMN IF NOT EXISTS tag VARCHAR(100) DEFAULT NULL",
-    "ALTER TABLE hotel ADD COLUMN IF NOT EXISTS rating DECIMAL(3,2) NOT NULL DEFAULT 4.70",
-    "ALTER TABLE hotel ADD COLUMN IF NOT EXISTS rating_count VARCHAR(20) DEFAULT '100'",
+    "ALTER TABLE hotel ADD COLUMN IF NOT EXISTS rating DECIMAL(3,2) NOT NULL DEFAULT 0",
+    "ALTER TABLE hotel ADD COLUMN IF NOT EXISTS rating_count VARCHAR(20) DEFAULT '0'",
     "ALTER TABLE hotel ADD COLUMN IF NOT EXISTS highlight VARCHAR(100) DEFAULT NULL",
+    "ALTER TABLE hotel ADD COLUMN IF NOT EXISTS foto TEXT DEFAULT NULL",
   ];
   for (const q of hotelCols) {
     try { await conn.query(q); } catch (e) { /* ignore duplicate */ }
@@ -289,6 +322,8 @@ async function main() {
     "ALTER TABLE kuliner ADD COLUMN IF NOT EXISTS tag VARCHAR(100) DEFAULT NULL",
     "ALTER TABLE kuliner ADD COLUMN IF NOT EXISTS bahan TEXT DEFAULT NULL",
     "ALTER TABLE kuliner ADD COLUMN IF NOT EXISTS link_gmaps VARCHAR(500) DEFAULT NULL",
+    "ALTER TABLE kuliner ADD COLUMN IF NOT EXISTS telepon VARCHAR(100) DEFAULT NULL",
+    "ALTER TABLE kuliner ADD COLUMN IF NOT EXISTS website TEXT DEFAULT NULL",
   ];
   for (const q of kulinerCols) {
     try { await conn.query(q); } catch (e) { /* ignore duplicate */ }
@@ -299,13 +334,24 @@ async function main() {
     "ALTER TABLE tour_package ADD COLUMN IF NOT EXISTS kategori VARCHAR(50) DEFAULT 'EKOWISATA'",
     "ALTER TABLE tour_package ADD COLUMN IF NOT EXISTS durasi VARCHAR(50) DEFAULT '1 Hari'",
     "ALTER TABLE tour_package ADD COLUMN IF NOT EXISTS tipe VARCHAR(50) DEFAULT 'Open Trip'",
-    "ALTER TABLE tour_package ADD COLUMN IF NOT EXISTS rating DECIMAL(3,2) NOT NULL DEFAULT 4.80",
-    "ALTER TABLE tour_package ADD COLUMN IF NOT EXISTS rating_count VARCHAR(20) DEFAULT '50+'",
+    "ALTER TABLE tour_package ADD COLUMN IF NOT EXISTS rating DECIMAL(3,2) NOT NULL DEFAULT 0",
+    "ALTER TABLE tour_package ADD COLUMN IF NOT EXISTS rating_count VARCHAR(20) DEFAULT '0'",
     "ALTER TABLE tour_package ADD COLUMN IF NOT EXISTS fasilitas TEXT DEFAULT NULL",
+    "ALTER TABLE tour_package ADD COLUMN IF NOT EXISTS wilayah VARCHAR(100) DEFAULT NULL",
+    "ALTER TABLE tour_package ADD COLUMN IF NOT EXISTS tag VARCHAR(100) DEFAULT NULL",
+    "ALTER TABLE tour_package ADD COLUMN IF NOT EXISTS satuan VARCHAR(40) DEFAULT NULL",
+    "ALTER TABLE tour_package ADD COLUMN IF NOT EXISTS link_gmaps TEXT DEFAULT NULL",
   ];
   for (const q of tourCols) {
     try { await conn.query(q); } catch (e) { /* ignore duplicate */ }
   }
+
+  for (const q of [
+    "ALTER TABLE rumah_makan ADD COLUMN IF NOT EXISTS lokasi VARCHAR(255) DEFAULT NULL",
+    "ALTER TABLE rumah_makan ADD COLUMN IF NOT EXISTS telepon VARCHAR(100) DEFAULT NULL",
+    "ALTER TABLE rumah_makan ADD COLUMN IF NOT EXISTS website TEXT DEFAULT NULL",
+    "ALTER TABLE rumah_makan ADD COLUMN IF NOT EXISTS foto TEXT DEFAULT NULL",
+  ]) await conn.query(q);
 
   // 6. Update categories & tags
   await conn.query("UPDATE desa_wisata SET kategori = 'BAHARI' WHERE namaDesa_id LIKE '%Paisu Pok%' OR namaDesa_id LIKE '%Togean%' OR namaDesa_id LIKE '%Pulo Dua%'");

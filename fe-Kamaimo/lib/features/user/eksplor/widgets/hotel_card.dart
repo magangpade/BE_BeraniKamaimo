@@ -102,125 +102,132 @@ class HotelCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                Text(
-                  item.nama,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    height: 1.3,
-                    letterSpacing: -0.3,
-                    color: AppColors.pine900,
-                    fontFamily: 'PlusJakartaSans',
-                  ),
-                ),
-                const SizedBox(height: 10),
-                // Chips fasilitas
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    for (final (icon, label) in item.chips)
-                      _FasilitasChip(
-                        icon: icon,
-                        label: _translateChipLabel(label, isEn),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Container(
-                  padding: const EdgeInsets.only(top: 12),
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      top: BorderSide(color: AppColors.detailBorder),
+                  Text(
+                    item.nama,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      height: 1.3,
+                      letterSpacing: -0.3,
+                      color: AppColors.pine900,
+                      fontFamily: 'PlusJakartaSans',
                     ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 10),
+                  // Chips fasilitas
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
-                      Text(
-                        isEn ? 'STARTING ROOM RATE' : 'MULAI TARIF KAMAR',
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.4,
-                          color: AppColors.textTertiary,
-                          fontFamily: 'PlusJakartaSans',
+                      for (final (icon, label) in item.chips)
+                        _FasilitasChip(
+                          icon: icon,
+                          label: _translateChipLabel(label, isEn),
                         ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.only(top: 12),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(color: AppColors.detailBorder),
                       ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Text(
-                            isEn ? 'Starting from' : 'Mulai dari',
-                            style: const TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textSecondary,
-                              fontFamily: 'PlusJakartaSans',
-                            ),
-                          ),
-                          Expanded(
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: Alignment.centerRight,
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.baseline,
-                                textBaseline: TextBaseline.alphabetic,
-                                children: [
-                                  Text(
-                                    EksplorSeed.formatRupiah(item.harga),
-                                    style: const TextStyle(
-                                      fontSize: 19,
-                                      fontWeight: FontWeight.w800,
-                                      color: AppColors.pine700,
-                                      letterSpacing: -0.3,
-                                      fontFamily: 'PlusJakartaSans',
-                                    ),
-                                  ),
-                                  Text(
-                                    isEn ? ' /night' : ' /mlm',
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.textTertiary,
-                                      fontFamily: 'PlusJakartaSans',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (item.hargaCoret != null)
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          EksplorSeed.formatRupiah(item.hargaCoret!),
+                          isEn ? 'STARTING ROOM RATE' : 'MULAI TARIF KAMAR',
                           style: const TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.4,
                             color: AppColors.textTertiary,
-                            decoration: TextDecoration.lineThrough,
                             fontFamily: 'PlusJakartaSans',
                           ),
                         ),
-                      const SizedBox(height: 12),
-                      KontakRow(
-                        onTap: onKontak,
-                        onTelepon: onTelepon != null ? () => onTelepon!(item) : null,
-                        onMaps: onMaps != null ? () => onMaps!(item) : null,
-                        onWebsite: onWebsite != null ? () => onWebsite!(item) : null,
-                        itemName: item.nama,
-                      ),
-                    ],
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Text(
+                              isEn ? 'Starting from' : 'Mulai dari',
+                              style: const TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textSecondary,
+                                fontFamily: 'PlusJakartaSans',
+                              ),
+                            ),
+                            Expanded(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerRight,
+                                child: Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
+                                  children: [
+                                    Text(
+                                      EksplorSeed.formatRupiah(item.harga),
+                                      style: const TextStyle(
+                                        fontSize: 19,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.pine700,
+                                        letterSpacing: -0.3,
+                                        fontFamily: 'PlusJakartaSans',
+                                      ),
+                                    ),
+                                    Text(
+                                      isEn ? ' /night' : ' /mlm',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.textTertiary,
+                                        fontFamily: 'PlusJakartaSans',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (item.hargaCoret != null)
+                          Text(
+                            EksplorSeed.formatRupiah(item.hargaCoret!),
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textTertiary,
+                              decoration: TextDecoration.lineThrough,
+                              fontFamily: 'PlusJakartaSans',
+                            ),
+                          ),
+                        const SizedBox(height: 12),
+                        KontakRow(
+                          onTap: onKontak,
+                          onTelepon:
+                              onTelepon != null && item.telepon.isNotEmpty
+                              ? () => onTelepon!(item)
+                              : null,
+                          onMaps: onMaps != null ? () => onMaps!(item) : null,
+                          onWebsite:
+                              onWebsite != null && item.website.isNotEmpty
+                              ? () => onWebsite!(item)
+                              : null,
+                          itemName: item.nama,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
   }
 
   Widget _media(bool isEn) {
@@ -248,8 +255,11 @@ class HotelCard extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.star_rounded,
-                        size: 13, color: AppColors.starGold),
+                    const Icon(
+                      Icons.star_rounded,
+                      size: 13,
+                      color: AppColors.starGold,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       isEn
@@ -296,8 +306,11 @@ class HotelCard extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.location_on_rounded,
-                              size: 12, color: AppColors.textOnPrimary),
+                          const Icon(
+                            Icons.location_on_rounded,
+                            size: 12,
+                            color: AppColors.textOnPrimary,
+                          ),
                           const SizedBox(width: 4),
                           Flexible(
                             child: Text(

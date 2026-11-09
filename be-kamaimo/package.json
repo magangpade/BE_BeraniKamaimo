@@ -8,6 +8,8 @@
     "dev": "nodemon server.js",
     "db:migrate": "node database/import_postgres_backup.js",
     "db:import": "node database/import_backup.js",
+    "db:migrate:jarak": "node database/migrate_jarak_detail.js",
+    "db:migrate:admin-content": "node database/migrate_admin_content.js",
     "db:seed": "node database/seed_full.js"
   },
   "keywords": [],

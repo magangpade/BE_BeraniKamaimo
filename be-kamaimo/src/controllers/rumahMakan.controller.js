@@ -13,18 +13,18 @@ exports.list = asyncHandler(async (req, res) => {
   ApiResponse.success(res, rows);
 });
 exports.create = asyncHandler(async (req, res) => {
-  const { resto, kulinerId, link_gmaps, link_video } = req.body;
+  const { resto, kulinerId, link_gmaps, link_video, lokasi, telepon, website, foto } = req.body;
   if (!resto || !kulinerId) throw ApiError.badRequest('resto & kulinerId wajib');
   const [r] = await pool.query(
-    'INSERT INTO rumah_makan (resto, kulinerId, link_gmaps, link_video) VALUES (?,?,?,?)',
-    [resto, kulinerId, link_gmaps, link_video]);
+    'INSERT INTO rumah_makan (resto, kulinerId, link_gmaps, link_video, lokasi, telepon, website, foto) VALUES (?,?,?,?,?,?,?,?)',
+    [resto, kulinerId, link_gmaps, link_video, lokasi, telepon, website, foto]);
   const [rows] = await pool.query('SELECT * FROM rumah_makan WHERE id = ?', [r.insertId]);
   ApiResponse.created(res, rows[0]);
 });
 exports.update = asyncHandler(async (req, res) => {
   const row = await updateRecord({
     table: 'rumah_makan', id: req.params.id, body: req.body,
-    fields: ['resto', 'kulinerId', 'link_gmaps', 'link_video'],
+    fields: ['resto', 'kulinerId', 'link_gmaps', 'link_video', 'lokasi', 'telepon', 'website', 'foto'],
     required: ['resto', 'kulinerId'], label: 'Rumah makan',
   });
   ApiResponse.success(res, row, 'Rumah makan diperbarui');

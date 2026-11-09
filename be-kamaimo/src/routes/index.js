@@ -1,6 +1,7 @@
 const router = require('express').Router();
 
 router.use('/user', require('./user.routes'));
+router.use('/uploads', require('./upload.routes'));
 router.use('/atraksi', require('./atraksi.routes'));
 router.use('/desaWisata', require('./desaWisata.routes'));
 router.use('/jarak', require('./jarak.routes'));

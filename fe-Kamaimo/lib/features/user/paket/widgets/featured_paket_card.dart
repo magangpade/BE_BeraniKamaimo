@@ -21,10 +21,9 @@ class FeaturedPaketCard extends StatelessWidget {
   });
 
   String _whatsappLabel(bool isEnglish) {
-    final nama = item.displayName(isEnglish);
     return isEnglish
-        ? 'Contact Agent for $nama on WhatsApp'
-        : 'Hubungi Agen $nama via WhatsApp';
+        ? 'Contact Agent on WhatsApp'
+        : 'Hubungi Agen via WhatsApp';
   }
 
   @override
@@ -260,44 +259,37 @@ class FeaturedPaketCard extends StatelessWidget {
                         fontFamily: 'PlusJakartaSans',
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      isEnglish ? 'INCLUDED:' : 'FASILITAS TERMASUK:',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.pine700,
-                        letterSpacing: 0.2,
-                        fontFamily: 'PlusJakartaSans',
+                    if (facilities.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        isEnglish ? 'INCLUDED:' : 'FASILITAS TERMASUK:',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.pine700,
+                          letterSpacing: 0.2,
+                          fontFamily: 'PlusJakartaSans',
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    SizedBox(
-                      height: 84,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Expanded(child: _FasilitasChip(f: facilities[0])),
-                                const SizedBox(width: 8),
-                                Expanded(child: _FasilitasChip(f: facilities[1])),
-                              ],
-                            ),
+                      const SizedBox(height: 6),
+                      SizedBox(
+                        height: facilities.length <= 2 ? 39 : 84,
+                        child: LayoutBuilder(
+                          builder: (context, constraints) => Wrap(
+                            spacing: 8,
+                            runSpacing: 6,
+                            children: [
+                              for (final facility in facilities.take(4))
+                                SizedBox(
+                                  width: (constraints.maxWidth - 8) / 2,
+                                  height: 39,
+                                  child: _FasilitasChip(f: facility),
+                                ),
+                            ],
                           ),
-                          const SizedBox(height: 6),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Expanded(child: _FasilitasChip(f: facilities[2])),
-                                const SizedBox(width: 8),
-                                Expanded(child: _FasilitasChip(f: facilities[3])),
-                              ],
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                     const SizedBox(height: 10),
                     Semantics(
                       button: true,
