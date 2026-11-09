@@ -1474,22 +1474,26 @@ class _DesaCard extends StatelessWidget {
               if (marker.type == 'atraksi') {
                 final allSeed = [EventSeed.featured, ...EventSeed.agenda];
                 final matches = allSeed.where((s) =>
-                    s.nama.toLowerCase().contains(marker.nama.toLowerCase()) ||
-                    marker.nama.toLowerCase().contains(s.nama.toLowerCase()));
-                final targetEvent = matches.isNotEmpty
-                    ? matches.first
-                    : EventItem(
-                        foto: marker.foto ?? 'assets/images/beranda/event_danau_poso.png',
-                        kategori: 'BUDAYA',
-                        lokasi: marker.lokasi,
-                        wilayah: marker.lokasi,
-                        nama: marker.nama,
-                        deskripsi: isEn
-                            ? 'Featured cultural & tourism event in ${marker.lokasi}.'
-                            : 'Event budaya & pariwisata unggulan di ${marker.lokasi}.',
-                        rentangTanggal: isEn ? 'Coming Soon' : 'Segera Hadir',
-                        start: DateTime.now().add(const Duration(days: 30)),
-                      );
+                    s.nama.trim().toLowerCase() == marker.nama.trim().toLowerCase());
+                final photo = (marker.foto != null && marker.foto!.isNotEmpty)
+                    ? marker.foto!
+                    : (matches.isNotEmpty ? matches.first.foto : 'assets/images/beranda/event_danau_poso.png');
+                final targetEvent = EventItem(
+                  foto: photo,
+                  kategori: matches.isNotEmpty ? matches.first.kategori : 'BUDAYA',
+                  lokasi: marker.lokasi,
+                  wilayah: marker.lokasi,
+                  nama: marker.nama,
+                  deskripsi: isEn
+                      ? 'Featured cultural & tourism event in ${marker.lokasi}.'
+                      : 'Event budaya & pariwisata unggulan di ${marker.lokasi}.',
+                  rentangTanggal: isEn ? 'Coming Soon' : 'Segera Hadir',
+                  start: matches.isNotEmpty ? matches.first.start : DateTime.now().add(const Duration(days: 30)),
+                  end: matches.isNotEmpty ? matches.first.end : null,
+                  harga: matches.isNotEmpty ? matches.first.harga : null,
+                  rating: matches.isNotEmpty ? matches.first.rating : 4.8,
+                  ratingCount: matches.isNotEmpty ? matches.first.ratingCount : 120,
+                );
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -2360,20 +2364,28 @@ class _EventCard extends StatelessWidget {
   void _openDetail(BuildContext context) {
     final allSeed = [EventSeed.featured, ...EventSeed.agenda];
     final matches = allSeed.where((s) =>
-      s.nama.toLowerCase().contains(event.nama.toLowerCase()) ||
-      event.nama.toLowerCase().contains(s.nama.toLowerCase()));
-    final targetEvent = matches.isNotEmpty
-        ? matches.first
-        : EventItem(
-            foto: event.foto,
-            kategori: 'BUDAYA',
-            lokasi: event.lokasi,
-            wilayah: event.lokasi,
-            nama: event.nama,
-            deskripsi: event.deskripsi,
-            rentangTanggal: event.tanggal,
-            start: DateTime.now().add(const Duration(days: 45)),
-          );
+      s.nama.trim().toLowerCase() == event.nama.trim().toLowerCase());
+    final match = matches.isNotEmpty ? matches.first : null;
+    
+    // Selalu prioritaskan foto asli event dari database/kartu
+    final photo = event.foto.isNotEmpty
+        ? event.foto
+        : (match?.foto ?? 'assets/images/beranda/thumb_event1.png');
+
+    final targetEvent = EventItem(
+      foto: photo,
+      kategori: match?.kategori ?? 'BUDAYA',
+      lokasi: event.lokasi.isNotEmpty ? event.lokasi : (match?.lokasi ?? 'Sulawesi Tengah'),
+      wilayah: match?.wilayah ?? event.lokasi,
+      nama: event.nama,
+      deskripsi: event.deskripsi.isNotEmpty ? event.deskripsi : (match?.deskripsi ?? ''),
+      rentangTanggal: event.tanggal,
+      start: match?.start ?? DateTime.now().add(const Duration(days: 45)),
+      end: match?.end,
+      harga: match?.harga,
+      rating: match?.rating ?? 4.8,
+      ratingCount: match?.ratingCount ?? 120,
+    );
     Navigator.push(
       context,
       MaterialPageRoute(
