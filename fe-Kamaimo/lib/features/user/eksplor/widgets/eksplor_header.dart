@@ -174,7 +174,27 @@ class EksplorHeader extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                // Tombol bersihkan (tampil saat field tidak kosong)
+                ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: searchController,
+                  builder: (ctx, value, _) {
+                    if (value.text.isEmpty) return const SizedBox.shrink();
+                    return IconButton(
+                      onPressed: () {
+                        searchController.clear();
+                        onQuery('');
+                      },
+                      icon: const Icon(
+                        Icons.close_rounded,
+                        size: 18,
+                        color: AppColors.textTertiary,
+                      ),
+                      tooltip: isEn ? 'Clear search' : 'Bersihkan pencarian',
+                      visualDensity: VisualDensity.compact,
+                    );
+                  },
+                ),
+                const SizedBox(width: 12),
               ],
             ),
           ),

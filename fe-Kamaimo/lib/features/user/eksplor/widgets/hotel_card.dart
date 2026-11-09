@@ -266,22 +266,23 @@ class HotelCard extends StatelessWidget {
               ),
             ),
             // Kategori (kanan atas)
-            Positioned(
-              top: 12,
-              right: 12,
-              child: _Pill(
-                bg: AppColors.pine800,
-                child: Text(
-                  _translateTag(item.tag, isEn),
-                  style: const TextStyle(
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textOnPrimary,
-                    fontFamily: 'PlusJakartaSans',
+            if (item.tag.isNotEmpty)
+              Positioned(
+                top: 12,
+                right: 12,
+                child: _Pill(
+                  bg: AppColors.pine800,
+                  child: Text(
+                    _translateTag(item.tag, isEn),
+                    style: const TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textOnPrimary,
+                      fontFamily: 'PlusJakartaSans',
+                    ),
                   ),
                 ),
               ),
-            ),
             // Lokasi (kiri bawah) + highlight (kanan bawah)
             Positioned(
               bottom: 12,

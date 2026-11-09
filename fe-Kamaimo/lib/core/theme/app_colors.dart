@@ -52,6 +52,10 @@ class AppColors {
   static const Color goldChipText   = Color(0xFF92400E);
   static const Color orangeBadge    = Color(0xFFD97706); // badge THE SECRET PARADISE
 
+  // ── Peach chip (Eksplor bahan kuliner) ──
+  static const Color peachChipBg   = Color(0xFFFDE7E5);
+  static const Color peachChipText = Color(0xFFB3402F);
+
   // ── Glass / Overlay ──
   static const Color glassBg       = Color(0xCCFFFFFF);    // 80% white
   static const Color glassBgStrong = Color(0xF2FFFFFF);    // 95% white
