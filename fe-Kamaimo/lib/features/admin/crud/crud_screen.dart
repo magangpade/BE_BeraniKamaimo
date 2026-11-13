@@ -242,6 +242,124 @@ class _CrudScreenState extends State<CrudScreen> {
     }
   }
 
+  void _showReplyDialog(Map<String, dynamic> item) {
+    final raw = item['raw'] as Map<String, dynamic>? ?? {};
+    final currentReply = item['balasanAdmin'] ?? raw['balasan_admin'] ?? '';
+    final ctrl = TextEditingController(text: currentReply.toString());
+    bool saving = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: Text('Balas Ulasan: ${item['name'] ?? 'Pengunjung'}'),
+          content: SizedBox(
+            width: MediaQuery.sizeOf(context).width < 500 ? double.maxFinite : 440,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Komentar Pengunjung (${item['tag'] ?? ''}):',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '"${item['desc'] ?? ''}"',
+                        style: const TextStyle(fontSize: 13, height: 1.4),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Tanggapan Resmi Pengelola / Dinas Pariwisata:',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.pine900,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: ctrl,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    hintText: 'Tuliskan tanggapan atau terima kasih atas masukan pengunjung...',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: saving ? null : () => Navigator.pop(ctx),
+              child: const Text('Batal'),
+            ),
+            FilledButton(
+              onPressed: saving
+                  ? null
+                  : () async {
+                      final text = ctrl.text.trim();
+                      if (text.isEmpty) return;
+                      setDialogState(() => saving = true);
+                      try {
+                        final api = context.read<ApiClient>();
+                        await AdminContent.update(api, 'ulasan', item['id'], {
+                          'balasan_admin': text,
+                        });
+                        if (mounted) {
+                          Navigator.pop(ctx);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Balasan admin berhasil disimpan dan dipublikasikan!'),
+                              backgroundColor: AppColors.pine700,
+                            ),
+                          );
+                          _syncFromBackend();
+                        }
+                      } catch (e) {
+                        setDialogState(() => saving = false);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Gagal menyimpan balasan: $e'),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        }
+                      }
+                    },
+              style: FilledButton.styleFrom(backgroundColor: AppColors.pine700),
+              child: saving
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Text('Kirim Balasan'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showDetail(Map<String, dynamic> item) {
     showDialog(
       context: context,
@@ -704,12 +822,64 @@ class _CrudScreenState extends State<CrudScreen> {
                     ),
                   ),
                 ],
+                if (item['balasanAdmin'] != null) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.emerald50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.emerald200),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.reply_rounded, size: 14, color: AppColors.pine700),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            'Balasan Admin: ${item['balasanAdmin']}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.pine900,
+                              fontFamily: 'PlusJakartaSans',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const Divider(height: 20),
                 Wrap(
                   alignment: WrapAlignment.end,
                   spacing: 8,
                   runSpacing: 8,
                   children: [
+                    if (widget.entityType == 'ulasan')
+                      FilledButton.icon(
+                        onPressed: () => _showReplyDialog(item),
+                        icon: const Icon(Icons.reply_rounded, size: 14),
+                        label: Text(
+                          item['balasanAdmin'] != null ? 'Ubah Balasan' : 'Balas Ulasan',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(0, 36),
+                          backgroundColor: AppColors.pine700,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
                     OutlinedButton(
                       onPressed: () => _showDetail(item),
                       style: OutlinedButton.styleFrom(

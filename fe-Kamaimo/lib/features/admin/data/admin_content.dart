@@ -170,6 +170,7 @@ class AdminContent {
         put('loc', row['desaId'] == null ? null : 'Desa #${row['desaId']}');
         put('desc', _value(row, 'komentar'));
         put('tag', row['rating'] == null ? null : 'Bintang ${row['rating']}');
+        put('balasanAdmin', _value(row, 'balasan_admin') ?? _value(row, 'balasanAdmin'));
         break;
       case 'adminUser':
         put('name', _first(row, ['nama_Lengkap', 'username']));
