@@ -220,6 +220,8 @@ CREATE TABLE IF NOT EXISTS ulasan (
   nama VARCHAR(120) NOT NULL,
   rating TINYINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
   komentar TEXT NOT NULL,
+  balasan_admin TEXT NULL,
+  balasan_at TIMESTAMP NULL,
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_ulasan_desa FOREIGN KEY (desaId)
     REFERENCES desa_wisata(id) ON DELETE SET NULL,

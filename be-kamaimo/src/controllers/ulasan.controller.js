@@ -14,7 +14,22 @@ async function recalculateDesa(connection, desaId) {
   );
 }
 
+let migrationChecked = false;
+async function ensureBalasanColumns() {
+  if (migrationChecked) return;
+  try {
+    const [cols] = await pool.query("SHOW COLUMNS FROM ulasan LIKE 'balasan_admin'");
+    if (!cols.length) {
+      await pool.query("ALTER TABLE ulasan ADD COLUMN balasan_admin TEXT NULL, ADD COLUMN balasan_at TIMESTAMP NULL");
+    }
+    migrationChecked = true;
+  } catch (_) {
+    // Abaikan jika sudah ada atau tabel belum dibuat
+  }
+}
+
 exports.list = asyncHandler(async (req, res) => {
+  await ensureBalasanColumns();
   const { desaId } = req.query;
   let sql = 'SELECT * FROM ulasan';
   const params = [];
@@ -25,12 +40,14 @@ exports.list = asyncHandler(async (req, res) => {
 });
 
 exports.detail = asyncHandler(async (req, res) => {
+  await ensureBalasanColumns();
   const [rows] = await pool.query('SELECT * FROM ulasan WHERE id = ?', [req.params.id]);
   if (!rows.length) throw ApiError.notFound('Ulasan tidak ditemukan');
   ApiResponse.success(res, rows[0]);
 });
 
 exports.insert = asyncHandler(async (req, res) => {
+  await ensureBalasanColumns();
   const { nama, rating, komentar, desaId } = req.body;
   if (!nama || !rating || !komentar)
     throw ApiError.badRequest('nama, rating, komentar wajib diisi');
@@ -57,7 +74,11 @@ exports.insert = asyncHandler(async (req, res) => {
 });
 
 exports.update = asyncHandler(async (req, res) => {
-  const fields = ['nama', 'rating', 'komentar', 'desaId'];
+  await ensureBalasanColumns();
+  if (req.body.balasanAdmin !== undefined && req.body.balasan_admin === undefined) {
+    req.body.balasan_admin = req.body.balasanAdmin;
+  }
+  const fields = ['nama', 'rating', 'komentar', 'desaId', 'balasan_admin'];
   const updates = fields.filter((field) => req.body[field] !== undefined);
   if (!updates.length) throw ApiError.badRequest('Tidak ada field untuk diupdate');
   for (const field of ['nama', 'komentar']) {
@@ -77,9 +98,17 @@ exports.update = asyncHandler(async (req, res) => {
       'SELECT * FROM ulasan WHERE id = ? FOR UPDATE', [req.params.id]
     );
     if (!oldRows.length) throw ApiError.notFound('Ulasan tidak ditemukan');
+    
+    // Jika balasan_admin diupdate, update juga balasan_at
+    const setClauses = [...updates.map((field) => `${field} = ?`)];
+    const setValues = [...updates.map((field) => req.body[field])];
+    if (req.body.balasan_admin !== undefined) {
+      setClauses.push('balasan_at = CURRENT_TIMESTAMP');
+    }
+    
     await connection.query(
-      `UPDATE ulasan SET ${updates.map((field) => `${field} = ?`).join(', ')} WHERE id = ?`,
-      [...updates.map((field) => req.body[field]), req.params.id]
+      `UPDATE ulasan SET ${setClauses.join(', ')} WHERE id = ?`,
+      [...setValues, req.params.id]
     );
     const [rows] = await connection.query('SELECT * FROM ulasan WHERE id = ?', [req.params.id]);
     await recalculateDesa(connection, oldRows[0].desaId);
@@ -93,6 +122,24 @@ exports.update = asyncHandler(async (req, res) => {
     throw error;
   } finally {
     connection.release();
+  }
+});
+
+exports.balas = asyncHandler(async (req, res) => {
+  await ensureBalasanColumns();
+  const balasan = req.body.balasan || req.body.balasan_admin || req.body.komentar;
+  if (!balasan || !String(balasan).trim()) {
+    throw ApiError.badRequest('Teks balasan admin wajib diisi');
+  }
+  const [oldRows] = await pool.query('SELECT * FROM ulasan WHERE id = ?', [req.params.id]);
+  if (!oldRows.length) throw ApiError.notFound('Ulasan tidak ditemukan');
+  await pool.query(
+    'UPDATE ulasan SET balasan_admin = ?, balasan_at = CURRENT_TIMESTAMP WHERE id = ?',
+    [String(balasan).trim(), req.params.id]
+  );
+  const [rows] = await pool.query('SELECT * FROM ulasan WHERE id = ?', [req.params.id]);
+  ApiResponse.success(res, rows[0], 'Balasan admin berhasil disimpan');
+});
   }
 });
 
