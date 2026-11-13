@@ -361,6 +361,47 @@ class _TestimonialCard extends StatelessWidget {
               color: AppColors.detailBody,
             ),
           ),
+          if (ulasan.balasanAdmin != null && ulasan.balasanAdmin!.trim().isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.emerald50.withValues(alpha: 0.8),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.emerald100),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.verified_user_rounded, size: 14, color: AppColors.pine700),
+                      const SizedBox(width: 6),
+                      Text(
+                        isEn ? 'Admin / Destination Manager Reply:' : 'Balasan Pengelola / Dinas Pariwisata:',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.pine800,
+                          fontFamily: 'PlusJakartaSans',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    ulasan.balasanAdmin!,
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      height: 1.4,
+                      color: AppColors.pine900,
+                      fontFamily: 'PlusJakartaSans',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
