@@ -395,64 +395,71 @@ class _CrudScreenState extends State<CrudScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header title & count
-          Row(
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 12,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.title,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.title,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textPrimary,
+                      fontFamily: 'PlusJakartaSans',
+                    ),
+                  ),
+                  Text(
+                    _loading
+                        ? 'Memuat data backend...'
+                        : _loadError != null
+                        ? 'Data gagal dimuat'
+                        : '${filtered.length} Konten Terdaftar',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                      fontFamily: 'PlusJakartaSans',
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FilledButton.icon(
+                    onPressed: widget.entityType == 'adminUser'
+                        ? null
+                        : () => _showForm(),
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text(
+                      'Tambah Data',
+                      style: TextStyle(
                         fontFamily: 'PlusJakartaSans',
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                    Text(
-                      _loading
-                          ? 'Memuat data backend...'
-                          : _loadError != null
-                          ? 'Data gagal dimuat'
-                          : '${filtered.length} Konten Terdaftar',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                        fontFamily: 'PlusJakartaSans',
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.pine700,
+                      minimumSize: const Size(0, 44),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              FilledButton.icon(
-                onPressed: widget.entityType == 'adminUser'
-                    ? null
-                    : () => _showForm(),
-                icon: const Icon(Icons.add, size: 18),
-                label: const Text(
-                  'Tambah Data',
-                  style: TextStyle(
-                    fontFamily: 'PlusJakartaSans',
-                    fontWeight: FontWeight.w700,
                   ),
-                ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.pine700,
-                  minimumSize: const Size(0, 44),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
+                  IconButton(
+                    tooltip: 'Muat ulang data',
+                    onPressed: _syncFromBackend,
+                    icon: const Icon(Icons.refresh),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              IconButton(
-                tooltip: 'Muat ulang data',
-                onPressed: _syncFromBackend,
-                icon: const Icon(Icons.refresh),
+                ],
               ),
             ],
           ),

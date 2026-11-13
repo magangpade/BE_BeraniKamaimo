@@ -437,16 +437,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Icon(icon, size: 22, color: color),
           const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-                fontFamily: 'PlusJakartaSans',
-              ),
-              overflow: TextOverflow.ellipsis,
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+              fontFamily: 'PlusJakartaSans',
             ),
           ),
         ],
