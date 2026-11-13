@@ -7,8 +7,11 @@ class UlasanRepository {
 
   UlasanRepository(this._apiClient);
 
-  Future<List<Ulasan>> getAll() async {
-    final raw = await _apiClient.get(ApiConfig.ulasan);
+  Future<List<Ulasan>> getAll({int? desaId}) async {
+    final endpoint = desaId != null
+        ? '${ApiConfig.ulasan}?desaId=$desaId'
+        : ApiConfig.ulasan;
+    final raw = await _apiClient.get(endpoint);
     List<dynamic> jsonList = [];
     if (raw is List) {
       jsonList = raw;
@@ -34,6 +37,7 @@ class UlasanRepository {
     required String nama,
     required int rating,
     required String komentar,
+    int? desaId,
   }) async {
     return _apiClient.post(
       ApiConfig.insertUlasan,
@@ -41,6 +45,7 @@ class UlasanRepository {
         'nama': nama,
         'rating': rating,
         'komentar': komentar,
+        if (desaId != null) 'desaId': desaId,
       },
     );
   }

@@ -78,6 +78,8 @@ class _DetailWisataScreenState extends State<DetailWisataScreen> {
     final api = ApiClient(tokenStore: InMemoryTokenStore());
     final repo = UlasanRepository(api);
     try {
+      final list = await repo.getAll(desaId: widget.desaId);
+      if (list.isNotEmpty) return list;
       return await repo.getAll();
     } catch (_) {
       return []; // offline/API error → empty state
@@ -97,14 +99,17 @@ class _DetailWisataScreenState extends State<DetailWisataScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 16,
-        ),
-        child: ReviewForm(),
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => ReviewForm(
+        desaId: widget.desaId,
+        onSubmitted: () {
+          setState(() {
+            _ulasanFuture = (widget.ulasanLoader ?? _defaultUlasanLoader)();
+          });
+        },
       ),
     );
   }
