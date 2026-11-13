@@ -723,57 +723,60 @@ class _SearchBarState extends State<_SearchBar> {
                     final kab = isMap ? (m['kab'] as String) : (m.lokasi_id ?? 'Sulawesi Tengah');
                     final foto = isMap ? (m['foto'] as String) : (m.foto ?? 'assets/images/beranda/kartu_kolam_kaca.png');
 
-                    return ListTile(
-                      dense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                      leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: SizedBox(
-                          width: 36,
-                          height: 36,
-                          child: KamaimoImage(
-                            path: foto,
-                            fit: BoxFit.cover,
-                            fallbackAsset: 'assets/images/destinasi/card_togean.png',
-                          ),
-                        ),
-                      ),
-                      title: Text(
-                        nama,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.pine900,
-                          fontFamily: 'PlusJakartaSans',
-                        ),
-                      ),
-                      subtitle: Text(
-                        kab,
-                        maxLines: 1,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: AppColors.pine500,
-                          fontFamily: 'PlusJakartaSans',
-                        ),
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 11, color: AppColors.textTertiary),
-                      onTap: () {
-                        _ctrl.clear();
-                        setState(() {});
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => DetailWisataScreen(
-                              desaId: id,
-                              namaDesa: nama,
-                              lokasi: kab,
-                              foto: foto,
+                    return Material(
+                      color: Colors.transparent,
+                      child: ListTile(
+                        dense: true,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                        leading: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: SizedBox(
+                            width: 36,
+                            height: 36,
+                            child: KamaimoImage(
+                              path: foto,
+                              fit: BoxFit.cover,
+                              fallbackAsset: 'assets/images/destinasi/card_togean.png',
                             ),
                           ),
-                        );
-                      },
+                        ),
+                        title: Text(
+                          nama,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.pine900,
+                            fontFamily: 'PlusJakartaSans',
+                          ),
+                        ),
+                        subtitle: Text(
+                          kab,
+                          maxLines: 1,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.pine500,
+                            fontFamily: 'PlusJakartaSans',
+                          ),
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 11, color: AppColors.textTertiary),
+                        onTap: () {
+                          _ctrl.clear();
+                          setState(() {});
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => DetailWisataScreen(
+                                desaId: id,
+                                namaDesa: nama,
+                                lokasi: kab,
+                                foto: foto,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     );
                   }),
                   const Divider(height: 1, color: AppColors.borderLight),
