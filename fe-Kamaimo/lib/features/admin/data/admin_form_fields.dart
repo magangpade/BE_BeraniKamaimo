@@ -196,6 +196,26 @@ class AdminFormFields {
         AdminFormField('desaId', 'ID desa wisata', number: true),
         AdminFormField('rating', 'Rating (1–5)', required: true, number: true),
         AdminFormField('komentar', 'Komentar', required: true, lines: 3),
+        AdminFormField('balasan_admin', 'Balasan Admin', lines: 3),
+      ],
+      'adminUser' => [
+        const AdminFormField('nama_Lengkap', 'Nama Lengkap *', required: true),
+        const AdminFormField('username', 'Username *', required: true),
+        AdminFormField(
+          'password',
+          row == null ? 'Password *' : 'Password baru (kosongkan jika tidak diganti)',
+          required: row == null,
+        ),
+        const AdminFormField(
+          'jenis_kelamin',
+          'Jenis Kelamin',
+          options: ['Laki-laki', 'Perempuan'],
+        ),
+        const AdminFormField(
+          'role',
+          'Role Admin',
+          options: ['Admin', 'superAdmin'],
+        ),
       ],
       _ => const <AdminFormField>[],
     };

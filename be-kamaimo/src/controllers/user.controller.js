@@ -129,6 +129,27 @@ exports.create = asyncHandler(async (req, res) => {
   ApiResponse.created(res, normalizeUser(rows[0]), 'Admin baru dibuat');
 });
 
+exports.update = asyncHandler(async (req, res) => {
+  const { nama_Lengkap, username, password, jenis_kelamin, role } = req.body;
+  const sets = [];
+  const vals = [];
+  if (nama_Lengkap) { sets.push('nama_Lengkap = ?'); vals.push(nama_Lengkap); }
+  if (username) { sets.push('username = ?'); vals.push(username); }
+  if (jenis_kelamin) { sets.push('jenis_kelamin = ?'); vals.push(toDbGender(jenis_kelamin)); }
+  if (role) { sets.push('role = ?'); vals.push(role); }
+  if (password && String(password).trim().length > 0) {
+    const hash = await bcrypt.hash(String(password).trim(), 10);
+    sets.push('password = ?');
+    vals.push(hash);
+  }
+  if (!sets.length) throw ApiError.badRequest('Tidak ada perubahan');
+  vals.push(req.params.id);
+  await pool.query(`UPDATE admin_user SET ${sets.join(', ')} WHERE id = ?`, vals);
+  const [rows] = await pool.query('SELECT * FROM admin_user WHERE id = ?', [req.params.id]);
+  if (!rows.length) throw ApiError.notFound('Admin tidak ditemukan');
+  ApiResponse.success(res, normalizeUser(rows[0]), 'Data admin diperbarui');
+});
+
 exports.remove = asyncHandler(async (req, res) => {
   const [r] = await pool.query('DELETE FROM admin_user WHERE id = ?', [req.params.id]);
   if (!r.affectedRows) throw ApiError.notFound('Admin tidak ditemukan');

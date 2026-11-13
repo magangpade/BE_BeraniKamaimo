@@ -549,9 +549,7 @@ class _CrudScreenState extends State<CrudScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   FilledButton.icon(
-                    onPressed: widget.entityType == 'adminUser'
-                        ? null
-                        : () => _showForm(),
+                    onPressed: () => _showForm(),
                     icon: const Icon(Icons.add, size: 18),
                     label: const Text(
                       'Tambah Data',
@@ -829,7 +827,7 @@ class _CrudScreenState extends State<CrudScreen> {
                     decoration: BoxDecoration(
                       color: AppColors.emerald50,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.emerald200),
+                      border: Border.all(color: AppColors.emerald100),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -904,9 +902,7 @@ class _CrudScreenState extends State<CrudScreen> {
                     ),
                     OutlinedButton(
                       key: Key('admin-edit-${item['id']}'),
-                      onPressed: widget.entityType == 'adminUser'
-                          ? null
-                          : () => _showForm(item),
+                      onPressed: () => _showForm(item),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(0, 36),
                         padding: const EdgeInsets.symmetric(
@@ -928,9 +924,7 @@ class _CrudScreenState extends State<CrudScreen> {
                       ),
                     ),
                     FilledButton(
-                      onPressed: widget.entityType == 'adminUser'
-                          ? null
-                          : () => _confirmDelete(item),
+                      onPressed: () => _confirmDelete(item),
                       style: FilledButton.styleFrom(
                         minimumSize: const Size(0, 36),
                         backgroundColor: AppColors.error.withValues(alpha: 0.1),

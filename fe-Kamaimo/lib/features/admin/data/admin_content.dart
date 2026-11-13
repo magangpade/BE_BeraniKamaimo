@@ -37,7 +37,7 @@ class AdminContent {
 
   static String _endpoint(String type) {
     final endpoint = endpoints[type];
-    if (endpoint == null || type == 'adminUser') {
+    if (endpoint == null) {
       throw ArgumentError.value(type, 'type');
     }
     return endpoint;
