@@ -752,7 +752,9 @@ class _AdminEntityFormDialogState extends State<AdminEntityFormDialog> {
     return AlertDialog(
       title: Text('${widget.row == null ? 'Tambah' : 'Edit'} ${widget.title}'),
       content: SizedBox(
-        width: 480,
+        width: MediaQuery.sizeOf(context).width < 560
+            ? double.maxFinite
+            : 480,
         child: ConstrainedBox(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.sizeOf(context).height * 0.65,

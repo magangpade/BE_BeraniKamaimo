@@ -139,7 +139,7 @@ class _JarakDesaFormDialogState extends State<JarakDesaFormDialog> {
   Widget build(BuildContext context) => AlertDialog(
     title: Text(widget.row == null ? 'Tambah Jalur Desa' : 'Edit Jalur Desa'),
     content: SizedBox(
-      width: 600,
+      width: MediaQuery.sizeOf(context).width < 680 ? double.maxFinite : 600,
       height: MediaQuery.sizeOf(context).height * .7,
       child: SingleChildScrollView(
         child: Form(
