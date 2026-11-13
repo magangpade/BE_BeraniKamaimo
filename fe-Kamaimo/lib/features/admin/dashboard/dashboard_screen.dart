@@ -274,7 +274,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: MediaQuery.of(context).size.width < 600 ? 2 : 3,
-                childAspectRatio: 0.95,
+                childAspectRatio: MediaQuery.of(context).size.width < 600 ? 0.88 : 1.05,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
               ),
@@ -373,29 +373,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
           borderRadius: BorderRadius.circular(20),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: gradientColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(iconData, size: 32, color: gradientColor),
+                  child: Icon(iconData, size: 28, color: gradientColor),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 Text(
                   count,
                   style: TextStyle(
-                    fontSize: 32,
+                    fontSize: 28,
                     fontWeight: FontWeight.w800,
                     color: gradientColor,
                     fontFamily: 'PlusJakartaSans',
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
                   label,
                   style: const TextStyle(
@@ -403,7 +403,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     fontWeight: FontWeight.w600,
                     color: AppColors.textSecondary,
                     fontFamily: 'PlusJakartaSans',
-                    height: 1.3,
+                    height: 1.2,
                   ),
                   textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
